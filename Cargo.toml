@@ -1,0 +1,8 @@
+[package]
+name = "nesty"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+bitflags = { version = "2.6.0", features = ["std"] }
+num_enum = "0.7.3"
