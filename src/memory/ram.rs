@@ -18,19 +18,13 @@ impl Ram {
     }
 
     #[must_use]
-    pub fn load(&self, addr: u16) -> Option<u8> {
-        self.buf.get(addr as usize).copied()
+    pub fn load(&self, addr: u16) -> u8 {
+        self[addr]
     }
 
     /// Write a byte to an address
-    pub fn store(&mut self, addr: u16, new_value: u8) -> Option<u8> {
-        let result = self.load(addr);
-        if result.is_some() {
-            // index is in bounds, safe to look up
-            self.buf[addr as usize] = new_value;
-        }
-
-        result
+    pub fn store(&mut self, addr: u16, value: u8) {
+        self[addr] = value;
     }
 }
 

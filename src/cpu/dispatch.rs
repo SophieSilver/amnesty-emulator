@@ -1,10 +1,10 @@
-use num_enum::{FromPrimitive, IntoPrimitive};
-
-use crate::memory::MemoryMapping;
-
 use super::CpuState;
+use crate::memory::MemoryMapping;
+use num_enum::{FromPrimitive, IntoPrimitive};
+use std::ops::ControlFlow;
 
-mod instructions;
+pub(in crate::cpu) mod instructions;
+use instructions::*;
 
 #[derive(Debug, Clone, Copy, IntoPrimitive, FromPrimitive, Default)]
 #[non_exhaustive]
@@ -20,11 +20,18 @@ pub enum OpCode {
     Unimplemented,
 }
 
-pub fn dispatch_opcode(cpu_state: &mut CpuState, memory: &mut MemoryMapping) {
+pub fn dispatch_current_opcode(
+    cpu_state: &mut CpuState,
+    memory: &mut MemoryMapping,
+) -> ControlFlow<()> //
+{
     match cpu_state.current_opcode {
-        OpCode::LdxImmediate => {
-            
-        }
-        _ => todo!()
+        OpCode::LdxImmediate => ldx_immediate(cpu_state, memory),
+        OpCode::LdxZeroPage => ldx_zeropage(cpu_state, memory),
+        OpCode::LdxZeroPageY => ldx_zeropage_y(cpu_state, memory),
+        OpCode::LdxAbs => ldx_absolute(cpu_state, memory),
+        OpCode::LdxAbsY => ldx_absolute_y(cpu_state, memory),
+
+        _ => unimplemented!(),
     }
 }
