@@ -1,5 +1,6 @@
 use super::CpuState;
 use crate::memory::MemoryMapping;
+use helpers::fetch_from_pc;
 use num_enum::{FromPrimitive, IntoPrimitive};
 use std::ops::ControlFlow;
 
@@ -25,6 +26,11 @@ pub fn dispatch_current_opcode(
     memory: &mut MemoryMapping,
 ) -> ControlFlow<()> //
 {
+    // First cycle is always fetching the opcode
+    if cpu_state.current_cycle == 0 {
+        cpu_state.current_opcode = OpCode::from(fetch_from_pc(cpu_state, memory));
+        return ControlFlow::Continue(());
+    }
     match cpu_state.current_opcode {
         OpCode::LdxImmediate => ldx_immediate(cpu_state, memory),
         OpCode::LdxZeroPage => ldx_zeropage(cpu_state, memory),

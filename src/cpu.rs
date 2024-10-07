@@ -1,7 +1,7 @@
 use std::ops::ControlFlow;
 
 use bitflags::bitflags;
-use dispatch::{dispatch_current_opcode, instructions::helpers::fetch_from_pc, OpCode};
+use dispatch::{dispatch_current_opcode, OpCode};
 
 use crate::memory::MemoryMapping;
 
@@ -44,13 +44,13 @@ impl Default for StatusFlags {
 #[derive(Debug, Clone, Copy)]
 pub struct CpuState {
     /// The currently executed instruction
-    pub current_opcode: OpCode,
+    current_opcode: OpCode,
 
     /// Which cycle we're on within the current instruction
-    pub current_cycle: u8,
+    current_cycle: u8,
 
     /// Used in various instructions that calculate the address to dereference
-    pub effective_address: u16,
+    effective_address: u16,
 
     /// Accumulator register
     pub accumulator: u8,
@@ -75,6 +75,20 @@ impl CpuState {
     pub fn new() -> Self {
         Self::default()
     }
+
+    /// Advances the CPU state one clock cycle forward
+    pub fn run_cycle(&mut self, memory: &mut MemoryMapping) {
+        let instruction_status = dispatch_current_opcode(self, memory);
+
+        match instruction_status {
+            ControlFlow::Continue(()) => {
+                self.current_cycle = self.current_cycle.wrapping_add(1);
+            }
+            ControlFlow::Break(_) => {
+                self.current_cycle = 0;
+            }
+        }
+    }
 }
 
 impl Default for CpuState {
@@ -89,26 +103,6 @@ impl Default for CpuState {
             program_counter: 0,
             stack_ptr: 0,
             flags: StatusFlags::default(),
-        }
-    }
-}
-
-/// Loads the first instruction from pc into the processor
-pub fn load_first_opcode(cpu_state: &mut CpuState, memory: &mut MemoryMapping) {
-    cpu_state.current_opcode = OpCode::from(fetch_from_pc(cpu_state, memory));
-    cpu_state.current_cycle = 0;
-}
-
-pub fn clock_tick(cpu_state: &mut CpuState, memory: &mut MemoryMapping) {
-    let instruction_status = dispatch_current_opcode(cpu_state, memory);
-
-    match instruction_status {
-        ControlFlow::Continue(()) => {
-            cpu_state.current_cycle += 1;
-        }
-        ControlFlow::Break(_) => {
-            cpu_state.current_cycle = 0;
-            cpu_state.current_opcode = OpCode::from(fetch_from_pc(cpu_state, memory));
         }
     }
 }

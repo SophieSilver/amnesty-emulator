@@ -14,8 +14,8 @@
 //! and the next opcode will be fetched by the dispatch
 //!
 //! ## Notes
-//! The cycle that the instruction returns `Break` on shouldn't perform any other work,
-//! since the break represents
+//! Cycle 0 is always fetching the opcode, every match should start with cycle 1
+//! Last match arm should always return ControlFlow::Break(());
 
 use helpers::{fetch_from_pc, set_register};
 
@@ -31,27 +31,27 @@ pub(in crate::cpu) mod helpers;
 
 pub fn ldx_immediate(cpu_state: &mut CpuState, memory: &mut MemoryMapping) -> ControlFlow<()> {
     match cpu_state.current_cycle {
-        0 => {
+        1 => {
             let value = fetch_from_pc(cpu_state, memory);
             set_register(&mut cpu_state.x_index, value, &mut cpu_state.flags);
-        }
-        1 => return ControlFlow::Break(()),
-        _ => unreachable!(),
-    };
 
-    ControlFlow::Continue(())
+            ControlFlow::Break(())
+        }
+        _ => unreachable!(),
+    }
 }
 
 pub fn ldx_zeropage(cpu_state: &mut CpuState, memory: &mut MemoryMapping) -> ControlFlow<()> {
     match cpu_state.current_cycle {
-        0 => {
+        1 => {
             cpu_state.effective_address = fetch_from_pc(cpu_state, memory) as u16;
         }
-        1 => {
+        2 => {
             let value = memory.load(cpu_state.effective_address);
             set_register(&mut cpu_state.x_index, value, &mut cpu_state.flags);
+
+            return ControlFlow::Break(());
         }
-        2 => return ControlFlow::Break(()),
         _ => unreachable!(),
     };
 
@@ -60,21 +60,22 @@ pub fn ldx_zeropage(cpu_state: &mut CpuState, memory: &mut MemoryMapping) -> Con
 
 pub fn ldx_zeropage_y(cpu_state: &mut CpuState, memory: &mut MemoryMapping) -> ControlFlow<()> {
     match cpu_state.current_cycle {
-        0 => {
+        1 => {
             cpu_state.effective_address = fetch_from_pc(cpu_state, memory) as u16;
         }
-        1 => {
+        2 => {
             // dummy read coz every cycle is a read or a write
             let _ = memory.load(cpu_state.effective_address);
             cpu_state.effective_address += cpu_state.y_index as u16;
             // upper byte is always 0, page overflow is ignored
             cpu_state.effective_address &= 0xFF;
         }
-        2 => {
+        3 => {
             let value = memory.load(cpu_state.effective_address);
             set_register(&mut cpu_state.x_index, value, &mut cpu_state.flags);
+
+            return ControlFlow::Break(());
         }
-        3 => return ControlFlow::Break(()),
         _ => unreachable!(),
     };
 
@@ -83,18 +84,17 @@ pub fn ldx_zeropage_y(cpu_state: &mut CpuState, memory: &mut MemoryMapping) -> C
 
 pub fn ldx_absolute(cpu_state: &mut CpuState, memory: &mut MemoryMapping) -> ControlFlow<()> {
     match cpu_state.current_cycle {
-        0 => {
+        1 => {
             cpu_state.effective_address = fetch_from_pc(cpu_state, memory) as u16;
         }
-        1 => {
+        2 => {
             cpu_state.effective_address |= (fetch_from_pc(cpu_state, memory) as u16) << 8;
         }
-        2 => {
+        3 => {
             let value = memory.load(cpu_state.effective_address);
             set_register(&mut cpu_state.x_index, value, &mut cpu_state.flags);
+            return ControlFlow::Break(());
         }
-        3 => return ControlFlow::Break(()),
-
         _ => unreachable!(),
     };
 
@@ -103,10 +103,10 @@ pub fn ldx_absolute(cpu_state: &mut CpuState, memory: &mut MemoryMapping) -> Con
 
 pub fn ldx_absolute_y(cpu_state: &mut CpuState, memory: &mut MemoryMapping) -> ControlFlow<()> {
     match cpu_state.current_cycle {
-        0 => {
+        1 => {
             cpu_state.effective_address = fetch_from_pc(cpu_state, memory) as u16;
         }
-        1 => {
+        2 => {
             let address_high_byte = fetch_from_pc(cpu_state, memory);
 
             let (address_low_byte, carry) =
@@ -121,25 +121,23 @@ pub fn ldx_absolute_y(cpu_state: &mut CpuState, memory: &mut MemoryMapping) -> C
             // simulate an ALU, so we use the IGNORED_FLAG flag to persist a single bit of information
             cpu_state.flags.set(StatusFlags::IGNORED_FLAG, carry);
         }
-        2 => {
+        3 => {
             let value = memory.load(cpu_state.effective_address);
             set_register(&mut cpu_state.x_index, value, &mut cpu_state.flags);
 
             if cpu_state.flags.contains(StatusFlags::IGNORED_FLAG) {
                 // oops, blown through a page, fix up the effective address
                 cpu_state.effective_address = cpu_state.effective_address.wrapping_add(1 << 8);
-            }
-        }
-        3 => {
-            if cpu_state.flags.contains(StatusFlags::IGNORED_FLAG) {
-                // do another read if the previous address was wrong
-                let value = memory.load(cpu_state.effective_address);
-                set_register(&mut cpu_state.x_index, value, &mut cpu_state.flags);
             } else {
                 return ControlFlow::Break(());
             }
         }
-        4 => return ControlFlow::Break(()),
+        4 => {
+            // do another read if the previous address was wrong
+            let value = memory.load(cpu_state.effective_address);
+            set_register(&mut cpu_state.x_index, value, &mut cpu_state.flags);
+            return ControlFlow::Break(());
+        }
         _ => unreachable!(),
     };
 

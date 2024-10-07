@@ -1,6 +1,6 @@
 use crate::memory::{ram::Ram, MemoryMapping};
 
-use super::{clock_tick, load_first_opcode, CpuState};
+use super::CpuState;
 
 #[test]
 fn ldx_test() {
@@ -43,49 +43,47 @@ fn ldx_test() {
     memory.store(0x053F, 0x07);
 
     // LDX immediate
-    load_first_opcode(&mut cpu_state, &mut memory);
-    clock_tick(&mut cpu_state, &mut memory);
+    (0..2).for_each(|_| cpu_state.run_cycle(&mut memory));
     assert_eq!(cpu_state.program_counter, 2);
     assert_eq!(cpu_state.x_index, 0x1);
 
     // LDX zeropage
-    (0..3).for_each(|_| clock_tick(&mut cpu_state, &mut memory));
+    (0..3).for_each(|_| cpu_state.run_cycle(&mut memory));
     assert_eq!(cpu_state.program_counter, 4);
     assert_eq!(cpu_state.x_index, 0x2);
 
     // LDX zeropage + Y
     cpu_state.y_index = 0x1;
-    (0..4).for_each(|_| clock_tick(&mut cpu_state, &mut memory));
+    (0..4).for_each(|_| cpu_state.run_cycle(&mut memory));
     assert_eq!(cpu_state.program_counter, 6);
     assert_eq!(cpu_state.x_index, 0x3);
 
     // LDX zeropage + Y overflow
     cpu_state.y_index = 0xB6;
-    (0..4).for_each(|_| clock_tick(&mut cpu_state, &mut memory));
+    (0..4).for_each(|_| cpu_state.run_cycle(&mut memory));
     assert_eq!(cpu_state.program_counter, 8);
     assert_eq!(cpu_state.x_index, 0x4);
 
     // LDX absolute
-    (0..4).for_each(|_| clock_tick(&mut cpu_state, &mut memory));
+    (0..4).for_each(|_| cpu_state.run_cycle(&mut memory));
     assert_eq!(cpu_state.program_counter, 11);
     assert_eq!(cpu_state.x_index, 0x5);
 
     // LDX absolute + Y
     cpu_state.y_index = 0x1;
-    (0..4).for_each(|_| clock_tick(&mut cpu_state, &mut memory));
+    (0..4).for_each(|_| cpu_state.run_cycle(&mut memory));
     assert_eq!(cpu_state.program_counter, 14);
     assert_eq!(cpu_state.x_index, 0x6);
 
     // LDX absolute + Y overflow
     cpu_state.y_index = 0xB6;
-    (0..4).for_each(|_| clock_tick(&mut cpu_state, &mut memory));
-    assert_ne!(cpu_state.x_index, 0x7);     // shouldn't be ready yet coz of page boundary
+    (0..4).for_each(|_| cpu_state.run_cycle(&mut memory));
+    assert_ne!(cpu_state.x_index, 0x7); // shouldn't be ready yet coz of page boundary
 
-    clock_tick(&mut cpu_state, &mut memory);
+    cpu_state.run_cycle(&mut memory);
     assert_eq!(cpu_state.program_counter, 17);
-    assert_eq!(cpu_state.x_index, 0x7);     // NOW it's ready
+    assert_eq!(cpu_state.x_index, 0x7); // NOW it's ready
 
-    // this should start new instruction
-    clock_tick(&mut cpu_state, &mut memory);
+    // the current instruction must be finished
     assert_eq!(cpu_state.current_cycle, 0);
 }
