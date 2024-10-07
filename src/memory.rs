@@ -14,14 +14,14 @@ pub struct MemoryMapping<'a> {
 impl MemoryMapping<'_> {
     pub fn load(&mut self, address: u16) -> u8 {
         match address {
-            0x0000..0x1000 => self.ram.load(address as u16 % 0x800),
+            0x0000..0x1000 => self.ram.load(address % 0x800),
             _ => unimplemented!(),
         }
     }
 
     pub fn store(&mut self, address: u16, value: u8) {
         match address {
-            0x0000..0x1000 => self.ram.store(address as u16 % 0x800, value),
+            0x0000..0x1000 => self.ram.store(address % 0x800, value),
             _ => unimplemented!(),
         };
     }
