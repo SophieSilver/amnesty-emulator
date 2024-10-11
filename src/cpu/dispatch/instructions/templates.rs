@@ -125,7 +125,6 @@ where
         }
         2 => {
             let address_high_byte = fetch_from_pc(cpu_state, memory);
-
             let (address_low_byte, carry) =
                 (cpu_state.effective_address as u8).overflowing_add(get_index(cpu_state));
 
@@ -158,6 +157,87 @@ where
         }
         _ => unreachable!(),
     };
+
+    ControlFlow::Continue(())
+}
+
+pub fn read_indirect_x<F: FnOnce(&mut CpuState, u8)>(
+    cpu_state: &mut CpuState,
+    memory: &mut MemoryMapping,
+    f: F,
+) -> ControlFlow<()> //
+{
+    match cpu_state.current_cycle {
+        1 => {
+            cpu_state.pointer_address = fetch_from_pc(cpu_state, memory);
+        }
+        2 => {
+            // dummy read :3
+            let _ = memory.load(cpu_state.pointer_address as u16);
+            cpu_state.pointer_address = cpu_state.pointer_address.wrapping_add(cpu_state.x_index);
+        }
+        3 => {
+            cpu_state.effective_address = memory.load(cpu_state.pointer_address as u16) as u16;
+        }
+        4 => {
+            cpu_state.effective_address |=
+                (memory.load(cpu_state.pointer_address.wrapping_add(1) as u16) as u16) << 8;
+        }
+        5 => {
+            let value = memory.load(cpu_state.effective_address);
+            f(cpu_state, value);
+            return ControlFlow::Break(());
+        }
+
+        _ => unreachable!(),
+    }
+
+    ControlFlow::Continue(())
+}
+
+pub fn read_indirect_y<F: FnOnce(&mut CpuState, u8)>(
+    cpu_state: &mut CpuState,
+    memory: &mut MemoryMapping,
+    f: F,
+) -> ControlFlow<()> //
+{
+    match cpu_state.current_cycle {
+        1 => {
+            cpu_state.pointer_address = fetch_from_pc(cpu_state, memory);
+        }
+        2 => {
+            cpu_state.effective_address = memory.load(cpu_state.pointer_address as u16) as u16;
+        }
+        3 => {
+            let address_high_byte = memory.load(cpu_state.pointer_address.wrapping_add(1) as u16);
+            let (address_low_byte, carry) =
+                (cpu_state.effective_address as u8).overflowing_add(cpu_state.y_index);
+
+            cpu_state.effective_address = (address_high_byte as u16) << 8 | address_low_byte as u16;
+            cpu_state
+                .internal_flags
+                .set(InternalFlags::EFFECTIVE_ADDR_CARRY, carry);
+        }
+        4 => {
+            let value = memory.load(cpu_state.effective_address);
+
+            if cpu_state
+                .internal_flags
+                .contains(InternalFlags::EFFECTIVE_ADDR_CARRY)
+            {
+                cpu_state.effective_address = cpu_state.effective_address.wrapping_add(1 << 8);
+            } else {
+                f(cpu_state, value);
+                return ControlFlow::Break(());
+            }
+        }
+        5 => {
+            let value = memory.load(cpu_state.effective_address);
+            f(cpu_state, value);
+            return ControlFlow::Break(());
+        }
+        _ => unreachable!(),
+    }
 
     ControlFlow::Continue(())
 }

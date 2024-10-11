@@ -53,7 +53,10 @@ pub struct CpuState {
     /// Which cycle we're on within the current instruction
     current_cycle: u8,
 
-    /// Used in various instructions that calculate the address to dereference
+    /// The address of a pointer to dereference in indirect addressing modes
+    pointer_address: u8,
+
+    /// The address of a value to fetch in absolute and indirect addressing modes
     effective_address: u16,
 
     /// Used to keep simple boolean state internal to the emulator
@@ -103,6 +106,7 @@ impl Default for CpuState {
         CpuState {
             current_opcode: OpCode::Unimplemented,
             internal_flags: InternalFlags::default(),
+            pointer_address: 0,
             current_cycle: 0,
             effective_address: 0,
             accumulator: 0,
