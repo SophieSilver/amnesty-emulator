@@ -69,7 +69,11 @@ where
         2 => {
             // dummy read coz every cycle is a read or a write
             let _ = memory.load(cpu_state.effective_address);
-            cpu_state.effective_address += get_index(cpu_state) as u16;
+            cpu_state.effective_address = cpu_state
+                .effective_address
+                .checked_add(get_index(cpu_state) as u16)
+                .expect("everything was cast from a u8, will never overflow");
+
             // upper byte is always 0, page overflow is ignored
             cpu_state.effective_address &= 0xFF;
         }
