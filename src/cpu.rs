@@ -22,22 +22,26 @@ bitflags! {
         const INTERRUPT_DISABLE = 1 << 2;
         const DECIMAL = 1 << 3;
         const BREAK = 1 << 4;
-        /// Flag that isn't actually there in the hardware
-        ///
-        /// The emulator uses this flag in some places where it needs to store persist some simple
-        /// boolean state between instruction cycles (i.e. absolute indexed addressing, where
-        /// we add an additional cycle when a page boundary is crossed)
-        ///
-        /// Always pushed to the stack as 1
-        const IGNORED_FLAG = 1 << 5;
+        const IGNORED = 1 << 5;
         const OVERFLOW = 1 << 6;
         const NEGATIVE = 1 << 7;
+    }
+
+    #[derive(Debug, Clone, Copy)]
+    struct InternalFlags: u8 {
+        const EFFECTIVE_ADDR_CARRY = 1;
     }
 }
 
 impl Default for StatusFlags {
     fn default() -> Self {
         Self::INTERRUPT_DISABLE
+    }
+}
+
+impl Default for InternalFlags {
+    fn default() -> Self {
+        Self::empty()
     }
 }
 
@@ -51,6 +55,9 @@ pub struct CpuState {
 
     /// Used in various instructions that calculate the address to dereference
     effective_address: u16,
+
+    /// Used to keep simple boolean state internal to the emulator
+    internal_flags: InternalFlags,
 
     /// Accumulator register
     pub accumulator: u8,
@@ -95,6 +102,7 @@ impl Default for CpuState {
     fn default() -> Self {
         CpuState {
             current_opcode: OpCode::Unimplemented,
+            internal_flags: InternalFlags::default(),
             current_cycle: 0,
             effective_address: 0,
             accumulator: 0,

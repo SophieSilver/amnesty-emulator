@@ -8,7 +8,7 @@
 use std::ops::ControlFlow;
 
 use crate::{
-    cpu::{CpuState, StatusFlags},
+    cpu::{CpuState, InternalFlags},
     memory::MemoryMapping,
 };
 
@@ -130,18 +130,19 @@ where
                 (cpu_state.effective_address as u8).overflowing_add(get_index(cpu_state));
 
             cpu_state.effective_address = (address_high_byte as u16) << 8 | address_low_byte as u16;
-            // store information about the carry.
-            // the 6502 will first read from the page-wrapped address, and then,
-            // if the carry was set, will fix up the address and do a second read.
-            // Most importantly, we can't use the CARRY flag, since that
-            // is documented not to change, the real CPU uses the ALU output, we don't
-            // simulate an ALU, so we use the IGNORED_FLAG flag to persist a single bit of information
-            cpu_state.flags.set(StatusFlags::IGNORED_FLAG, carry);
+            // Using an internal flag, because we need to persist this state accross the clock cycle, but
+            // we are not allowed to modify the CARRY flag
+            cpu_state
+                .internal_flags
+                .set(InternalFlags::EFFECTIVE_ADDR_CARRY, carry);
         }
         3 => {
             let value = memory.load(cpu_state.effective_address);
 
-            if cpu_state.flags.contains(StatusFlags::IGNORED_FLAG) {
+            if cpu_state
+                .internal_flags
+                .contains(InternalFlags::EFFECTIVE_ADDR_CARRY)
+            {
                 // oops, blown through a page, fix up the effective address
                 cpu_state.effective_address = cpu_state.effective_address.wrapping_add(1 << 8);
             } else {
