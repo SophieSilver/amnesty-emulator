@@ -1,13 +1,13 @@
 //! Helper functions used in a variety of instructions
 
 use crate::{
-    cpu::{CpuState, StatusFlags},
+    cpu::{Cpu, StatusFlags},
     memory::MemoryMapping,
 };
 
-pub fn fetch_from_pc(cpu_state: &mut CpuState, memory: &mut MemoryMapping) -> u8 {
-    let value = memory.load(cpu_state.program_counter);
-    cpu_state.program_counter = cpu_state.program_counter.wrapping_add(1);
+pub fn fetch_from_pc(cpu: &mut Cpu, memory: &mut MemoryMapping) -> u8 {
+    let value = memory.load(cpu.program_counter);
+    cpu.program_counter = cpu.program_counter.wrapping_add(1);
 
     value
 }

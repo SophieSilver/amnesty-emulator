@@ -48,7 +48,7 @@ impl Default for InternalFlags {
 }
 
 #[derive(Debug, Clone, Copy)]
-pub struct CpuState {
+pub struct Cpu {
     /// The currently executed instruction
     current_opcode: OpCode,
 
@@ -83,7 +83,7 @@ pub struct CpuState {
     pub flags: StatusFlags,
 }
 
-impl CpuState {
+impl Cpu {
     pub fn new() -> Self {
         Self::default()
     }
@@ -103,9 +103,9 @@ impl CpuState {
     }
 }
 
-impl Default for CpuState {
+impl Default for Cpu {
     fn default() -> Self {
-        CpuState {
+        Cpu {
             current_opcode: OpCode::Unimplemented,
             internal_flags: InternalFlags::default(),
             pointer_address: 0,

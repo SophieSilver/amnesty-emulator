@@ -1,13 +1,13 @@
 use crate::memory::{ram::Ram, MemoryMapping};
 
-use super::CpuState;
+use super::Cpu;
 
 #[test]
 fn lda_test() {
     let mut ram = Ram::new();
-    let mut cpu_state = CpuState::new();
+    let mut cpu = Cpu::new();
     let mut memory = MemoryMapping { ram: &mut ram };
-    cpu_state.program_counter = 0;
+    cpu.program_counter = 0;
 
     #[rustfmt::skip]
     let mem_state = [
@@ -72,93 +72,93 @@ fn lda_test() {
     memory.store(0x034F, 0x0D);
 
     // LDA immediate
-    (0..2).for_each(|_| cpu_state.run_cycle(&mut memory));
-    assert_eq!(cpu_state.program_counter, 2);
-    assert_eq!(cpu_state.accumulator, 0x1);
+    (0..2).for_each(|_| cpu.run_cycle(&mut memory));
+    assert_eq!(cpu.program_counter, 2);
+    assert_eq!(cpu.accumulator, 0x1);
 
     // // LDA zeropage
-    (0..3).for_each(|_| cpu_state.run_cycle(&mut memory));
-    assert_eq!(cpu_state.program_counter, 4);
-    assert_eq!(cpu_state.accumulator, 0x2);
+    (0..3).for_each(|_| cpu.run_cycle(&mut memory));
+    assert_eq!(cpu.program_counter, 4);
+    assert_eq!(cpu.accumulator, 0x2);
 
     // LDA zeropage + X
-    cpu_state.x_index = 0x1;
-    (0..4).for_each(|_| cpu_state.run_cycle(&mut memory));
-    assert_eq!(cpu_state.program_counter, 6);
-    assert_eq!(cpu_state.accumulator, 0x3);
+    cpu.x_index = 0x1;
+    (0..4).for_each(|_| cpu.run_cycle(&mut memory));
+    assert_eq!(cpu.program_counter, 6);
+    assert_eq!(cpu.accumulator, 0x3);
 
     // LDA zeropage + X overflow
-    cpu_state.x_index = 0xB5;
-    (0..4).for_each(|_| cpu_state.run_cycle(&mut memory));
-    assert_eq!(cpu_state.program_counter, 8);
-    assert_eq!(cpu_state.accumulator, 0x4);
+    cpu.x_index = 0xB5;
+    (0..4).for_each(|_| cpu.run_cycle(&mut memory));
+    assert_eq!(cpu.program_counter, 8);
+    assert_eq!(cpu.accumulator, 0x4);
 
     // LDX absolute
-    (0..4).for_each(|_| cpu_state.run_cycle(&mut memory));
-    assert_eq!(cpu_state.program_counter, 11);
-    assert_eq!(cpu_state.accumulator, 0x5);
+    (0..4).for_each(|_| cpu.run_cycle(&mut memory));
+    assert_eq!(cpu.program_counter, 11);
+    assert_eq!(cpu.accumulator, 0x5);
 
     // LDA absolute + X
-    cpu_state.x_index = 0x1;
-    (0..4).for_each(|_| cpu_state.run_cycle(&mut memory));
-    assert_eq!(cpu_state.program_counter, 14);
-    assert_eq!(cpu_state.accumulator, 0x6);
+    cpu.x_index = 0x1;
+    (0..4).for_each(|_| cpu.run_cycle(&mut memory));
+    assert_eq!(cpu.program_counter, 14);
+    assert_eq!(cpu.accumulator, 0x6);
 
     // LDA absolute + X overflow
-    cpu_state.x_index = 0xB5;
-    (0..4).for_each(|_| cpu_state.run_cycle(&mut memory));
-    assert_ne!(cpu_state.accumulator, 0x7); // shouldn't be ready yet coz of page boundary
-    cpu_state.run_cycle(&mut memory);
-    assert_eq!(cpu_state.program_counter, 17);
-    assert_eq!(cpu_state.accumulator, 0x7); // NOW it's ready
+    cpu.x_index = 0xB5;
+    (0..4).for_each(|_| cpu.run_cycle(&mut memory));
+    assert_ne!(cpu.accumulator, 0x7); // shouldn't be ready yet coz of page boundary
+    cpu.run_cycle(&mut memory);
+    assert_eq!(cpu.program_counter, 17);
+    assert_eq!(cpu.accumulator, 0x7); // NOW it's ready
                                             // the current instruction must be finished
-    assert_eq!(cpu_state.current_cycle, 0);
+    assert_eq!(cpu.current_cycle, 0);
 
     // LDA absolute + Y
-    cpu_state.y_index = 0x2;
-    (0..4).for_each(|_| cpu_state.run_cycle(&mut memory));
-    assert_eq!(cpu_state.program_counter, 20);
-    assert_eq!(cpu_state.accumulator, 0x8);
+    cpu.y_index = 0x2;
+    (0..4).for_each(|_| cpu.run_cycle(&mut memory));
+    assert_eq!(cpu.program_counter, 20);
+    assert_eq!(cpu.accumulator, 0x8);
 
     // LDA absolute + Y overflow
-    cpu_state.y_index = 0xB6;
-    (0..4).for_each(|_| cpu_state.run_cycle(&mut memory));
-    assert_ne!(cpu_state.accumulator, 0x9); // shouldn't be ready yet coz of page boundary
-    cpu_state.run_cycle(&mut memory);
-    assert_eq!(cpu_state.program_counter, 23);
-    assert_eq!(cpu_state.accumulator, 0x9); // NOW it's ready
+    cpu.y_index = 0xB6;
+    (0..4).for_each(|_| cpu.run_cycle(&mut memory));
+    assert_ne!(cpu.accumulator, 0x9); // shouldn't be ready yet coz of page boundary
+    cpu.run_cycle(&mut memory);
+    assert_eq!(cpu.program_counter, 23);
+    assert_eq!(cpu.accumulator, 0x9); // NOW it's ready
                                             // the current instruction must be finished
-    assert_eq!(cpu_state.current_cycle, 0);
+    assert_eq!(cpu.current_cycle, 0);
 
-    cpu_state.x_index = 0x1;
-    (0..6).for_each(|_| cpu_state.run_cycle(&mut memory));
-    assert_eq!(cpu_state.program_counter, 25);
-    assert_eq!(cpu_state.accumulator, 0xA);
+    cpu.x_index = 0x1;
+    (0..6).for_each(|_| cpu.run_cycle(&mut memory));
+    assert_eq!(cpu.program_counter, 25);
+    assert_eq!(cpu.accumulator, 0xA);
 
-    cpu_state.x_index = 0xFF;
-    (0..6).for_each(|_| cpu_state.run_cycle(&mut memory));
-    assert_eq!(cpu_state.program_counter, 27);
-    assert_eq!(cpu_state.accumulator, 0xB);
+    cpu.x_index = 0xFF;
+    (0..6).for_each(|_| cpu.run_cycle(&mut memory));
+    assert_eq!(cpu.program_counter, 27);
+    assert_eq!(cpu.accumulator, 0xB);
 
-    cpu_state.y_index = 0x1;
-    (0..5).for_each(|_| cpu_state.run_cycle(&mut memory));
-    assert_eq!(cpu_state.program_counter, 29);
-    assert_eq!(cpu_state.accumulator, 0xC);
+    cpu.y_index = 0x1;
+    (0..5).for_each(|_| cpu.run_cycle(&mut memory));
+    assert_eq!(cpu.program_counter, 29);
+    assert_eq!(cpu.accumulator, 0xC);
 
-    cpu_state.y_index = 0xFF;
-    (0..5).for_each(|_| cpu_state.run_cycle(&mut memory));
-    assert_ne!(cpu_state.accumulator, 0xD);
-    cpu_state.run_cycle(&mut memory);
-    assert_eq!(cpu_state.accumulator, 0xD);
-    assert_eq!(cpu_state.program_counter, 31);
+    cpu.y_index = 0xFF;
+    (0..5).for_each(|_| cpu.run_cycle(&mut memory));
+    assert_ne!(cpu.accumulator, 0xD);
+    cpu.run_cycle(&mut memory);
+    assert_eq!(cpu.accumulator, 0xD);
+    assert_eq!(cpu.program_counter, 31);
 }
 
 #[test]
 fn ldx_test() {
     let mut ram = Ram::new();
-    let mut cpu_state = CpuState::new();
+    let mut cpu = Cpu::new();
     let mut memory = MemoryMapping { ram: &mut ram };
-    cpu_state.program_counter = 0;
+    cpu.program_counter = 0;
 
     #[rustfmt::skip]
     let mem_state = [
@@ -194,47 +194,47 @@ fn ldx_test() {
     memory.store(0x053F, 0x07);
 
     // LDX immediate
-    (0..2).for_each(|_| cpu_state.run_cycle(&mut memory));
-    assert_eq!(cpu_state.program_counter, 2);
-    assert_eq!(cpu_state.x_index, 0x1);
+    (0..2).for_each(|_| cpu.run_cycle(&mut memory));
+    assert_eq!(cpu.program_counter, 2);
+    assert_eq!(cpu.x_index, 0x1);
 
     // LDX zeropage
-    (0..3).for_each(|_| cpu_state.run_cycle(&mut memory));
-    assert_eq!(cpu_state.program_counter, 4);
-    assert_eq!(cpu_state.x_index, 0x2);
+    (0..3).for_each(|_| cpu.run_cycle(&mut memory));
+    assert_eq!(cpu.program_counter, 4);
+    assert_eq!(cpu.x_index, 0x2);
 
     // LDX zeropage + Y
-    cpu_state.y_index = 0x1;
-    (0..4).for_each(|_| cpu_state.run_cycle(&mut memory));
-    assert_eq!(cpu_state.program_counter, 6);
-    assert_eq!(cpu_state.x_index, 0x3);
+    cpu.y_index = 0x1;
+    (0..4).for_each(|_| cpu.run_cycle(&mut memory));
+    assert_eq!(cpu.program_counter, 6);
+    assert_eq!(cpu.x_index, 0x3);
 
     // LDX zeropage + Y overflow
-    cpu_state.y_index = 0xB6;
-    (0..4).for_each(|_| cpu_state.run_cycle(&mut memory));
-    assert_eq!(cpu_state.program_counter, 8);
-    assert_eq!(cpu_state.x_index, 0x4);
+    cpu.y_index = 0xB6;
+    (0..4).for_each(|_| cpu.run_cycle(&mut memory));
+    assert_eq!(cpu.program_counter, 8);
+    assert_eq!(cpu.x_index, 0x4);
 
     // LDX absolute
-    (0..4).for_each(|_| cpu_state.run_cycle(&mut memory));
-    assert_eq!(cpu_state.program_counter, 11);
-    assert_eq!(cpu_state.x_index, 0x5);
+    (0..4).for_each(|_| cpu.run_cycle(&mut memory));
+    assert_eq!(cpu.program_counter, 11);
+    assert_eq!(cpu.x_index, 0x5);
 
     // LDX absolute + Y
-    cpu_state.y_index = 0x1;
-    (0..4).for_each(|_| cpu_state.run_cycle(&mut memory));
-    assert_eq!(cpu_state.program_counter, 14);
-    assert_eq!(cpu_state.x_index, 0x6);
+    cpu.y_index = 0x1;
+    (0..4).for_each(|_| cpu.run_cycle(&mut memory));
+    assert_eq!(cpu.program_counter, 14);
+    assert_eq!(cpu.x_index, 0x6);
 
     // LDX absolute + Y overflow
-    cpu_state.y_index = 0xB6;
-    (0..4).for_each(|_| cpu_state.run_cycle(&mut memory));
-    assert_ne!(cpu_state.x_index, 0x7); // shouldn't be ready yet coz of page boundary
+    cpu.y_index = 0xB6;
+    (0..4).for_each(|_| cpu.run_cycle(&mut memory));
+    assert_ne!(cpu.x_index, 0x7); // shouldn't be ready yet coz of page boundary
 
-    cpu_state.run_cycle(&mut memory);
-    assert_eq!(cpu_state.program_counter, 17);
-    assert_eq!(cpu_state.x_index, 0x7); // NOW it's ready
+    cpu.run_cycle(&mut memory);
+    assert_eq!(cpu.program_counter, 17);
+    assert_eq!(cpu.x_index, 0x7); // NOW it's ready
 
     // the current instruction must be finished
-    assert_eq!(cpu_state.current_cycle, 0);
+    assert_eq!(cpu.current_cycle, 0);
 }

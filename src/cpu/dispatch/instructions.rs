@@ -17,7 +17,7 @@
 //! Cycle 0 is always fetching the opcode, every match should start with cycle 1
 //! Last match arm should always return ControlFlow::Break(());
 
-use crate::{cpu::CpuState, memory::MemoryMapping};
+use crate::{cpu::Cpu, memory::MemoryMapping};
 use std::ops::ControlFlow;
 
 pub(in crate::cpu) mod helpers;
@@ -25,75 +25,75 @@ mod templates;
 use helpers::*;
 use templates::*;
 
-fn get_x_index(cpu_state: &CpuState) -> u8 {
-    cpu_state.x_index
+fn get_x_index(cpu: &Cpu) -> u8 {
+    cpu.x_index
 }
 
-fn get_y_index(cpu_state: &CpuState) -> u8 {
-    cpu_state.y_index
+fn get_y_index(cpu: &Cpu) -> u8 {
+    cpu.y_index
 }
 
 // LDA
 // ==========================================
-fn lda_common(cpu_state: &mut CpuState, value: u8) {
-    set_register(&mut cpu_state.accumulator, value, &mut cpu_state.flags);
+fn lda_common(cpu: &mut Cpu, value: u8) {
+    set_register(&mut cpu.accumulator, value, &mut cpu.flags);
 }
 
-pub fn lda_immediate(cpu_state: &mut CpuState, memory: &mut MemoryMapping) -> ControlFlow<()> {
-    read_immediate(cpu_state, memory, lda_common)
+pub fn lda_immediate(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
+    read_immediate(cpu, memory, lda_common)
 }
 
-pub fn lda_zeropage(cpu_state: &mut CpuState, memory: &mut MemoryMapping) -> ControlFlow<()> {
-    read_zeropage(cpu_state, memory, lda_common)
+pub fn lda_zeropage(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
+    read_zeropage(cpu, memory, lda_common)
 }
 
-pub fn lda_zeropage_x(cpu_state: &mut CpuState, memory: &mut MemoryMapping) -> ControlFlow<()> {
-    read_zeropage_indexed(cpu_state, memory, get_x_index, lda_common)
+pub fn lda_zeropage_x(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
+    read_zeropage_indexed(cpu, memory, get_x_index, lda_common)
 }
 
-pub fn lda_absolute(cpu_state: &mut CpuState, memory: &mut MemoryMapping) -> ControlFlow<()> {
-    read_absolute(cpu_state, memory, lda_common)
+pub fn lda_absolute(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
+    read_absolute(cpu, memory, lda_common)
 }
 
-pub fn lda_absolute_x(cpu_state: &mut CpuState, memory: &mut MemoryMapping) -> ControlFlow<()> {
-    read_absolute_indexed(cpu_state, memory, get_x_index, lda_common)
+pub fn lda_absolute_x(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
+    read_absolute_indexed(cpu, memory, get_x_index, lda_common)
 }
 
-pub fn lda_absolute_y(cpu_state: &mut CpuState, memory: &mut MemoryMapping) -> ControlFlow<()> {
-    read_absolute_indexed(cpu_state, memory, get_y_index, lda_common)
+pub fn lda_absolute_y(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
+    read_absolute_indexed(cpu, memory, get_y_index, lda_common)
 }
 
-pub fn lda_indirect_x(cpu_state: &mut CpuState, memory: &mut MemoryMapping) -> ControlFlow<()> {
-    read_indirect_x(cpu_state, memory, lda_common)
+pub fn lda_indirect_x(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
+    read_indirect_x(cpu, memory, lda_common)
 }
 
-pub fn lda_indirect_y(cpu_state: &mut CpuState, memory: &mut MemoryMapping) -> ControlFlow<()> {
-    read_indirect_y(cpu_state, memory, lda_common)
+pub fn lda_indirect_y(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
+    read_indirect_y(cpu, memory, lda_common)
 }
 
 // LDX
 // ==========================================
 /// Closure passed into LDX templates
-fn ldx_common(cpu_state: &mut CpuState, value: u8) {
-    set_register(&mut cpu_state.x_index, value, &mut cpu_state.flags);
+fn ldx_common(cpu: &mut Cpu, value: u8) {
+    set_register(&mut cpu.x_index, value, &mut cpu.flags);
 }
 
-pub fn ldx_immediate(cpu_state: &mut CpuState, memory: &mut MemoryMapping) -> ControlFlow<()> {
-    read_immediate(cpu_state, memory, ldx_common)
+pub fn ldx_immediate(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
+    read_immediate(cpu, memory, ldx_common)
 }
 
-pub fn ldx_zeropage(cpu_state: &mut CpuState, memory: &mut MemoryMapping) -> ControlFlow<()> {
-    read_zeropage(cpu_state, memory, ldx_common)
+pub fn ldx_zeropage(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
+    read_zeropage(cpu, memory, ldx_common)
 }
 
-pub fn ldx_zeropage_y(cpu_state: &mut CpuState, memory: &mut MemoryMapping) -> ControlFlow<()> {
-    read_zeropage_indexed(cpu_state, memory, get_y_index, ldx_common)
+pub fn ldx_zeropage_y(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
+    read_zeropage_indexed(cpu, memory, get_y_index, ldx_common)
 }
 
-pub fn ldx_absolute(cpu_state: &mut CpuState, memory: &mut MemoryMapping) -> ControlFlow<()> {
-    read_absolute(cpu_state, memory, ldx_common)
+pub fn ldx_absolute(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
+    read_absolute(cpu, memory, ldx_common)
 }
 
-pub fn ldx_absolute_y(cpu_state: &mut CpuState, memory: &mut MemoryMapping) -> ControlFlow<()> {
-    read_absolute_indexed(cpu_state, memory, get_y_index, ldx_common)
+pub fn ldx_absolute_y(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
+    read_absolute_indexed(cpu, memory, get_y_index, ldx_common)
 }
