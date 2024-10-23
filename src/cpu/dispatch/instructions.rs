@@ -73,6 +73,7 @@ pub fn lda_indirect_y(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<
 
 // LDX
 // ==========================================
+
 /// Closure passed into LDX templates
 fn ldx_common(cpu: &mut Cpu, value: u8) {
     set_register(&mut cpu.x_index, value, &mut cpu.flags);
@@ -96,4 +97,31 @@ pub fn ldx_absolute(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()
 
 pub fn ldx_absolute_y(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
     read_absolute_indexed(cpu, memory, get_y_index, ldx_common)
+}
+
+// LDY
+// ==========================================
+
+fn ldy_common(cpu: &mut Cpu, value: u8) {
+    set_register(&mut cpu.y_index, value, &mut cpu.flags);
+}
+
+pub fn ldy_immediate(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
+    read_immediate(cpu, memory, ldy_common)
+}
+
+pub fn ldy_zeropage(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
+    read_zeropage(cpu, memory, ldy_common)
+}
+
+pub fn ldy_zeropage_x(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
+    read_zeropage_indexed(cpu, memory, get_x_index, ldy_common)
+}
+
+pub fn ldy_absolute(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
+    read_absolute(cpu, memory, ldy_common)
+}
+
+pub fn ldy_absolute_x(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
+    read_absolute_indexed(cpu, memory, get_x_index, ldy_common)
 }

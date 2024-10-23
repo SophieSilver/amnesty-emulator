@@ -28,6 +28,13 @@ pub enum OpCode {
     LdxAbs = 0xAE,
     LdxAbsY = 0xBE,
 
+    // LDY
+    LdyImmediate = 0xA0,
+    LdyZeroPage = 0xA4,
+    LdyZeroPageX = 0xB4,
+    LdyAbs = 0xAC,
+    LdyAbsX = 0xBC,
+
     #[default]
     Unimplemented = 0x0,
 }
@@ -39,6 +46,7 @@ pub fn dispatch_current_opcode(cpu: &mut Cpu, memory: &mut MemoryMapping) -> Con
         return ControlFlow::Continue(());
     }
     match cpu.current_opcode {
+        // LDA
         OpCode::LdaImmediate => lda_immediate(cpu, memory),
         OpCode::LdaZeroPage => lda_zeropage(cpu, memory),
         OpCode::LdaZeroPageX => lda_zeropage_x(cpu, memory),
@@ -48,11 +56,19 @@ pub fn dispatch_current_opcode(cpu: &mut Cpu, memory: &mut MemoryMapping) -> Con
         OpCode::LdaIndirectX => lda_indirect_x(cpu, memory),
         OpCode::LdaIndirectY => lda_indirect_y(cpu, memory),
 
+        // LDX
         OpCode::LdxImmediate => ldx_immediate(cpu, memory),
         OpCode::LdxZeroPage => ldx_zeropage(cpu, memory),
         OpCode::LdxZeroPageY => ldx_zeropage_y(cpu, memory),
         OpCode::LdxAbs => ldx_absolute(cpu, memory),
         OpCode::LdxAbsY => ldx_absolute_y(cpu, memory),
+
+        // LDY
+        OpCode::LdyImmediate => ldy_immediate(cpu, memory),
+        OpCode::LdyZeroPage => ldy_zeropage(cpu, memory),
+        OpCode::LdyZeroPageX => ldy_zeropage_x(cpu, memory),
+        OpCode::LdyAbs => ldy_absolute(cpu, memory),
+        OpCode::LdyAbsX => ldy_absolute_x(cpu, memory),
 
         _ => unimplemented!(),
     }
