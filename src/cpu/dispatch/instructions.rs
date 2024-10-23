@@ -17,7 +17,10 @@
 //! Cycle 0 is always fetching the opcode, every match should start with cycle 1
 //! Last match arm should always return ControlFlow::Break(());
 
-use crate::{cpu::Cpu, memory::MemoryMapping};
+use crate::{
+    cpu::{Cpu, StatusFlags},
+    memory::MemoryMapping,
+};
 use std::ops::ControlFlow;
 
 pub(in crate::cpu) mod helpers;
@@ -31,6 +34,58 @@ fn get_x_index(cpu: &Cpu) -> u8 {
 
 fn get_y_index(cpu: &Cpu) -> u8 {
     cpu.y_index
+}
+
+// ADC
+fn adc_common(cpu: &mut Cpu, value: u8) {
+    let (sum, carry) = add_with_carry(
+        cpu.accumulator,
+        value,
+        cpu.flags.contains(StatusFlags::CARRY),
+    );
+
+    let overflow = add_would_overflow(
+        cpu.accumulator as i8,
+        value as i8,
+        cpu.flags.contains(StatusFlags::CARRY),
+    );
+
+    cpu.flags.set(StatusFlags::CARRY, carry);
+    cpu.flags.set(StatusFlags::OVERFLOW, overflow);
+
+    set_register(&mut cpu.accumulator, sum, &mut cpu.flags);
+}
+
+pub fn adc_immediate(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
+    read_immediate(cpu, memory, adc_common)
+}
+
+pub fn adc_zeropage(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
+    read_zeropage(cpu, memory, adc_common)
+}
+
+pub fn adc_zeropage_x(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
+    read_zeropage_indexed(cpu, memory, get_x_index, adc_common)
+}
+
+pub fn adc_absolute(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
+    read_absolute(cpu, memory, adc_common)
+}
+
+pub fn adc_absolute_x(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
+    read_absolute_indexed(cpu, memory, get_x_index, adc_common)
+}
+
+pub fn adc_absolute_y(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
+    read_absolute_indexed(cpu, memory, get_y_index, adc_common)
+}
+
+pub fn adc_indirect_x(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
+    read_indirect_x(cpu, memory, adc_common)
+}
+
+pub fn adc_indirect_y(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
+    read_indirect_y(cpu, memory, adc_common)
 }
 
 // LDA

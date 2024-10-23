@@ -11,13 +11,23 @@ use instructions::*;
 #[non_exhaustive]
 #[repr(u8)]
 pub enum OpCode {
+    // ADC
+    AdcImmediate = 0x69,
+    AdcZeroPage = 0x65,
+    AdcZeroPageX = 0x75,
+    AdcAbsolute = 0x6D,
+    AdcAbsoluteX = 0x7D,
+    AdcAbsoluteY = 0x79,
+    AdcIndirectX = 0x61,
+    AdcIndirectY = 0x71,
+
     // LDA
     LdaImmediate = 0xA9,
     LdaZeroPage = 0xA5,
     LdaZeroPageX = 0xB5,
-    LdaAbs = 0xAD,
-    LdaAbsX = 0xBD,
-    LdaAbsY = 0xB9,
+    LdaAbsolute = 0xAD,
+    LdaAbsoluteX = 0xBD,
+    LdaAbsoluteY = 0xB9,
     LdaIndirectX = 0xA1,
     LdaIndirectY = 0xB1,
 
@@ -25,15 +35,15 @@ pub enum OpCode {
     LdxImmediate = 0xA2,
     LdxZeroPage = 0xA6,
     LdxZeroPageY = 0xB6,
-    LdxAbs = 0xAE,
-    LdxAbsY = 0xBE,
+    LdxAbsolute = 0xAE,
+    LdxAbsoluteY = 0xBE,
 
     // LDY
     LdyImmediate = 0xA0,
     LdyZeroPage = 0xA4,
     LdyZeroPageX = 0xB4,
-    LdyAbs = 0xAC,
-    LdyAbsX = 0xBC,
+    LdyAbsolute = 0xAC,
+    LdyAbsoluteX = 0xBC,
 
     #[default]
     Unimplemented = 0x0,
@@ -46,13 +56,16 @@ pub fn dispatch_current_opcode(cpu: &mut Cpu, memory: &mut MemoryMapping) -> Con
         return ControlFlow::Continue(());
     }
     match cpu.current_opcode {
+        // ADC
+        OpCode::AdcImmediate => adc_immediate(cpu, memory),
+
         // LDA
         OpCode::LdaImmediate => lda_immediate(cpu, memory),
         OpCode::LdaZeroPage => lda_zeropage(cpu, memory),
         OpCode::LdaZeroPageX => lda_zeropage_x(cpu, memory),
-        OpCode::LdaAbs => lda_absolute(cpu, memory),
-        OpCode::LdaAbsX => lda_absolute_x(cpu, memory),
-        OpCode::LdaAbsY => lda_absolute_y(cpu, memory),
+        OpCode::LdaAbsolute => lda_absolute(cpu, memory),
+        OpCode::LdaAbsoluteX => lda_absolute_x(cpu, memory),
+        OpCode::LdaAbsoluteY => lda_absolute_y(cpu, memory),
         OpCode::LdaIndirectX => lda_indirect_x(cpu, memory),
         OpCode::LdaIndirectY => lda_indirect_y(cpu, memory),
 
@@ -60,15 +73,15 @@ pub fn dispatch_current_opcode(cpu: &mut Cpu, memory: &mut MemoryMapping) -> Con
         OpCode::LdxImmediate => ldx_immediate(cpu, memory),
         OpCode::LdxZeroPage => ldx_zeropage(cpu, memory),
         OpCode::LdxZeroPageY => ldx_zeropage_y(cpu, memory),
-        OpCode::LdxAbs => ldx_absolute(cpu, memory),
-        OpCode::LdxAbsY => ldx_absolute_y(cpu, memory),
+        OpCode::LdxAbsolute => ldx_absolute(cpu, memory),
+        OpCode::LdxAbsoluteY => ldx_absolute_y(cpu, memory),
 
         // LDY
         OpCode::LdyImmediate => ldy_immediate(cpu, memory),
         OpCode::LdyZeroPage => ldy_zeropage(cpu, memory),
         OpCode::LdyZeroPageX => ldy_zeropage_x(cpu, memory),
-        OpCode::LdyAbs => ldy_absolute(cpu, memory),
-        OpCode::LdyAbsX => ldy_absolute_x(cpu, memory),
+        OpCode::LdyAbsolute => ldy_absolute(cpu, memory),
+        OpCode::LdyAbsoluteX => ldy_absolute_x(cpu, memory),
 
         _ => unimplemented!(),
     }

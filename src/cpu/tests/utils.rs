@@ -3,6 +3,17 @@ use crate::{
     memory::{ram::Ram, MemoryMapping},
 };
 
+/// Returns an iterator of all possible pairs of values between 0 and `u8::MAX`
+pub fn possible_byte_pairs() -> impl Iterator<Item = (u8, u8)> {
+    (u8::MIN..=u8::MAX).flat_map(|a| (u8::MIN..=u8::MAX).map(move |b| (a, b)))
+}
+
+/// Returns an iterator of all possible triplets of values, the first two values are
+/// numbers between 0 and `u8::MAX`, the third is a boolean
+pub fn possible_pairs_with_carry() -> impl Iterator<Item = (u8, u8, bool)> {
+    possible_byte_pairs().flat_map(|(a, b)| [(a, b, false), (a, b, true)])
+}
+
 /// Options for quickly and conveniently testing opcodes
 ///
 /// ## Test structure

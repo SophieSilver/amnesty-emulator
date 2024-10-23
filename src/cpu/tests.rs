@@ -7,6 +7,57 @@ use crate::cpu::dispatch::OpCode;
 #[allow(dead_code)]
 mod utils;
 
+mod adc {
+    use crate::cpu::StatusFlags;
+    use utils::possible_pairs_with_carry;
+
+    use super::*;
+
+    #[test]
+    fn immediate() {
+        for (a, b, carry) in possible_pairs_with_carry() {
+            // just dump everything into u32 and see what's out of range
+            let unsigned_result = a as u32 + b as u32 + carry as u32;
+            // first casting to i8 to have it sign extended
+            let signed_result = a as i8 as i32 + b as i8 as i32 + carry as i32;
+
+            let should_carry = !(u8::MIN as u32..=u8::MAX as u32).contains(&unsigned_result);
+            let should_overflow = !(i8::MIN as i32..=i8::MAX as i32).contains(&signed_result);
+
+            TestOpcodeOptions::new(OpCode::AdcImmediate, 2, |cpu, _memory| {
+                // TODO: extract this out
+                assert_eq!(
+                    cpu.accumulator,
+                    a.wrapping_add(b).wrapping_add(carry as u8),
+                    "Addition result incorrect"
+                );
+                assert_eq!(
+                    cpu.flags.contains(StatusFlags::CARRY),
+                    should_carry,
+                    "CARRY flag set incorrectly"
+                );
+                assert_eq!(
+                    cpu.flags.contains(StatusFlags::OVERFLOW),
+                    should_overflow,
+                    "OVERFLOW flag set incorrectly"
+                );
+                assert_eq!(
+                    cpu.flags.contains(StatusFlags::NEGATIVE),
+                    (cpu.accumulator as i8).is_negative(),
+                    "NEGATIVE flag set incorrectly"
+                );
+                assert_eq!(cpu.flags.contains(StatusFlags::ZERO), cpu.accumulator == 0);
+            })
+            .with_prepare(|cpu| {
+                cpu.accumulator = a;
+                cpu.flags.set(StatusFlags::CARRY, carry);
+            })
+            .with_arguments(&[b])
+            .test();
+        }
+    }
+}
+
 mod lda {
     use super::*;
 
@@ -71,7 +122,7 @@ mod lda {
         const TARGET: u8 = 0x75;
         const ADDR: u16 = 0x0457;
 
-        TestOpcodeOptions::new(OpCode::LdaAbs, 4, |cpu, _memory| {
+        TestOpcodeOptions::new(OpCode::LdaAbsolute, 4, |cpu, _memory| {
             assert_eq!(cpu.accumulator, TARGET);
         })
         .with_arguments(&ADDR.to_le_bytes())
@@ -86,7 +137,7 @@ mod lda {
         const OFFSET: u8 = 0x12;
         const FINAL_ADDR: u16 = BASE_ADDR.wrapping_add(OFFSET as u16);
 
-        TestOpcodeOptions::new(OpCode::LdaAbsX, 4, |cpu, _memory| {
+        TestOpcodeOptions::new(OpCode::LdaAbsoluteX, 4, |cpu, _memory| {
             assert_eq!(cpu.accumulator, TARGET);
         })
         .with_arguments(&BASE_ADDR.to_le_bytes())
@@ -102,7 +153,7 @@ mod lda {
         const OFFSET: u8 = 0xFE;
         const FINAL_ADDR: u16 = BASE_ADDR.wrapping_add(OFFSET as u16);
 
-        TestOpcodeOptions::new(OpCode::LdaAbsX, 5, |cpu, _memory| {
+        TestOpcodeOptions::new(OpCode::LdaAbsoluteX, 5, |cpu, _memory| {
             assert_eq!(cpu.accumulator, TARGET);
         })
         .with_arguments(&BASE_ADDR.to_le_bytes())
@@ -118,7 +169,7 @@ mod lda {
         const OFFSET: u8 = 0x12;
         const FINAL_ADDR: u16 = BASE_ADDR.wrapping_add(OFFSET as u16);
 
-        TestOpcodeOptions::new(OpCode::LdaAbsY, 4, |cpu, _memory| {
+        TestOpcodeOptions::new(OpCode::LdaAbsoluteY, 4, |cpu, _memory| {
             assert_eq!(cpu.accumulator, TARGET);
         })
         .with_arguments(&BASE_ADDR.to_le_bytes())
@@ -134,7 +185,7 @@ mod lda {
         const OFFSET: u8 = 0xFE;
         const FINAL_ADDR: u16 = BASE_ADDR.wrapping_add(OFFSET as u16);
 
-        TestOpcodeOptions::new(OpCode::LdaAbsY, 5, |cpu, _memory| {
+        TestOpcodeOptions::new(OpCode::LdaAbsoluteY, 5, |cpu, _memory| {
             assert_eq!(cpu.accumulator, TARGET);
         })
         .with_arguments(&BASE_ADDR.to_le_bytes())
@@ -337,7 +388,7 @@ mod ldx {
         const TARGET: u8 = 0x75;
         const ADDR: u16 = 0x0457;
 
-        TestOpcodeOptions::new(OpCode::LdxAbs, 4, |cpu, _memory| {
+        TestOpcodeOptions::new(OpCode::LdxAbsolute, 4, |cpu, _memory| {
             assert_eq!(cpu.x_index, TARGET);
         })
         .with_arguments(&ADDR.to_le_bytes())
@@ -352,7 +403,7 @@ mod ldx {
         const OFFSET: u8 = 0x12;
         const FINAL_ADDR: u16 = BASE_ADDR.wrapping_add(OFFSET as u16);
 
-        TestOpcodeOptions::new(OpCode::LdxAbsY, 4, |cpu, _memory| {
+        TestOpcodeOptions::new(OpCode::LdxAbsoluteY, 4, |cpu, _memory| {
             assert_eq!(cpu.x_index, TARGET);
         })
         .with_arguments(&BASE_ADDR.to_le_bytes())
@@ -368,7 +419,7 @@ mod ldx {
         const OFFSET: u8 = 0xFE;
         const FINAL_ADDR: u16 = BASE_ADDR.wrapping_add(OFFSET as u16);
 
-        TestOpcodeOptions::new(OpCode::LdxAbsY, 5, |cpu, _memory| {
+        TestOpcodeOptions::new(OpCode::LdxAbsoluteY, 5, |cpu, _memory| {
             assert_eq!(cpu.x_index, TARGET);
         })
         .with_arguments(&BASE_ADDR.to_le_bytes())
@@ -442,7 +493,7 @@ mod ldy {
         const TARGET: u8 = 0x75;
         const ADDR: u16 = 0x0457;
 
-        TestOpcodeOptions::new(OpCode::LdyAbs, 4, |cpu, _memory| {
+        TestOpcodeOptions::new(OpCode::LdyAbsolute, 4, |cpu, _memory| {
             assert_eq!(cpu.y_index, TARGET);
         })
         .with_arguments(&ADDR.to_le_bytes())
@@ -457,7 +508,7 @@ mod ldy {
         const OFFSET: u8 = 0x12;
         const FINAL_ADDR: u16 = BASE_ADDR.wrapping_add(OFFSET as u16);
 
-        TestOpcodeOptions::new(OpCode::LdyAbsX, 4, |cpu, _memory| {
+        TestOpcodeOptions::new(OpCode::LdyAbsoluteX, 4, |cpu, _memory| {
             assert_eq!(cpu.y_index, TARGET);
         })
         .with_arguments(&BASE_ADDR.to_le_bytes())
@@ -473,7 +524,7 @@ mod ldy {
         const OFFSET: u8 = 0xFE;
         const FINAL_ADDR: u16 = BASE_ADDR.wrapping_add(OFFSET as u16);
 
-        TestOpcodeOptions::new(OpCode::LdyAbsX, 5, |cpu, _memory| {
+        TestOpcodeOptions::new(OpCode::LdyAbsoluteX, 5, |cpu, _memory| {
             assert_eq!(cpu.y_index, TARGET);
         })
         .with_arguments(&BASE_ADDR.to_le_bytes())
