@@ -186,6 +186,29 @@ mod lda {
     }
 
     #[test]
+    fn indirect_x_page_split() {
+        const TARGET: u8 = 0x57;
+        // the low byte of ADDR will be at 0xFF
+        // the high byte -- at 0x00
+        const BASE_PTR: u8 = 0xFF;
+        const OFFSET: u8 = 0x0;
+        const FINAL_PTR: u8 = BASE_PTR.wrapping_add(OFFSET);
+        const ADDR: u16 = 0x0432;
+
+        TestOpcodeOptions::new(OpCode::LdaIndirectX, 6, |cpu, _memory| {
+            assert_eq!(cpu.accumulator, TARGET);
+        })
+        .with_arguments(&[BASE_PTR])
+        .with_prepare(|cpu| cpu.x_index = OFFSET)
+        .with_additional_values(&[
+            (FINAL_PTR as u16, ADDR.to_le_bytes()[0]),
+            (FINAL_PTR.wrapping_add(1) as u16, ADDR.to_le_bytes()[1]),
+            (ADDR, TARGET),
+        ])
+        .test();
+    }
+
+    #[test]
     fn indirect_y() {
         const TARGET: u8 = 0xFD;
         const PTR: u8 = 0xD7;
@@ -215,6 +238,28 @@ mod lda {
         const FINAL_ADDR: u16 = BASE_ADDR.wrapping_add(OFFSET as u16);
 
         TestOpcodeOptions::new(OpCode::LdaIndirectY, 6, |cpu, _memory| {
+            assert_eq!(cpu.accumulator, TARGET);
+        })
+        .with_arguments(&[PTR])
+        .with_additional_values(&[
+            (PTR as u16, BASE_ADDR.to_le_bytes()[0]),
+            (PTR.wrapping_add(1) as u16, BASE_ADDR.to_le_bytes()[1]),
+            (FINAL_ADDR, TARGET),
+        ])
+        .with_prepare(|cpu| cpu.y_index = OFFSET)
+        .test();
+    }
+
+    #[test]
+    fn indirect_y_page_split() {
+        const TARGET: u8 = 0xFD;
+        // high byte of BASE_ADDR should be at 0x00
+        const PTR: u8 = 0xFF;
+        const BASE_ADDR: u16 = 0x057A;
+        const OFFSET: u8 = 0x0;
+        const FINAL_ADDR: u16 = BASE_ADDR.wrapping_add(OFFSET as u16);
+
+        TestOpcodeOptions::new(OpCode::LdaIndirectY, 5, |cpu, _memory| {
             assert_eq!(cpu.accumulator, TARGET);
         })
         .with_arguments(&[PTR])
