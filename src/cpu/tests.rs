@@ -4,6 +4,7 @@ use utils::TestOpcodeOptions;
 
 use crate::cpu::dispatch::OpCode;
 
+#[allow(dead_code)]
 mod utils;
 
 mod lda {

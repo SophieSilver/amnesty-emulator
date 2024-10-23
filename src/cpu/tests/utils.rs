@@ -4,6 +4,22 @@ use crate::{
 };
 
 /// Options for quickly and conveniently testing opcodes
+///
+/// ## Test structure
+/// The test will:
+/// - load the opcode and its arguments at address 0x0200
+/// - load additional values at specified addresses
+/// - call the provided `prepare` closure to set up initial CPU state
+/// - set PC to 0x0200 and run the cpu for `expected_cycles`
+///
+/// ## Checks
+/// The test will fail (panic) if:
+/// - The instruction terminates too early or does not terminate in `expected_cycles`
+///     (by checking `cpu.current_cycle`)
+/// - `check_pc` is `true` AND
+///     after executing the instruction the PC isn't equal to `0x200 + arguments.len()`
+/// - provided `verify` closure panics
+///
 #[derive(Debug)]
 pub struct TestOpcodeOptions<'a, PrepareFunc, VerifyFunc>
 where
@@ -12,7 +28,7 @@ where
 {
     /// What opcode to test
     ///
-    /// This will be loaded at address `0x0`
+    /// This will be loaded at address `0x0200`
     pub opcode: OpCode,
 
     /// Arguments that follow the opcode
@@ -68,7 +84,7 @@ where
 {
     /// Run the test with current Options
     pub fn test(self) {
-        const OPCODE_ADDR: u16 = 0x0;
+        const OPCODE_ADDR: u16 = 0x0200;
 
         assert!(self.arguments.len() < u16::MAX as usize);
 
@@ -76,7 +92,6 @@ where
         let mut ram = Ram::new();
         let mut cpu = Cpu::new();
         let mut memory = MemoryMapping { ram: &mut ram };
-        cpu.program_counter = 0;
 
         // prepare memory
         memory.store(OPCODE_ADDR, self.opcode.into());
@@ -97,6 +112,7 @@ where
         (self.prepare)(&mut cpu);
 
         // execute
+        cpu.program_counter = OPCODE_ADDR;
         for i in 0..self.expected_cycles {
             cpu.run_cycle(&mut memory);
 
