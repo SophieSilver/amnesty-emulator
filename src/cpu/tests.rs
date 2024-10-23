@@ -1,40 +1,115 @@
-use utils::test_opcode;
+#![allow(clippy::arithmetic_side_effects)]
+
+use utils::TestOpcodeOptions;
 
 use crate::cpu::dispatch::OpCode;
 
 mod utils;
 
-#[test]
-fn test_ldx_immediate() {
-    test_opcode(OpCode::LdxImmediate, [0x69], [], 2, |cpu, _memory| {
-        assert_eq!(cpu.x_index, 0x69)
-    });
+mod ldx {
+    use super::*;
+
+    #[test]
+    fn immediate() {
+        const TARGET: u8 = 0x42;
+
+        TestOpcodeOptions::new(OpCode::LdxImmediate, 2, |cpu, _memory| {
+            assert_eq!(cpu.x_index, TARGET);
+        })
+        .with_arguments(&[TARGET])
+        .test();
+    }
+
+    #[test]
+    fn zeropage() {
+        const TARGET: u8 = 0x21;
+        const ADDR: u16 = 0x42;
+
+        TestOpcodeOptions::new(OpCode::LdxZeroPage, 3, |cpu, _memory| {
+            assert_eq!(cpu.x_index, TARGET);
+        })
+        .with_arguments(&[ADDR as u8])
+        .with_additional_values(&[(ADDR, TARGET)])
+        .test();
+    }
+
+    #[test]
+    fn zeropage_y() {
+        const TARGET: u8 = 0x69;
+        const BASE_ADDR: u16 = 0x42;
+        const OFFSET: u8 = 0x3;
+        const FINAL_ADDR: u16 = (BASE_ADDR as u8).wrapping_add(OFFSET) as u16;
+
+        TestOpcodeOptions::new(OpCode::LdxZeroPageY, 4, |cpu, _memory| {
+            assert_eq!(cpu.x_index, TARGET);
+        })
+        .with_arguments(&[BASE_ADDR as u8])
+        .with_prepare(|cpu| cpu.y_index = OFFSET)
+        .with_additional_values(&[(FINAL_ADDR, TARGET)])
+        .test();
+    }
+
+    #[test]
+    fn zeropage_y_overflow() {
+        const TARGET: u8 = 0x69;
+        const BASE_ADDR: u16 = 0x42;
+        const OFFSET: u8 = 0xFA;
+        const FINAL_ADDR: u16 = (BASE_ADDR as u8).wrapping_add(OFFSET) as u16;
+
+        TestOpcodeOptions::new(OpCode::LdxZeroPageY, 4, |cpu, _memory| {
+            assert_eq!(cpu.x_index, TARGET);
+        })
+        .with_arguments(&[BASE_ADDR as u8])
+        .with_prepare(|cpu| cpu.y_index = OFFSET)
+        .with_additional_values(&[(FINAL_ADDR, TARGET)])
+        .test();
+    }
+
+    #[test]
+    fn absolute() {
+        const TARGET: u8 = 0x75;
+        const ADDR: u16 = 0x0457;
+
+        TestOpcodeOptions::new(OpCode::LdxAbs, 4, |cpu, _memory| {
+            assert_eq!(cpu.x_index, TARGET);
+        })
+        .with_arguments(&ADDR.to_le_bytes())
+        .with_additional_values(&[(ADDR, TARGET)])
+        .test();
+    }
+
+    #[test]
+    fn absolute_y() {
+        const TARGET: u8 = 0x33;
+        const BASE_ADDR: u16 = 0x0365;
+        const OFFSET: u8 = 0x12;
+        const FINAL_ADDR: u16 = BASE_ADDR.wrapping_add(OFFSET as u16);
+
+        TestOpcodeOptions::new(OpCode::LdxAbsY, 4, |cpu, _memory| {
+            assert_eq!(cpu.x_index, TARGET);
+        })
+        .with_arguments(&BASE_ADDR.to_le_bytes())
+        .with_prepare(|cpu| cpu.y_index = OFFSET)
+        .with_additional_values(&[(FINAL_ADDR, TARGET)])
+        .test();
+    }
+
+    #[test]
+    fn absolute_y_overflow() {
+        const TARGET: u8 = 0x33;
+        const BASE_ADDR: u16 = 0x0365;
+        const OFFSET: u8 = 0xFE;
+        const FINAL_ADDR: u16 = BASE_ADDR.wrapping_add(OFFSET as u16);
+
+        TestOpcodeOptions::new(OpCode::LdxAbsY, 5, |cpu, _memory| {
+            assert_eq!(cpu.x_index, TARGET);
+        })
+        .with_arguments(&BASE_ADDR.to_le_bytes())
+        .with_prepare(|cpu| cpu.y_index = OFFSET)
+        .with_additional_values(&[(FINAL_ADDR, TARGET)])
+        .test();
+    }
 }
-
-#[test]
-fn test_ldx_zeropage() {
-    test_opcode(
-        OpCode::LdxZeroPage,
-        [0x89],
-        [(0x89, 0x23)],
-        3,
-        |cpu, _memory| assert_eq!(cpu.x_index, 0x23),
-    );
-}
-
-// #[test]
-// fn test_ldx_zeropage_y() {
-//     // test_opcode(OpCode::LdxZeroPageY, [0x79], [()], 2, |cpu, _memory| {
-//     //     assert_eq!(cpu.x_index, 0x69)
-//     // });
-// }
-
-// #[test]
-// fn test_ldx_immediate() {
-//     test_opcode(OpCode::LdxImmediate, [0x69], [], 2, |cpu, _memory| {
-//         assert_eq!(cpu.x_index, 0x69)
-//     });
-// }
 
 // #[test]
 // fn lda_test() {

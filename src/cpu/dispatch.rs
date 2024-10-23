@@ -29,7 +29,7 @@ pub enum OpCode {
     LdxAbsY = 0xBE,
 
     #[default]
-    Unimplemented,
+    Unimplemented = 0x0,
 }
 
 pub fn dispatch_current_opcode(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
