@@ -58,6 +58,13 @@ pub fn dispatch_current_opcode(cpu: &mut Cpu, memory: &mut MemoryMapping) -> Con
     match cpu.current_opcode {
         // ADC
         OpCode::AdcImmediate => adc_immediate(cpu, memory),
+        OpCode::AdcZeroPage => adc_zeropage(cpu, memory),
+        OpCode::AdcZeroPageX => adc_zeropage_x(cpu, memory),
+        OpCode::AdcAbsolute => adc_absolute(cpu, memory),
+        OpCode::AdcAbsoluteX => adc_absolute_x(cpu, memory),
+        OpCode::AdcAbsoluteY => adc_absolute_y(cpu, memory),
+        OpCode::AdcIndirectX => adc_indirect_x(cpu, memory),
+        OpCode::AdcIndirectY => adc_indirect_y(cpu, memory),
 
         // LDA
         OpCode::LdaImmediate => lda_immediate(cpu, memory),
