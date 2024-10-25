@@ -21,6 +21,39 @@ pub enum OpCode {
     AdcIndirectX = 0x61,
     AdcIndirectY = 0x71,
 
+    // AND
+    AndImmediate = 0x29,
+    AndZeroPage = 0x25,
+    AndZeroPageX = 0x35,
+    AndAbsolute = 0x2D,
+    AndAbsoluteX = 0x3D,
+    AndAbsoluteY = 0x39,
+    AndIndirectX = 0x21,
+    AndIndirectY = 0x31,
+
+    // BIT
+    BitZeroPage = 0x24,
+    BitAbsolute = 0x2C,
+
+    // CMP
+    CmpImmediate = 0xC9,
+    CmpZeroPage = 0xC5,
+    CmpZeroPageX = 0xD5,
+    CmpAbsolute = 0xCD,
+    CmPAbosulteX = 0xDD,
+    CmpAbsoluteY = 0xD9,
+    CmpIndirectX = 0xC1,
+    CmpIndirectY = 0xD1,
+
+    // EOR
+    EorImmediate = 0x49,
+    EorZeroPage = 0x45,
+    EorZeroPageX = 0x55,
+    EorAbsolute = 0x4D,
+    EorAbsoluteX = 0x5D,
+    EorIndirectX = 0x41,
+    EorIndirectY = 0x51,
+
     // LDA
     LdaImmediate = 0xA9,
     LdaZeroPage = 0xA5,
