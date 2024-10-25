@@ -8,6 +8,7 @@ use crate::cpu::dispatch::OpCode;
 mod utils;
 
 mod adc;
+mod cmp;
 mod and;
 mod lda;
 mod ldx;

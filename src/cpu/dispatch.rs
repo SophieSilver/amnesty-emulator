@@ -40,7 +40,7 @@ pub enum OpCode {
     CmpZeroPage = 0xC5,
     CmpZeroPageX = 0xD5,
     CmpAbsolute = 0xCD,
-    CmPAbosulteX = 0xDD,
+    CmpAbsoluteX = 0xDD,
     CmpAbsoluteY = 0xD9,
     CmpIndirectX = 0xC1,
     CmpIndirectY = 0xD1,
