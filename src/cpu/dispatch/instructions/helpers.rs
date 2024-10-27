@@ -36,3 +36,50 @@ pub fn set_register(register: &mut u8, value: u8, flags: &mut StatusFlags) {
     flags.set(StatusFlags::NEGATIVE, (value as i8).is_negative());
     flags.set(StatusFlags::ZERO, value == 0);
 }
+
+/// Automatically implement addressing modes
+///
+/// # Syntax
+/// ```no_run
+///
+/// impl_addressing_modes {
+///     common: /*[common_fn]*/
+///     instruction_type: /*[instruction_type]*/
+///     modes: [
+///         /*mode1*/,
+///         /*mode2*/,
+///         /*...*/
+///     ]
+/// }
+/// ```
+/// where:
+/// - `common_fn` - function to pass to every addressing mode template
+/// - `instruction_type` - type of the instruction (read, rwm,  write, etc...)
+/// - `mode1`, `mode2`, ... - addressing modes the instruction supports
+/// # Output
+/// for every mode will create a function called `mode`
+/// which calls the template function `{instruction_type}::{mode}` with the provided common function
+macro_rules! impl_addressing_modes {
+    {
+        common: $common_fn:expr,
+        instruction_type: $instruction_type:ident,
+        modes: [
+            $($mode:ident),*
+            $(,)?   // allow trailing comma
+        ] $(,)?     // allow trailing comma
+    } => {
+        // create a scope where the templates import won't be seen
+        #[allow(unused_imports)]
+        mod addressing_modes_impl {
+            use super::*;
+            use $crate::cpu::dispatch::instructions::templates::*;
+
+            $(
+                pub fn $mode(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
+                    templates::$instruction_type::$mode(cpu, memory, $common_fn)
+                }
+            )*
+        }
+        pub use addressing_modes_impl::*;
+    };
+}

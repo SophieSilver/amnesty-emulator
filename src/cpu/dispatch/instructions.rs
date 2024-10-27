@@ -23,10 +23,10 @@ use crate::{
 };
 use std::ops::ControlFlow;
 
+#[macro_use]
 pub(in crate::cpu) mod helpers;
 mod templates;
 use helpers::*;
-use templates::*;
 
 fn get_x_index(cpu: &Cpu) -> u8 {
     cpu.x_index
