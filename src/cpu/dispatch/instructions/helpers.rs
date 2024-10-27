@@ -41,15 +41,14 @@ pub fn set_register(register: &mut u8, value: u8, flags: &mut StatusFlags) {
 ///
 /// # Syntax
 /// ```no_run
-///
 /// impl_addressing_modes {
-///     common: /*[common_fn]*/
-///     instruction_type: /*[instruction_type]*/
+///     common: /*[common_fn]*/,
+///     instruction_type: /*[instruction_type]*/,
 ///     modes: [
 ///         /*mode1*/,
 ///         /*mode2*/,
-///         /*...*/
-///     ]
+///         /*...*/,
+///     ],
 /// }
 /// ```
 /// where:
@@ -59,6 +58,20 @@ pub fn set_register(register: &mut u8, value: u8, flags: &mut StatusFlags) {
 /// # Output
 /// for every mode will create a function called `mode`
 /// which calls the template function `{instruction_type}::{mode}` with the provided common function
+///
+/// # Presets
+/// Instead of instruction type and modes, you can specify a preset which will prefill them.
+///
+/// ## Preset syntax
+/// ```no_run
+/// impl_addressing_modes {
+///     common: /*[common_fn]*/,
+///     preset: /*[preset]*/,
+/// }
+/// ```
+///
+/// ## Possible presets
+///
 macro_rules! impl_addressing_modes {
     {
         common: $common_fn:expr,
@@ -68,18 +81,30 @@ macro_rules! impl_addressing_modes {
             $(,)?   // allow trailing comma
         ] $(,)?     // allow trailing comma
     } => {
-        // create a scope where the templates import won't be seen
-        #[allow(unused_imports)]
-        mod addressing_modes_impl {
-            use super::*;
-            use $crate::cpu::dispatch::instructions::templates::*;
-
-            $(
-                pub fn $mode(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
-                    templates::$instruction_type::$mode(cpu, memory, $common_fn)
-                }
-            )*
-        }
-        pub use addressing_modes_impl::*;
+        $(
+            pub fn $mode(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
+               $crate::cpu::dispatch::instructions::templates::$instruction_type::$mode(cpu, memory, $common_fn)
+            }
+        )*
     };
+
+    {
+        common: $common_fn:expr,
+        preset: read_to_accumulator $(,)?
+    } => {
+        impl_addressing_modes! {
+            common: $common_fn,
+            instruction_type: read,
+            modes: [
+                immediate,
+                zeropage,
+                zeropage_x,
+                absolute,
+                absolute_x,
+                absolute_y,
+                indirect_x,
+                indirect_y,
+            ],
+        }
+    }
 }
