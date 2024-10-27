@@ -71,7 +71,18 @@ pub fn set_register(register: &mut u8, value: u8, flags: &mut StatusFlags) {
 /// ```
 ///
 /// ## Possible presets
-///
+/// - `read_to_accumulator`
+///      - instruction type: `read`
+///      - modes: `[
+///         immediate,
+///         zeropage,
+///         zeropage_x,
+///         absolute,
+///         absolute_x,
+///         absolute_y,
+///         indirect_x,
+///         indirect_y
+///     ]`
 macro_rules! impl_addressing_modes {
     {
         common: $common_fn:expr,
