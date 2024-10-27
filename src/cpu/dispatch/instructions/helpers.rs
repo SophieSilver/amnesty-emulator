@@ -40,8 +40,8 @@ pub fn set_register(register: &mut u8, value: u8, flags: &mut StatusFlags) {
 /// Automatically implement addressing modes
 ///
 /// # Syntax
-/// ```no_run
-/// impl_addressing_modes {
+/// ```ignore
+/// impl_addressing_modes! {
 ///     common: /*[common_fn]*/,
 ///     instruction_type: /*[instruction_type]*/,
 ///     modes: [
@@ -63,8 +63,8 @@ pub fn set_register(register: &mut u8, value: u8, flags: &mut StatusFlags) {
 /// Instead of instruction type and modes, you can specify a preset which will prefill them.
 ///
 /// ## Preset syntax
-/// ```no_run
-/// impl_addressing_modes {
+/// ```ignore
+/// impl_addressing_modes! {
 ///     common: /*[common_fn]*/,
 ///     preset: /*[preset]*/,
 /// }
