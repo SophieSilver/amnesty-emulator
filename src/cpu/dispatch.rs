@@ -185,7 +185,14 @@ pub fn dispatch_current_opcode(cpu: &mut Cpu, memory: &mut MemoryMapping) -> Con
         OpCode::OraIndirectY => ora::indirect_y(cpu, memory),
 
         // SBC
-
+        OpCode::SbcImmediate => sbc::immediate(cpu, memory),
+        OpCode::SbcZeroPage => sbc::zeropage(cpu, memory),
+        OpCode::SbcZeroPageX => sbc::zeropage_x(cpu, memory),
+        OpCode::SbcAbsolute => sbc::absolute(cpu, memory),
+        OpCode::SbcAbsoluteX => sbc::absolute_x(cpu, memory),
+        OpCode::SbcAbsoluteY => sbc::absolute_y(cpu, memory),
+        OpCode::SbcIndirectX => sbc::indirect_x(cpu, memory),
+        OpCode::SbcIndirectY => sbc::indirect_y(cpu, memory),
 
         _ => unimplemented!(),
     }

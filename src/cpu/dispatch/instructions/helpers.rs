@@ -29,6 +29,10 @@ pub fn sub_with_carry(a: u8, b: u8, carry: bool) -> (u8, bool) {
     add_with_carry(a, !b, carry)
 }
 
+pub fn sub_would_overflow(a: i8, b: i8, carry: bool) -> bool {
+    add_would_overflow(a, !b, carry)
+} 
+
 pub fn fetch_from_pc(cpu: &mut Cpu, memory: &mut MemoryMapping) -> u8 {
     let value = memory.load(cpu.program_counter);
     cpu.program_counter = cpu.program_counter.wrapping_add(1);

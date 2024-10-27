@@ -15,3 +15,4 @@ mod lda;
 mod ldx;
 mod ldy;
 mod ora;
+mod sbc;
