@@ -21,5 +21,15 @@ fn common(cpu: &mut Cpu, value: u8) {
 
 impl_addressing_modes! {
     common: common,
-    preset: read_to_accumulator,
+    instruction_type: read,
+    modes: [
+        immediate,
+        zeropage,
+        zeropage_x,
+        absolute,
+        absolute_x,
+        absolute_y,
+        indirect_x,
+        indirect_y,
+    ],
 }

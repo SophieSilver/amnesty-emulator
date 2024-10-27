@@ -68,34 +68,9 @@ pub fn set_register(register: &mut u8, value: u8, flags: &mut StatusFlags) {
 /// # Output
 /// for every mode will create a function called `mode`
 /// which calls the template function `{instruction_type}::{mode}` with the provided common function
-///
-/// # Presets
-/// Instead of instruction type and modes, you can specify a preset which will prefill them.
-///
-/// ## Preset syntax
-/// ```ignore
-/// impl_addressing_modes! {
-///     common: /*[common_fn]*/,
-///     preset: /*[preset]*/,
-/// }
-/// ```
-///
-/// ## Possible presets
-/// - `read_to_accumulator`
-///      - instruction type: `read`
-///      - modes: `[
-///         immediate,
-///         zeropage,
-///         zeropage_x,
-///         absolute,
-///         absolute_x,
-///         absolute_y,
-///         indirect_x,
-///         indirect_y
-///     ]`
 macro_rules! impl_addressing_modes {
     {
-        common: $common_fn:expr,
+        common: $common:expr,
         instruction_type: $instruction_type:ident,
         modes: [
             $($mode:ident),*
@@ -104,28 +79,8 @@ macro_rules! impl_addressing_modes {
     } => {
         $(
             pub fn $mode(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
-               $crate::cpu::dispatch::instructions::templates::$instruction_type::$mode(cpu, memory, $common_fn)
+               $crate::cpu::dispatch::instructions::templates::$instruction_type::$mode(cpu, memory, $common)
             }
         )*
     };
-
-    {
-        common: $common_fn:expr,
-        preset: read_to_accumulator $(,)?
-    } => {
-        impl_addressing_modes! {
-            common: $common_fn,
-            instruction_type: read,
-            modes: [
-                immediate,
-                zeropage,
-                zeropage_x,
-                absolute,
-                absolute_x,
-                absolute_y,
-                indirect_x,
-                indirect_y,
-            ],
-        }
-    }
 }
