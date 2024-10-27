@@ -9,7 +9,7 @@ use super::*;
 fn verify(a: u8, b: u8) -> impl Fn(&mut Cpu, &mut MemoryMapping) {
     let z = a == b;
     let n = (a.wrapping_sub(b) as i8) < 0;
-    let c = a < b;
+    let c = a >= b;
 
     move |cpu, _memory| {
         assert_eq!(
