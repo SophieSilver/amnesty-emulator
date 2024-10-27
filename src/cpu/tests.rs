@@ -14,3 +14,4 @@ mod eor;
 mod lda;
 mod ldx;
 mod ldy;
+mod ora;
