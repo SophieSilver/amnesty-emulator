@@ -89,6 +89,16 @@ pub enum OpCode {
     OraIndirectX = 0x01,
     OraIndirectY = 0x11,
 
+    // SBC
+    SbcImmediate = 0xE9,
+    SbcZeroPage = 0xE5,
+    SbcZeroPageX = 0xF5,
+    SbcAbsolute = 0xED,
+    SbcAbsoluteX = 0xFD,
+    SbcAbsoluteY = 0xF9,
+    SbcIndirectX = 0xE1,
+    SbcIndirectY = 0xF1,
+
     #[default]
     Unimplemented = 0x0,
 }
@@ -164,7 +174,7 @@ pub fn dispatch_current_opcode(cpu: &mut Cpu, memory: &mut MemoryMapping) -> Con
         OpCode::LdyAbsolute => ldy::absolute(cpu, memory),
         OpCode::LdyAbsoluteX => ldy::absolute_x(cpu, memory),
 
-        //ORA
+        // ORA
         OpCode::OraImmediate => ora::immediate(cpu, memory),
         OpCode::OraZeroPage => ora::zeropage(cpu, memory),
         OpCode::OraZeroPageX => ora::zeropage_x(cpu, memory),
@@ -173,6 +183,9 @@ pub fn dispatch_current_opcode(cpu: &mut Cpu, memory: &mut MemoryMapping) -> Con
         OpCode::OraAbsoluteY => ora::absolute_y(cpu, memory),
         OpCode::OraIndirectX => ora::indirect_x(cpu, memory),
         OpCode::OraIndirectY => ora::indirect_y(cpu, memory),
+
+        // SBC
+
 
         _ => unimplemented!(),
     }
