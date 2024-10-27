@@ -51,6 +51,7 @@ pub enum OpCode {
     EorZeroPageX = 0x55,
     EorAbsolute = 0x4D,
     EorAbsoluteX = 0x5D,
+    EorAbsoluteY = 0x59,
     EorIndirectX = 0x41,
     EorIndirectY = 0x51,
 
@@ -118,6 +119,16 @@ pub fn dispatch_current_opcode(cpu: &mut Cpu, memory: &mut MemoryMapping) -> Con
         OpCode::CmpAbsoluteY => cmp::absolute_y(cpu, memory),
         OpCode::CmpIndirectX => cmp::indirect_x(cpu, memory),
         OpCode::CmpIndirectY => cmp::indirect_y(cpu, memory),
+
+        // EOR
+        OpCode::EorImmediate => eor::immediate(cpu, memory),
+        OpCode::EorZeroPage => eor::zeropage(cpu, memory),
+        OpCode::EorZeroPageX => eor::zeropage_x(cpu, memory),
+        OpCode::EorAbsolute => eor::absolute(cpu, memory),
+        OpCode::EorAbsoluteX => eor::absolute_x(cpu, memory),
+        OpCode::EorAbsoluteY => eor::absolute_y(cpu, memory),
+        OpCode::EorIndirectX => eor::indirect_x(cpu, memory),
+        OpCode::EorIndirectY => eor::indirect_y(cpu, memory),
 
         // LDA
         OpCode::LdaImmediate => lda::immediate(cpu, memory),

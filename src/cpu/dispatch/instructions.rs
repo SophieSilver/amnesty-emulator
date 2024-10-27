@@ -39,6 +39,7 @@ fn get_y_index(cpu: &Cpu) -> u8 {
 pub mod adc;
 pub mod and;
 pub mod cmp;
+pub mod eor;
 pub mod lda;
 pub mod ldx;
 pub mod ldy;
