@@ -8,19 +8,19 @@ use super::*;
 
 fn verify(a: u8, b: u8) -> impl Fn(&mut Cpu, &mut MemoryMapping) {
     let z = a == b;
-    let n = (a as i8) < (b as i8);
+    let n = (a.wrapping_sub(b) as i8) < 0;
     let c = a < b;
 
     move |cpu, _memory| {
         assert_eq!(
             cpu.flags.contains(StatusFlags::CARRY),
             c,
-            "CARRY flag set incorrectly"
+            "CARRY flag set incorrectly, a = {a}, b = {b}"
         );
         assert_eq!(
             cpu.flags.contains(StatusFlags::NEGATIVE),
             n,
-            "NEGATIVE flag set incorrectly"
+            "NEGATIVE flag set incorrectly, a = {a}, b = {b}"
         );
         assert_eq!(cpu.flags.contains(StatusFlags::ZERO), z);
     }
