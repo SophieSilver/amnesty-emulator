@@ -79,6 +79,16 @@ pub enum OpCode {
     LdyAbsolute = 0xAC,
     LdyAbsoluteX = 0xBC,
 
+    // ORA
+    OraImmediate = 0x09,
+    OraZeroPage = 0x05,
+    OraZeroPageX = 0x15,
+    OraAbsolute = 0x0D,
+    OraAbsoluteX = 0x1D,
+    OraAbsoluteY = 0x19,
+    OraIndirectX = 0x01,
+    OraIndirectY = 0x11,
+
     #[default]
     Unimplemented = 0x0,
 }
