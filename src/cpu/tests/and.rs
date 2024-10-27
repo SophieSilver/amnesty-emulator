@@ -16,7 +16,11 @@ fn verify(a: u8, b: u8) -> impl Fn(&mut Cpu, &mut MemoryMapping) {
             (cpu.accumulator as i8).is_negative(),
             "NEGATIVE flag set incorrectly"
         );
-        assert_eq!(cpu.flags.contains(StatusFlags::ZERO), cpu.accumulator == 0);
+        assert_eq!(
+            cpu.flags.contains(StatusFlags::ZERO),
+            cpu.accumulator == 0,
+            "ZERO flag set incorrectly"
+        );
     }
 }
 
