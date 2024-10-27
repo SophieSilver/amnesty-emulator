@@ -23,6 +23,12 @@ pub fn add_would_overflow(a: i8, b: i8, carry: bool) -> bool {
     overflow1 != overflow2
 }
 
+/// Subtracts two numbers and a carry bit, which acts as an inverse of the borrow flag
+pub fn sub_with_carry(a: u8, b: u8, carry: bool) -> (u8, bool) {
+    // see https://www.reddit.com/r/EmuDev/comments/k5hzuo/comment/gegnkq5/
+    add_with_carry(a, !b, carry)
+}
+
 pub fn fetch_from_pc(cpu: &mut Cpu, memory: &mut MemoryMapping) -> u8 {
     let value = memory.load(cpu.program_counter);
     cpu.program_counter = cpu.program_counter.wrapping_add(1);
