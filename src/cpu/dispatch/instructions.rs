@@ -36,6 +36,43 @@ fn get_y_index(cpu: &Cpu) -> u8 {
     cpu.y_index
 }
 
+// AND
+fn and_common(cpu: &mut Cpu, value: u8) {
+    let new_accumulator = cpu.accumulator & value;
+    set_register(&mut cpu.accumulator, new_accumulator, &mut cpu.flags);
+}
+
+pub fn and_immediate(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
+    read_immediate(cpu, memory, and_common)
+}
+
+pub fn and_zeropage(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
+    read_zeropage(cpu, memory, and_common)
+}
+
+pub fn and_zeropage_x(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
+    read_zeropage_indexed(cpu, memory, get_x_index, and_common)
+}
+
+pub fn and_absolute(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
+    read_absolute(cpu, memory, and_common)
+}
+
+pub fn and_absolute_x(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
+    read_absolute_indexed(cpu, memory, get_x_index, and_common)
+}
+
+pub fn and_absolute_y(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
+    read_absolute_indexed(cpu, memory, get_y_index, and_common)
+}
+
+pub fn and_indirect_x(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
+    read_indirect_x(cpu, memory, and_common)
+}
+
+pub fn and_indirect_y(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
+    read_indirect_y(cpu, memory, and_common)
+}
 // ADC
 fn adc_common(cpu: &mut Cpu, value: u8) {
     let (sum, carry) = add_with_carry(

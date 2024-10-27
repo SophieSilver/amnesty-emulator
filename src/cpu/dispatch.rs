@@ -99,6 +99,16 @@ pub fn dispatch_current_opcode(cpu: &mut Cpu, memory: &mut MemoryMapping) -> Con
         OpCode::AdcIndirectX => adc_indirect_x(cpu, memory),
         OpCode::AdcIndirectY => adc_indirect_y(cpu, memory),
 
+        //AND
+        OpCode::AndImmediate => and_immediate(cpu, memory),
+        OpCode::AndZeroPage => and_zeropage(cpu, memory),
+        OpCode::AndZeroPageX => and_zeropage_x(cpu, memory),
+        OpCode::AndAbsolute => and_absolute(cpu, memory),
+        OpCode::AndAbsoluteX => and_absolute_x(cpu, memory),
+        OpCode::AndAbsoluteY => and_absolute_y(cpu, memory),
+        OpCode::AndIndirectX => and_indirect_x(cpu, memory),
+        OpCode::AndIndirectY => and_indirect_y(cpu, memory),
+
         // LDA
         OpCode::LdaImmediate => lda_immediate(cpu, memory),
         OpCode::LdaZeroPage => lda_zeropage(cpu, memory),
