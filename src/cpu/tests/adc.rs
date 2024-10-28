@@ -1,10 +1,10 @@
+use super::*;
 use crate::{
     cpu::{Cpu, StatusFlags},
     memory::MemoryMapping,
 };
-use utils::possible_pairs_with_carry;
-
-use super::*;
+use consts::*;
+use utils::{possible_pairs_with_carry, TestOpcodePreset};
 
 fn verify(a: u8, b: u8, carry: bool) -> impl Fn(&mut Cpu, &mut MemoryMapping) {
     // just dump everything into u32 and see what's out of range
@@ -52,7 +52,7 @@ fn immediate() {
                 cpu.accumulator = a;
                 cpu.flags.set(StatusFlags::CARRY, carry);
             })
-            .with_arguments(&[b])
+            .with_preset(TestOpcodePreset::Immediate(b))
             .test();
     }
 }
@@ -60,15 +60,12 @@ fn immediate() {
 #[test]
 fn zeropage() {
     for (a, b, carry) in possible_pairs_with_carry() {
-        let addr = 0x25;
-
         TestOpcodeOptions::new(OpCode::AdcZeroPage, 3, verify(a, b, carry))
             .with_prepare(|cpu| {
                 cpu.accumulator = a;
                 cpu.flags.set(StatusFlags::CARRY, carry);
             })
-            .with_arguments(&[addr])
-            .with_additional_values(&[(addr as u16, b)])
+            .with_preset(TestOpcodePreset::ZeroPage(b))
             .test();
     }
 }
@@ -76,17 +73,12 @@ fn zeropage() {
 #[test]
 fn zeropage_x() {
     for (a, b, carry) in possible_pairs_with_carry() {
-        let base_addr = 0x25;
-        let offset = 0x20;
-
         TestOpcodeOptions::new(OpCode::AdcZeroPageX, 4, verify(a, b, carry))
             .with_prepare(|cpu| {
                 cpu.accumulator = a;
-                cpu.x_index = offset;
                 cpu.flags.set(StatusFlags::CARRY, carry);
             })
-            .with_arguments(&[base_addr])
-            .with_additional_values(&[(base_addr.wrapping_add(offset) as u16, b)])
+            .with_preset(TestOpcodePreset::ZeroPageX(b))
             .test();
     }
 }
@@ -94,17 +86,12 @@ fn zeropage_x() {
 #[test]
 fn zeropage_x_overflow() {
     for (a, b, carry) in possible_pairs_with_carry() {
-        let base_addr = 0x85;
-        let offset = 0xD0;
-
         TestOpcodeOptions::new(OpCode::AdcZeroPageX, 4, verify(a, b, carry))
             .with_prepare(|cpu| {
                 cpu.accumulator = a;
-                cpu.x_index = offset;
                 cpu.flags.set(StatusFlags::CARRY, carry);
             })
-            .with_arguments(&[base_addr])
-            .with_additional_values(&[(base_addr.wrapping_add(offset) as u16, b)])
+            .with_preset(TestOpcodePreset::ZeroPageXOverflow(b))
             .test();
     }
 }

@@ -6,6 +6,9 @@ use crate::cpu::dispatch::OpCode;
 
 #[allow(dead_code)]
 mod utils;
+#[allow(dead_code)]
+mod consts;
+
 
 mod adc;
 mod and;
