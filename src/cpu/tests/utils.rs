@@ -3,6 +3,8 @@ use crate::{
     memory::{ram::Ram, MemoryMapping},
 };
 
+mod presets;
+
 /// Returns an iterator of all possible pairs of values between 0 and `u8::MAX`
 pub fn possible_byte_pairs() -> impl Iterator<Item = (u8, u8)> {
     (u8::MIN..=u8::MAX).flat_map(|a| (u8::MIN..=u8::MAX).map(move |b| (a, b)))
@@ -13,6 +15,30 @@ pub fn possible_byte_pairs() -> impl Iterator<Item = (u8, u8)> {
 pub fn possible_pairs_with_carry() -> impl Iterator<Item = (u8, u8, bool)> {
     possible_byte_pairs().flat_map(|(a, b)| [(a, b, false), (a, b, true)])
 }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TestOpcodePreset {
+    None,
+    Immediate(u8),
+    ZeroPage(u8),
+    ZeroPageX(u8),
+    ZeroPageXOverflow(u8),
+    ZeroPageY(u8),
+    ZeroPageYOverflow(u8),
+    Absolute(u8),
+    AbsoluteX(u8),
+    AbsoluteXOverflow(u8),
+    AbsoluteY(u8),
+    AbsoluteYOverflow(u8),
+    IndirectX(u8),
+    IndirectXOverflow(u8),
+    IndirectXPageSplit(u8),
+    IndirectY(u8),
+    IndirectYOverflow(u8),
+    IndirectYPageSplit(u8),
+}
+
+const OPCODE_ADDR: u16 = 0x0200;
 
 /// Options for quickly and conveniently testing opcodes
 ///
@@ -67,8 +93,17 @@ where
     ///
     /// Use to verify that the instruction did everything correctly
     pub verify: VerifyFunc,
+
+    /// Preset for the test
+    ///
+    /// this will automatically add some values to memory and registers,
+    /// such as addresses or offsets.
+    ///
+    /// Presets are mutually exclusive with arguments and additional values.
+    pub preset: TestOpcodePreset,
 }
 
+// TODO: use typestate for presets
 // using a function pointer here for less headache with existential types
 impl<'a, VerifyFunc> TestOpcodeOptions<'a, fn(&mut Cpu), VerifyFunc>
 where
@@ -84,6 +119,7 @@ where
             check_pc: true,
             prepare: |_| {},
             verify,
+            preset: TestOpcodePreset::None,
         }
     }
 }
@@ -95,9 +131,18 @@ where
 {
     /// Run the test with current Options
     pub fn test(self) {
-        const OPCODE_ADDR: u16 = 0x0200;
-
         assert!(self.arguments.len() < u16::MAX as usize);
+
+        if self.preset != TestOpcodePreset::None {
+            assert!(
+                self.arguments.is_empty(),
+                "If a test preset is chosen, arguments cannot be set"
+            );
+            assert!(
+                self.additional_values.is_empty(),
+                "If a test preset is chosen, additional values cannot be set"
+            );
+        }
 
         // initialize the CPU and the memory
         let mut ram = Ram::new();
@@ -106,6 +151,8 @@ where
 
         // prepare memory
         memory.store(OPCODE_ADDR, self.opcode.into());
+
+        let preset_args_len = presets::apply_preset(self.preset, &mut cpu, &mut memory);
 
         for (i, &value) in self.arguments.iter().enumerate() {
             // address wrapped in 0..u16::MAX range
@@ -120,10 +167,10 @@ where
         }
 
         // prepare the cpu
+        cpu.program_counter = OPCODE_ADDR;
         (self.prepare)(&mut cpu);
 
         // execute
-        cpu.program_counter = OPCODE_ADDR;
         for i in 0..self.expected_cycles {
             cpu.run_cycle(&mut memory);
 
@@ -138,7 +185,12 @@ where
         }
 
         if self.check_pc {
-            let argument_len = self.arguments.len() as u16;
+            let argument_len = if self.preset == TestOpcodePreset::None {
+                self.arguments.len() as u16
+            } else {
+                preset_args_len
+            };
+
             let expected_pc = OPCODE_ADDR + 1 + argument_len;
             assert_eq!(
                 cpu.program_counter, expected_pc,
@@ -185,6 +237,12 @@ where
             expected_cycles: self.expected_cycles,
             check_pc: self.check_pc,
             verify: self.verify,
+            preset: self.preset,
         }
+    }
+
+    #[must_use]
+    pub fn with_preset(self, preset: TestOpcodePreset) -> Self {
+        Self { preset, ..self }
     }
 }
