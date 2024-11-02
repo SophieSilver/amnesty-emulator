@@ -43,14 +43,18 @@ fn verify(a: u8, b: u8, carry: bool) -> impl Fn(&mut Cpu, &mut MemoryMapping) {
     }
 }
 
+fn prepare(a: u8, carry: bool) -> impl Fn(&mut Cpu) {
+    move |cpu| {
+        cpu.accumulator = a;
+        cpu.flags.set(StatusFlags::CARRY, carry);
+    }
+}
+
 #[test]
 fn immediate() {
     for (a, b, carry) in possible_pairs_with_carry() {
         TestOpcodeOptions::new(OpCode::AdcImmediate, 2, verify(a, b, carry))
-            .with_prepare(|cpu| {
-                cpu.accumulator = a;
-                cpu.flags.set(StatusFlags::CARRY, carry);
-            })
+            .with_prepare(prepare(a, carry))
             .with_preset(Preset::Immediate(b))
             .test();
     }
@@ -60,10 +64,7 @@ fn immediate() {
 fn zeropage() {
     for (a, b, carry) in possible_pairs_with_carry() {
         TestOpcodeOptions::new(OpCode::AdcZeroPage, 3, verify(a, b, carry))
-            .with_prepare(|cpu| {
-                cpu.accumulator = a;
-                cpu.flags.set(StatusFlags::CARRY, carry);
-            })
+            .with_prepare(prepare(a, carry))
             .with_preset(Preset::ZeroPage(b))
             .test();
     }
@@ -73,10 +74,7 @@ fn zeropage() {
 fn zeropage_x() {
     for (a, b, carry) in possible_pairs_with_carry() {
         TestOpcodeOptions::new(OpCode::AdcZeroPageX, 4, verify(a, b, carry))
-            .with_prepare(|cpu| {
-                cpu.accumulator = a;
-                cpu.flags.set(StatusFlags::CARRY, carry);
-            })
+            .with_prepare(prepare(a, carry))
             .with_preset(Preset::ZeroPageX(b))
             .test();
     }
@@ -86,10 +84,7 @@ fn zeropage_x() {
 fn zeropage_x_overflow() {
     for (a, b, carry) in possible_pairs_with_carry() {
         TestOpcodeOptions::new(OpCode::AdcZeroPageX, 4, verify(a, b, carry))
-            .with_prepare(|cpu| {
-                cpu.accumulator = a;
-                cpu.flags.set(StatusFlags::CARRY, carry);
-            })
+            .with_prepare(prepare(a, carry))
             .with_preset(Preset::ZeroPageXOverflow(b))
             .test();
     }
@@ -99,10 +94,7 @@ fn zeropage_x_overflow() {
 fn absolute() {
     for (a, b, carry) in possible_pairs_with_carry() {
         TestOpcodeOptions::new(OpCode::AdcAbsolute, 4, verify(a, b, carry))
-            .with_prepare(|cpu| {
-                cpu.accumulator = a;
-                cpu.flags.set(StatusFlags::CARRY, carry);
-            })
+            .with_prepare(prepare(a, carry))
             .with_preset(Preset::Absolute(b))
             .test();
     }
@@ -112,10 +104,7 @@ fn absolute() {
 fn absolute_x() {
     for (a, b, carry) in possible_pairs_with_carry() {
         TestOpcodeOptions::new(OpCode::AdcAbsoluteX, 4, verify(a, b, carry))
-            .with_prepare(|cpu| {
-                cpu.accumulator = a;
-                cpu.flags.set(StatusFlags::CARRY, carry);
-            })
+            .with_prepare(prepare(a, carry))
             .with_preset(Preset::AbsoluteX(b))
             .test();
     }
@@ -125,10 +114,7 @@ fn absolute_x() {
 fn absolute_y() {
     for (a, b, carry) in possible_pairs_with_carry() {
         TestOpcodeOptions::new(OpCode::AdcAbsoluteY, 4, verify(a, b, carry))
-            .with_prepare(|cpu| {
-                cpu.accumulator = a;
-                cpu.flags.set(StatusFlags::CARRY, carry);
-            })
+            .with_prepare(prepare(a, carry))
             .with_preset(Preset::AbsoluteY(b))
             .test();
     }
@@ -138,10 +124,7 @@ fn absolute_y() {
 fn absolute_x_overflow() {
     for (a, b, carry) in possible_pairs_with_carry() {
         TestOpcodeOptions::new(OpCode::AdcAbsoluteX, 5, verify(a, b, carry))
-            .with_prepare(|cpu| {
-                cpu.accumulator = a;
-                cpu.flags.set(StatusFlags::CARRY, carry);
-            })
+            .with_prepare(prepare(a, carry))
             .with_preset(Preset::AbsoluteXOverflow(b))
             .test();
     }
@@ -151,10 +134,7 @@ fn absolute_x_overflow() {
 fn absolute_y_overflow() {
     for (a, b, carry) in possible_pairs_with_carry() {
         TestOpcodeOptions::new(OpCode::AdcAbsoluteY, 5, verify(a, b, carry))
-            .with_prepare(|cpu| {
-                cpu.accumulator = a;
-                cpu.flags.set(StatusFlags::CARRY, carry);
-            })
+            .with_prepare(prepare(a, carry))
             .with_preset(Preset::AbsoluteYOverflow(b))
             .test();
     }
@@ -164,10 +144,7 @@ fn absolute_y_overflow() {
 fn indirect_x() {
     for (a, b, carry) in possible_pairs_with_carry() {
         TestOpcodeOptions::new(OpCode::AdcIndirectX, 6, verify(a, b, carry))
-            .with_prepare(|cpu| {
-                cpu.accumulator = a;
-                cpu.flags.set(StatusFlags::CARRY, carry);
-            })
+            .with_prepare(prepare(a, carry))
             .with_preset(Preset::IndirectX(b))
             .test();
     }
@@ -177,10 +154,7 @@ fn indirect_x() {
 fn indirect_y() {
     for (a, b, carry) in possible_pairs_with_carry() {
         TestOpcodeOptions::new(OpCode::AdcIndirectY, 5, verify(a, b, carry))
-            .with_prepare(|cpu| {
-                cpu.accumulator = a;
-                cpu.flags.set(StatusFlags::CARRY, carry);
-            })
+            .with_prepare(prepare(a, carry))
             .with_preset(Preset::IndirectY(b))
             .test();
     }
@@ -190,10 +164,7 @@ fn indirect_y() {
 fn indirect_x_overflow() {
     for (a, b, carry) in possible_pairs_with_carry() {
         TestOpcodeOptions::new(OpCode::AdcIndirectX, 6, verify(a, b, carry))
-            .with_prepare(|cpu| {
-                cpu.accumulator = a;
-                cpu.flags.set(StatusFlags::CARRY, carry);
-            })
+            .with_prepare(prepare(a, carry))
             .with_preset(Preset::IndirectXOverflow(b))
             .test();
     }
@@ -203,10 +174,7 @@ fn indirect_x_overflow() {
 fn indirect_y_overflow() {
     for (a, b, carry) in possible_pairs_with_carry() {
         TestOpcodeOptions::new(OpCode::AdcIndirectY, 6, verify(a, b, carry))
-            .with_prepare(|cpu| {
-                cpu.accumulator = a;
-                cpu.flags.set(StatusFlags::CARRY, carry);
-            })
+            .with_prepare(prepare(a, carry))
             .with_preset(Preset::IndirectYOverflow(b))
             .test();
     }
@@ -216,10 +184,7 @@ fn indirect_y_overflow() {
 fn indirect_x_page_split() {
     for (a, b, carry) in possible_pairs_with_carry() {
         TestOpcodeOptions::new(OpCode::AdcIndirectX, 6, verify(a, b, carry))
-            .with_prepare(|cpu| {
-                cpu.accumulator = a;
-                cpu.flags.set(StatusFlags::CARRY, carry);
-            })
+            .with_prepare(prepare(a, carry))
             .with_preset(Preset::IndirectXPageSplit(b))
             .test();
     }
@@ -229,10 +194,7 @@ fn indirect_x_page_split() {
 fn indirect_y_page_split() {
     for (a, b, carry) in possible_pairs_with_carry() {
         TestOpcodeOptions::new(OpCode::AdcIndirectY, 5, verify(a, b, carry))
-            .with_prepare(|cpu| {
-                cpu.accumulator = a;
-                cpu.flags.set(StatusFlags::CARRY, carry);
-            })
+            .with_prepare(prepare(a, carry))
             .with_preset(Preset::IndirectYPageSplit(b))
             .test();
     }
