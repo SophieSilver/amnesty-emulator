@@ -12,6 +12,7 @@ mod consts;
 
 mod adc;
 mod and;
+mod bit;
 mod cmp;
 mod eor;
 mod lda;

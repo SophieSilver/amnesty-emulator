@@ -130,6 +130,10 @@ pub fn dispatch_current_opcode(cpu: &mut Cpu, memory: &mut MemoryMapping) -> Con
         OpCode::AndIndirectX => and::indirect_x(cpu, memory),
         OpCode::AndIndirectY => and::indirect_y(cpu, memory),
 
+        // BIT
+        OpCode::BitZeroPage => bit::zeropage(cpu, memory),
+        OpCode::BitAbsolute => bit::absolute(cpu, memory),
+
         // CMP
         OpCode::CmpImmediate => cmp::immediate(cpu, memory),
         OpCode::CmpZeroPage => cmp::zeropage(cpu, memory),
