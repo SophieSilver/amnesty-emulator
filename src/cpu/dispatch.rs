@@ -106,6 +106,11 @@ pub enum OpCode {
     SbcIndirectX = 0xE1,
     SbcIndirectY = 0xF1,
 
+    // SE*
+    Sec = 0x38,
+    Sed = 0xF8,
+    Sei = 0x78,
+
     #[default]
     Unimplemented = 0x0,
 }
@@ -213,6 +218,10 @@ pub fn dispatch_current_opcode(cpu: &mut Cpu, memory: &mut MemoryMapping) -> Con
         OpCode::SbcAbsoluteY => sbc::absolute_y(cpu, memory),
         OpCode::SbcIndirectX => sbc::indirect_x(cpu, memory),
         OpCode::SbcIndirectY => sbc::indirect_y(cpu, memory),
+
+        OpCode::Sec => sec(cpu, memory),
+        OpCode::Sed => sed(cpu, memory),
+        OpCode::Sei => sei(cpu, memory),
 
         _ => unimplemented!(),
     }

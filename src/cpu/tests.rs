@@ -59,6 +59,33 @@ fn clv() {
 }
 
 #[test]
+fn sec() {
+    TestOpcodeOptions::new(OpCode::Sec, 2, |cpu, _memory| {
+        assert!(cpu.flags.contains(StatusFlags::CARRY))
+    })
+    .with_prepare(|cpu| cpu.flags.remove(StatusFlags::CARRY))
+    .test();
+}
+
+#[test]
+fn sed() {
+    TestOpcodeOptions::new(OpCode::Sed, 2, |cpu, _memory| {
+        assert!(cpu.flags.contains(StatusFlags::DECIMAL))
+    })
+    .with_prepare(|cpu| cpu.flags.remove(StatusFlags::DECIMAL))
+    .test();
+}
+
+#[test]
+fn sei() {
+    TestOpcodeOptions::new(OpCode::Sei, 2, |cpu, _memory| {
+        assert!(cpu.flags.contains(StatusFlags::INTERRUPT_DISABLE))
+    })
+    .with_prepare(|cpu| cpu.flags.remove(StatusFlags::INTERRUPT_DISABLE))
+    .test();
+}
+
+#[test]
 fn nop() {
     let a = 2;
     let sp = 3;

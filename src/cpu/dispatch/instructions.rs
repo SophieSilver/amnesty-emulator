@@ -40,6 +40,8 @@ pub mod ldy;
 pub mod ora;
 pub mod sbc;
 
+// implied instructions
+
 pub fn clc(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
     implied(cpu, memory, |cpu| {
         cpu.flags.remove(StatusFlags::CARRY);
@@ -61,6 +63,24 @@ pub fn cli(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
 pub fn clv(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
     implied(cpu, memory, |cpu| {
         cpu.flags.remove(StatusFlags::OVERFLOW);
+    })
+}
+
+pub fn sec(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
+    implied(cpu, memory, |cpu| {
+        cpu.flags.insert(StatusFlags::CARRY);
+    })
+}
+
+pub fn sed(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
+    implied(cpu, memory, |cpu| {
+        cpu.flags.insert(StatusFlags::DECIMAL);
+    })
+}
+
+pub fn sei(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
+    implied(cpu, memory, |cpu| {
+        cpu.flags.insert(StatusFlags::INTERRUPT_DISABLE);
     })
 }
 
