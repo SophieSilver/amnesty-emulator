@@ -15,7 +15,7 @@ pub fn get_y_index(cpu: &Cpu) -> u8 {
     cpu.y_index
 }
 
-/// Add 2 numbers and a carry bit
+/// Add two numbers and a carry bit
 pub fn add_with_carry(a: u8, b: u8, carry: bool) -> (u8, bool) {
     // this is equivalent to the implementation of the unstable `carrying_add`
     let (sum1, carry1) = a.overflowing_add(b);
@@ -24,6 +24,7 @@ pub fn add_with_carry(a: u8, b: u8, carry: bool) -> (u8, bool) {
     (sum2, carry1 | carry2)
 }
 
+/// Check if adding two numbers and a carry bit would result in signed overflow
 pub fn add_would_overflow(a: i8, b: i8, carry: bool) -> bool {
     let (sum1, overflow1) = a.overflowing_add(b);
     let (_, overflow2) = sum1.overflowing_add(carry as i8);
@@ -33,16 +34,18 @@ pub fn add_would_overflow(a: i8, b: i8, carry: bool) -> bool {
     overflow1 != overflow2
 }
 
-/// Subtracts two numbers and a carry bit, which acts as an inverse of the borrow flag
+/// Subtract two numbers and a carry bit, which acts as an inverse of the borrow flag
 pub fn sub_with_carry(a: u8, b: u8, carry: bool) -> (u8, bool) {
     // see https://www.reddit.com/r/EmuDev/comments/k5hzuo/comment/gegnkq5/
     add_with_carry(a, !b, carry)
 }
 
+/// Check if subtracting two numbers and a carry bit would result in signed overflow
 pub fn sub_would_overflow(a: i8, b: i8, carry: bool) -> bool {
     add_would_overflow(a, !b, carry)
 }
 
+/// Fetch a value from the address pointed to by the Program Counter and increment Program Counter
 pub fn fetch_from_pc<M: Memory>(cpu: &mut Cpu, memory: &mut M) -> u8 {
     let value = memory.load(cpu.program_counter);
     cpu.program_counter = cpu.program_counter.wrapping_add(1);
@@ -50,7 +53,7 @@ pub fn fetch_from_pc<M: Memory>(cpu: &mut Cpu, memory: &mut M) -> u8 {
     value
 }
 
-/// Set a register to a value and also correctly set the Negative and Zero flags
+/// Set a register to a value and also correctly set the NEGATIVE and ZERO flags
 pub fn set_register(register: &mut u8, value: u8, flags: &mut StatusFlags) {
     *register = value;
     flags.set(StatusFlags::NEGATIVE, (value as i8).is_negative());
