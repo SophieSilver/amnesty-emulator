@@ -115,7 +115,7 @@ impl Default for Cpu {
             x_index: 0,
             y_index: 0,
             program_counter: 0,
-            stack_ptr: 0,
+            stack_ptr: 0xFF,
             flags: StatusFlags::default(),
         }
     }
