@@ -27,14 +27,7 @@ use std::ops::ControlFlow;
 pub(in crate::cpu) mod helpers;
 mod templates;
 use helpers::*;
-
-fn get_x_index(cpu: &Cpu) -> u8 {
-    cpu.x_index
-}
-
-fn get_y_index(cpu: &Cpu) -> u8 {
-    cpu.y_index
-}
+use templates::implied;
 
 pub mod adc;
 pub mod and;
@@ -46,3 +39,7 @@ pub mod ldx;
 pub mod ldy;
 pub mod ora;
 pub mod sbc;
+
+pub fn nop(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
+    implied(cpu, memory, |_| {})
+}

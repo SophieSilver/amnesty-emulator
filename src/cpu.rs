@@ -17,7 +17,7 @@ bitflags! {
     /// The description of the flags and their meanings can be found at
     /// [http://www.6502.org/users/obelisk/6502/registers.html] and
     /// https://www.nesdev.org/wiki/Status_flags
-    #[derive(Debug, Clone, Copy)]
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
     pub struct StatusFlags: u8 {
         const CARRY = 1;
         const ZERO = 1 << 1;

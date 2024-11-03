@@ -5,6 +5,16 @@ use crate::{
     memory::MemoryMapping,
 };
 
+/// Get the X index register, used as an argument to templates
+pub fn get_x_index(cpu: &Cpu) -> u8 {
+    cpu.x_index
+}
+
+/// Get the Y index register, used as an argument to templates
+pub fn get_y_index(cpu: &Cpu) -> u8 {
+    cpu.y_index
+}
+
 /// Add 2 numbers and a carry bit
 pub fn add_with_carry(a: u8, b: u8, carry: bool) -> (u8, bool) {
     // this is equivalent to the implementation of the unstable `carrying_add`
@@ -31,7 +41,7 @@ pub fn sub_with_carry(a: u8, b: u8, carry: bool) -> (u8, bool) {
 
 pub fn sub_would_overflow(a: i8, b: i8, carry: bool) -> bool {
     add_would_overflow(a, !b, carry)
-} 
+}
 
 pub fn fetch_from_pc(cpu: &mut Cpu, memory: &mut MemoryMapping) -> u8 {
     let value = memory.load(cpu.program_counter);

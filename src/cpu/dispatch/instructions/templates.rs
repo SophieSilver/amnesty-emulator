@@ -283,3 +283,21 @@ pub mod read {
         ControlFlow::Continue(())
     }
 }
+
+pub fn implied<F: FnOnce(&mut Cpu)>(
+    cpu: &mut Cpu,
+    memory: &mut MemoryMapping,
+    f: F,
+) -> ControlFlow<()> //
+{
+    match cpu.current_cycle {
+        1 => {
+            _ = memory.load(cpu.program_counter);
+            f(cpu);
+
+            ControlFlow::Break(())
+        }
+
+        _ => unreachable!(),
+    }
+}

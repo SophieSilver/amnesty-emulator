@@ -79,6 +79,8 @@ pub enum OpCode {
     LdyAbsolute = 0xAC,
     LdyAbsoluteX = 0xBC,
 
+    Nop = 0xEA,
+
     // ORA
     OraImmediate = 0x09,
     OraZeroPage = 0x05,
@@ -177,6 +179,8 @@ pub fn dispatch_current_opcode(cpu: &mut Cpu, memory: &mut MemoryMapping) -> Con
         OpCode::LdyZeroPageX => ldy::zeropage_x(cpu, memory),
         OpCode::LdyAbsolute => ldy::absolute(cpu, memory),
         OpCode::LdyAbsoluteX => ldy::absolute_x(cpu, memory),
+
+        OpCode::Nop => nop(cpu, memory),
 
         // ORA
         OpCode::OraImmediate => ora::immediate(cpu, memory),
