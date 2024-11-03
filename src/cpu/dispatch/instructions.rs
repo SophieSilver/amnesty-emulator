@@ -33,9 +33,11 @@ pub mod and;
 pub mod bit;
 pub mod cmp;
 pub mod eor;
-pub mod implied;
 pub mod lda;
 pub mod ldx;
 pub mod ldy;
 pub mod ora;
 pub mod sbc;
+
+mod implied;
+pub use implied::*;

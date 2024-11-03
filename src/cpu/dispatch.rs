@@ -147,10 +147,10 @@ pub fn dispatch_current_opcode<M: Memory>(cpu: &mut Cpu, memory: &mut M) -> Cont
         OpCode::BitAbsolute => bit::absolute(cpu, memory),
 
         // CL*
-        OpCode::Clc => implied::clc(cpu, memory),
-        OpCode::Cld => implied::cld(cpu, memory),
-        OpCode::Cli => implied::cli(cpu, memory),
-        OpCode::Clv => implied::clv(cpu, memory),
+        OpCode::Clc => clc(cpu, memory),
+        OpCode::Cld => cld(cpu, memory),
+        OpCode::Cli => cli(cpu, memory),
+        OpCode::Clv => clv(cpu, memory),
 
         // CMP
         OpCode::CmpImmediate => cmp::immediate(cpu, memory),
@@ -197,7 +197,7 @@ pub fn dispatch_current_opcode<M: Memory>(cpu: &mut Cpu, memory: &mut M) -> Cont
         OpCode::LdyAbsoluteX => ldy::absolute_x(cpu, memory),
 
         // NOP
-        OpCode::Nop => implied::nop(cpu, memory),
+        OpCode::Nop => nop(cpu, memory),
 
         // ORA
         OpCode::OraImmediate => ora::immediate(cpu, memory),
@@ -219,9 +219,9 @@ pub fn dispatch_current_opcode<M: Memory>(cpu: &mut Cpu, memory: &mut M) -> Cont
         OpCode::SbcIndirectX => sbc::indirect_x(cpu, memory),
         OpCode::SbcIndirectY => sbc::indirect_y(cpu, memory),
 
-        OpCode::Sec => implied::sec(cpu, memory),
-        OpCode::Sed => implied::sed(cpu, memory),
-        OpCode::Sei => implied::sei(cpu, memory),
+        OpCode::Sec => sec(cpu, memory),
+        OpCode::Sed => sed(cpu, memory),
+        OpCode::Sei => sei(cpu, memory),
 
         _ => unimplemented!(),
     }
