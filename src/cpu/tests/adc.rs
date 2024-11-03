@@ -1,6 +1,6 @@
 use super::*;
 use crate::cpu::{Cpu, StatusFlags};
-use utils::{possible_pairs_with_carry, TestOpcodePreset as Preset};
+use utils::{possible_pairs_with_carry, Preset};
 
 fn verify(a: u8, b: u8, carry: bool) -> impl Fn(&mut Cpu, &mut TestMemory) {
     // just dump everything into u32 and see what's out of range

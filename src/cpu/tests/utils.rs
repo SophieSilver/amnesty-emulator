@@ -1,3 +1,5 @@
+use presets::apply_preset;
+
 use crate::{
     cpu::{dispatch::OpCode, Cpu},
     memory::Memory,
@@ -19,8 +21,7 @@ pub fn possible_pairs_with_carry() -> impl Iterator<Item = (u8, u8, bool)> {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum TestOpcodePreset {
-    None,
+pub enum Preset {
     Immediate(u8),
     ZeroPage(u8),
     ZeroPageX(u8),
@@ -42,6 +43,57 @@ pub enum TestOpcodePreset {
 
 const OPCODE_ADDR: u16 = 0x0200;
 
+pub trait ArgumentSource {
+    fn apply(&self, cpu: &mut Cpu, memory: &mut TestMemory) -> u16;
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct EmptySource;
+
+impl ArgumentSource for EmptySource {
+    fn apply(&self, _cpu: &mut Cpu, _memory: &mut TestMemory) -> u16 {
+        0
+    }
+}
+
+impl ArgumentSource for Preset {
+    fn apply(&self, cpu: &mut Cpu, memory: &mut TestMemory) -> u16 {
+        apply_preset(*self, cpu, memory)
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct ExplicitSource<'a> {
+    /// Arguments that follow the opcode
+    ///
+    /// They will be loaded at addresses `0x1..arguments.len()`
+    pub arguments: &'a [u8],
+
+    /// Additional values to place at specified memory addresses
+    pub additional_values: &'a [(u16, u8)],
+}
+
+impl<'a> ArgumentSource for ExplicitSource<'a> {
+    fn apply(&self, _cpu: &mut Cpu, memory: &mut TestMemory) -> u16 {
+        for (i, &value) in self.arguments.iter().enumerate() {
+            // address wrapped in 0..u16::MAX range
+            let addr = (i + OPCODE_ADDR as usize + 1) % u16::MAX as usize;
+            let addr = addr as u16;
+
+            memory.store(addr, value);
+        }
+
+        for &(addr, value) in self.additional_values {
+            memory.store(addr, value);
+        }
+
+        self.arguments
+            .len()
+            .try_into()
+            .expect("Length of the arguments fits in a u16")
+    }
+}
+
 /// Options for quickly and conveniently testing opcodes
 ///
 /// ## Test structure
@@ -58,10 +110,10 @@ const OPCODE_ADDR: u16 = 0x0200;
 /// - `check_pc` is `true` AND
 ///     after executing the instruction the PC isn't equal to `0x200 + arguments.len()`
 /// - provided `verify` closure panics
-///
 #[derive(Debug)]
-pub struct TestOpcodeOptions<'a, PrepareFunc, VerifyFunc>
+pub struct TestOpcodeOptions<PrepareFunc, VerifyFunc, A = EmptySource>
 where
+    A: ArgumentSource,
     PrepareFunc: FnOnce(&mut Cpu),
     VerifyFunc: FnOnce(&mut Cpu, &mut TestMemory),
 {
@@ -69,14 +121,6 @@ where
     ///
     /// This will be loaded at address `0x0200`
     pub opcode: OpCode,
-
-    /// Arguments that follow the opcode
-    ///
-    /// They will be loaded at addresses `0x1..arguments.len()`
-    pub arguments: &'a [u8],
-
-    /// Additional values to place at specified memory addresses
-    pub additional_values: &'a [(u16, u8)],
 
     /// How many cycles is the instruction expected to take
     pub expected_cycles: u8,
@@ -96,18 +140,11 @@ where
     /// Use to verify that the instruction did everything correctly
     pub verify: VerifyFunc,
 
-    /// Preset for the test
-    ///
-    /// this will automatically add some values to memory and registers,
-    /// such as addresses or offsets.
-    ///
-    /// Presets are mutually exclusive with arguments and additional values.
-    pub preset: TestOpcodePreset,
+    pub argument_source: A,
 }
 
-// TODO: use typestate for presets
 // using a function pointer here for less headache with existential types
-impl<'a, VerifyFunc> TestOpcodeOptions<'a, fn(&mut Cpu), VerifyFunc>
+impl<VerifyFunc> TestOpcodeOptions<fn(&mut Cpu), VerifyFunc>
 where
     VerifyFunc: FnOnce(&mut Cpu, &mut TestMemory),
 {
@@ -115,37 +152,23 @@ where
     pub fn new(opcode: OpCode, expected_cycles: u8, verify: VerifyFunc) -> Self {
         Self {
             opcode,
-            arguments: &[],
-            additional_values: &[],
             expected_cycles,
             check_pc: true,
             prepare: |_| {},
             verify,
-            preset: TestOpcodePreset::None,
+            argument_source: EmptySource,
         }
     }
 }
 
-impl<'a, PrepareFunc, VerifyFunc> TestOpcodeOptions<'a, PrepareFunc, VerifyFunc>
+impl<PrepareFunc, VerifyFunc, A> TestOpcodeOptions<PrepareFunc, VerifyFunc, A>
 where
+    A: ArgumentSource,
     PrepareFunc: FnOnce(&mut Cpu),
     VerifyFunc: FnOnce(&mut Cpu, &mut TestMemory),
 {
     /// Run the test with current Options
     pub fn test(self) {
-        assert!(self.arguments.len() < u16::MAX as usize);
-
-        if self.preset != TestOpcodePreset::None {
-            assert!(
-                self.arguments.is_empty(),
-                "If a test preset is chosen, arguments cannot be set"
-            );
-            assert!(
-                self.additional_values.is_empty(),
-                "If a test preset is chosen, additional values cannot be set"
-            );
-        }
-
         // initialize the CPU and the memory
         let mut cpu = Cpu::new();
         let mut memory = TestMemory::new();
@@ -153,19 +176,7 @@ where
         // prepare memory
         memory.store(OPCODE_ADDR, self.opcode.into());
 
-        let preset_args_len = presets::apply_preset(self.preset, &mut cpu, &mut memory);
-
-        for (i, &value) in self.arguments.iter().enumerate() {
-            // address wrapped in 0..u16::MAX range
-            let addr = (i + OPCODE_ADDR as usize + 1) % u16::MAX as usize;
-            let addr = addr as u16;
-
-            memory.store(addr, value);
-        }
-
-        for &(addr, value) in self.additional_values {
-            memory.store(addr, value);
-        }
+        let argument_len = self.argument_source.apply(&mut cpu, &mut memory);
 
         // prepare the cpu
         cpu.program_counter = OPCODE_ADDR;
@@ -186,12 +197,6 @@ where
         }
 
         if self.check_pc {
-            let argument_len = if self.preset == TestOpcodePreset::None {
-                self.arguments.len() as u16
-            } else {
-                preset_args_len
-            };
-
             let expected_pc = OPCODE_ADDR + 1 + argument_len;
             assert_eq!(
                 cpu.program_counter, expected_pc,
@@ -203,22 +208,6 @@ where
     }
 
     #[must_use]
-    pub fn with_arguments(self, arguments: &'a impl AsRef<[u8]>) -> Self {
-        Self {
-            arguments: arguments.as_ref(),
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn with_additional_values(self, additional_values: &'a impl AsRef<[(u16, u8)]>) -> Self {
-        Self {
-            additional_values: additional_values.as_ref(),
-            ..self
-        }
-    }
-
-    #[must_use]
     pub fn with_check_pc(self, check_pc: bool) -> Self {
         Self { check_pc, ..self }
     }
@@ -227,23 +216,102 @@ where
     pub fn with_prepare<NewPrepareFunc: FnOnce(&mut Cpu)>(
         self,
         prepare: NewPrepareFunc,
-    ) -> TestOpcodeOptions<'a, NewPrepareFunc, VerifyFunc> //
+    ) -> TestOpcodeOptions<NewPrepareFunc, VerifyFunc, A> //
     {
         // can't do ..self coz different generic types
         TestOpcodeOptions {
             prepare,
             opcode: self.opcode,
-            arguments: self.arguments,
-            additional_values: self.additional_values,
             expected_cycles: self.expected_cycles,
             check_pc: self.check_pc,
             verify: self.verify,
-            preset: self.preset,
+            argument_source: self.argument_source,
+        }
+    }
+}
+
+impl<PrepareFunc, VerifyFunc> TestOpcodeOptions<PrepareFunc, VerifyFunc>
+where
+    PrepareFunc: FnOnce(&mut Cpu),
+    VerifyFunc: FnOnce(&mut Cpu, &mut TestMemory),
+{
+    #[must_use]
+    pub fn with_arguments<'a>(
+        self,
+        arguments: &'a impl AsRef<[u8]>,
+    ) -> TestOpcodeOptions<PrepareFunc, VerifyFunc, ExplicitSource<'a>> //
+    {
+        TestOpcodeOptions {
+            opcode: self.opcode,
+            expected_cycles: self.expected_cycles,
+            check_pc: self.check_pc,
+            prepare: self.prepare,
+            verify: self.verify,
+            argument_source: ExplicitSource {
+                arguments: &[],
+                additional_values: &[],
+            },
+        }
+        .with_arguments(arguments)
+    }
+
+    #[must_use]
+    pub fn with_additional_values<'a>(
+        self,
+        additional_values: &'a impl AsRef<[(u16, u8)]>,
+    ) -> TestOpcodeOptions<PrepareFunc, VerifyFunc, ExplicitSource<'a>> //
+    {
+        TestOpcodeOptions {
+            opcode: self.opcode,
+            expected_cycles: self.expected_cycles,
+            check_pc: self.check_pc,
+            prepare: self.prepare,
+            verify: self.verify,
+            argument_source: ExplicitSource {
+                arguments: &[],
+                additional_values: &[],
+            },
+        }
+        .with_additional_values(additional_values)
+    }
+
+    #[must_use]
+    pub fn with_preset(self, preset: Preset) -> TestOpcodeOptions<PrepareFunc, VerifyFunc, Preset> {
+        TestOpcodeOptions {
+            opcode: self.opcode,
+            expected_cycles: self.expected_cycles,
+            check_pc: self.check_pc,
+            prepare: self.prepare,
+            verify: self.verify,
+            argument_source: preset,
+        }
+    }
+}
+
+impl<'a, PrepareFunc, VerifyFunc> TestOpcodeOptions<PrepareFunc, VerifyFunc, ExplicitSource<'a>>
+where
+    PrepareFunc: FnOnce(&mut Cpu),
+    VerifyFunc: FnOnce(&mut Cpu, &mut TestMemory),
+{
+    #[must_use]
+    pub fn with_arguments(self, arguments: &'a impl AsRef<[u8]>) -> Self {
+        Self {
+            argument_source: ExplicitSource {
+                arguments: arguments.as_ref(),
+                ..self.argument_source
+            },
+            ..self
         }
     }
 
     #[must_use]
-    pub fn with_preset(self, preset: TestOpcodePreset) -> Self {
-        Self { preset, ..self }
+    pub fn with_additional_values(self, additional_values: &'a impl AsRef<[(u16, u8)]>) -> Self {
+        Self {
+            argument_source: ExplicitSource {
+                additional_values: additional_values.as_ref(),
+                ..self.argument_source
+            },
+            ..self
+        }
     }
 }

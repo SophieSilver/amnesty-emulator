@@ -1,4 +1,4 @@
-use utils::{possible_byte_pairs, TestOpcodePreset as Preset};
+use utils::{possible_byte_pairs, Preset as Preset};
 
 use crate::cpu::{Cpu, StatusFlags};
 

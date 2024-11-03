@@ -6,63 +6,62 @@ use crate::{
     memory::Memory,
 };
 
-use super::{TestOpcodePreset, OPCODE_ADDR};
+use super::{Preset, OPCODE_ADDR};
 
 /// Applies a preset
 ///
 /// # Returns
 /// the argument length
-pub fn apply_preset(preset: TestOpcodePreset, cpu: &mut Cpu, memory: &mut TestMemory) -> u16 {
+pub fn apply_preset(preset: Preset, cpu: &mut Cpu, memory: &mut TestMemory) -> u16 {
     let arg_addr: u16 = OPCODE_ADDR + 1;
     match preset {
-        TestOpcodePreset::None => 0,
-        TestOpcodePreset::Immediate(value) => {
+        Preset::Immediate(value) => {
             memory.store(arg_addr, value);
 
             1
         }
-        TestOpcodePreset::ZeroPage(value) => {
+        Preset::ZeroPage(value) => {
             memory.store(arg_addr, ZEROPAGE_ADDR);
             memory.store(ZEROPAGE_ADDR as u16, value);
 
             1
         }
-        TestOpcodePreset::ZeroPageX(value) => {
+        Preset::ZeroPageX(value) => {
             memory.store(arg_addr, ZEROPAGE_X_BASE_ADDR);
             cpu.x_index = ZEROPAGE_X_OFFSET;
             memory.store(ZEROPAGE_X_FINAL_ADDR, value);
 
             1
         }
-        TestOpcodePreset::ZeroPageXOverflow(value) => {
+        Preset::ZeroPageXOverflow(value) => {
             memory.store(arg_addr, ZEROPAGE_X_BASE_ADDR_OVERFLOW);
             cpu.x_index = ZEROPAGE_X_OFFSET_OVERFLOW;
             memory.store(ZEROPAGE_X_FINAL_ADDR_OVERFLOW, value);
 
             1
         }
-        TestOpcodePreset::ZeroPageY(value) => {
+        Preset::ZeroPageY(value) => {
             memory.store(arg_addr, ZEROPAGE_X_BASE_ADDR);
             cpu.y_index = ZEROPAGE_X_OFFSET;
             memory.store(ZEROPAGE_X_FINAL_ADDR, value);
 
             1
         }
-        TestOpcodePreset::ZeroPageYOverflow(value) => {
+        Preset::ZeroPageYOverflow(value) => {
             memory.store(arg_addr, ZEROPAGE_X_BASE_ADDR_OVERFLOW);
             cpu.y_index = ZEROPAGE_X_OFFSET_OVERFLOW;
             memory.store(ZEROPAGE_X_FINAL_ADDR_OVERFLOW, value);
 
             1
         }
-        TestOpcodePreset::Absolute(value) => {
+        Preset::Absolute(value) => {
             memory.store(arg_addr, ABSOLUTE_ADDR.to_le_bytes()[0]);
             memory.store(arg_addr + 1, ABSOLUTE_ADDR.to_le_bytes()[1]);
             memory.store(ABSOLUTE_ADDR, value);
 
             2
         }
-        TestOpcodePreset::AbsoluteX(value) => {
+        Preset::AbsoluteX(value) => {
             memory.store(arg_addr, ABSOLUTE_X_BASE_ADDR.to_le_bytes()[0]);
             memory.store(arg_addr + 1, ABSOLUTE_X_BASE_ADDR.to_le_bytes()[1]);
             cpu.x_index = ABSOLUTE_X_OFFSET;
@@ -70,7 +69,7 @@ pub fn apply_preset(preset: TestOpcodePreset, cpu: &mut Cpu, memory: &mut TestMe
 
             2
         }
-        TestOpcodePreset::AbsoluteXOverflow(value) => {
+        Preset::AbsoluteXOverflow(value) => {
             memory.store(arg_addr, ABSOLUTE_X_BASE_ADDR_OVERFLOW.to_le_bytes()[0]);
             memory.store(arg_addr + 1, ABSOLUTE_X_BASE_ADDR_OVERFLOW.to_le_bytes()[1]);
             cpu.x_index = ABSOLUTE_X_OFFSET_OVERFLOW;
@@ -78,7 +77,7 @@ pub fn apply_preset(preset: TestOpcodePreset, cpu: &mut Cpu, memory: &mut TestMe
 
             2
         }
-        TestOpcodePreset::AbsoluteY(value) => {
+        Preset::AbsoluteY(value) => {
             memory.store(arg_addr, ABSOLUTE_X_BASE_ADDR.to_le_bytes()[0]);
             memory.store(arg_addr + 1, ABSOLUTE_X_BASE_ADDR.to_le_bytes()[1]);
             cpu.y_index = ABSOLUTE_X_OFFSET;
@@ -86,7 +85,7 @@ pub fn apply_preset(preset: TestOpcodePreset, cpu: &mut Cpu, memory: &mut TestMe
 
             2
         }
-        TestOpcodePreset::AbsoluteYOverflow(value) => {
+        Preset::AbsoluteYOverflow(value) => {
             memory.store(arg_addr, ABSOLUTE_X_BASE_ADDR_OVERFLOW.to_le_bytes()[0]);
             memory.store(arg_addr + 1, ABSOLUTE_X_BASE_ADDR_OVERFLOW.to_le_bytes()[1]);
             cpu.y_index = ABSOLUTE_X_OFFSET_OVERFLOW;
@@ -94,7 +93,7 @@ pub fn apply_preset(preset: TestOpcodePreset, cpu: &mut Cpu, memory: &mut TestMe
 
             2
         }
-        TestOpcodePreset::IndirectX(value) => {
+        Preset::IndirectX(value) => {
             memory.store(arg_addr, INDIRECT_X_PTR_BASE);
             cpu.x_index = INDIRECT_X_OFFSET;
             memory.store(
@@ -109,7 +108,7 @@ pub fn apply_preset(preset: TestOpcodePreset, cpu: &mut Cpu, memory: &mut TestMe
 
             1
         }
-        TestOpcodePreset::IndirectXOverflow(value) => {
+        Preset::IndirectXOverflow(value) => {
             memory.store(arg_addr, INDIRECT_X_PTR_BASE_OVERFLOW);
             cpu.x_index = INDIRECT_X_OFFSET_OVERFLOW;
             memory.store(
@@ -124,7 +123,7 @@ pub fn apply_preset(preset: TestOpcodePreset, cpu: &mut Cpu, memory: &mut TestMe
 
             1
         }
-        TestOpcodePreset::IndirectXPageSplit(value) => {
+        Preset::IndirectXPageSplit(value) => {
             memory.store(arg_addr, INDIRECT_X_PTR_BASE_PAGE_SPLIT);
             cpu.x_index = INDIRECT_X_OFFSET_PAGE_SPLIT;
             memory.store(
@@ -139,7 +138,7 @@ pub fn apply_preset(preset: TestOpcodePreset, cpu: &mut Cpu, memory: &mut TestMe
 
             1
         }
-        TestOpcodePreset::IndirectY(value) => {
+        Preset::IndirectY(value) => {
             memory.store(arg_addr, INDIRECT_Y_PTR);
             cpu.y_index = INDIRECT_Y_OFFSET;
             memory.store(INDIRECT_Y_PTR as u16, INDIRECT_Y_BASE_ADDR.to_le_bytes()[0]);
@@ -151,7 +150,7 @@ pub fn apply_preset(preset: TestOpcodePreset, cpu: &mut Cpu, memory: &mut TestMe
 
             1
         }
-        TestOpcodePreset::IndirectYOverflow(value) => {
+        Preset::IndirectYOverflow(value) => {
             memory.store(arg_addr, INDIRECT_Y_PTR_OVERFLOW);
             cpu.y_index = INDIRECT_Y_OFFSET_OVERFLOW;
             memory.store(
@@ -166,7 +165,7 @@ pub fn apply_preset(preset: TestOpcodePreset, cpu: &mut Cpu, memory: &mut TestMe
 
             1
         }
-        TestOpcodePreset::IndirectYPageSplit(value) => {
+        Preset::IndirectYPageSplit(value) => {
             memory.store(arg_addr, INDIRECT_Y_PTR_PAGE_SPLIT);
             cpu.y_index = INDIRECT_Y_OFFSET_PAGE_SPLIT;
             memory.store(
