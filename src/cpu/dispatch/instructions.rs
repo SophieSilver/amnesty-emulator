@@ -24,9 +24,9 @@ use crate::{
 use std::ops::ControlFlow;
 
 #[macro_use]
-pub(in crate::cpu) mod helpers;
+pub(in crate::cpu) mod utils;
 mod templates;
-use helpers::*;
+use utils::*;
 
 pub mod adc;
 pub mod and;

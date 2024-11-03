@@ -1,6 +1,6 @@
 use super::Cpu;
 use crate::memory::Memory;
-use helpers::fetch_from_pc;
+use utils::fetch_from_pc;
 use num_enum::{FromPrimitive, IntoPrimitive};
 use std::ops::ControlFlow;
 

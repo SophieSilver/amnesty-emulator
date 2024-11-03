@@ -1,4 +1,4 @@
-//! Helper functions used in a variety of instructions
+//! Utility functions used in a variety of instructions
 
 use crate::{
     cpu::{Cpu, StatusFlags},
