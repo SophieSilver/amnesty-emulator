@@ -50,7 +50,7 @@ pub enum OpCode {
     CmpIndirectX = 0xC1,
     CmpIndirectY = 0xD1,
 
-    // DE*
+    // DEX/Y
     Dex = 0xCA,
     Dey = 0x88,
 
@@ -63,6 +63,10 @@ pub enum OpCode {
     EorAbsoluteY = 0x59,
     EorIndirectX = 0x41,
     EorIndirectY = 0x51,
+
+    // INX/Y
+    Inx = 0xE8,
+    Iny = 0xC8,
 
     // LDA
     LdaImmediate = 0xA9,
@@ -166,7 +170,7 @@ pub fn dispatch_current_opcode<M: Memory>(cpu: &mut Cpu, memory: &mut M) -> Cont
         OpCode::CmpIndirectX => cmp::indirect_x(cpu, memory),
         OpCode::CmpIndirectY => cmp::indirect_y(cpu, memory),
 
-        // DE*
+        // DEX/Y
         OpCode::Dex => dex(cpu, memory),
         OpCode::Dey => dey(cpu, memory),
 
@@ -179,6 +183,10 @@ pub fn dispatch_current_opcode<M: Memory>(cpu: &mut Cpu, memory: &mut M) -> Cont
         OpCode::EorAbsoluteY => eor::absolute_y(cpu, memory),
         OpCode::EorIndirectX => eor::indirect_x(cpu, memory),
         OpCode::EorIndirectY => eor::indirect_y(cpu, memory),
+
+        // INX/Y
+        OpCode::Inx => inx(cpu, memory),
+        OpCode::Iny => iny(cpu, memory),
 
         // LDA
         OpCode::LdaImmediate => lda::immediate(cpu, memory),

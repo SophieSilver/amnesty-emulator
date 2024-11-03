@@ -178,3 +178,49 @@ fn dey() {
         .test();
     }
 }
+
+#[test]
+fn inx() {
+    for x in 0..u8::MAX {
+        let expected = x.wrapping_add(1);
+
+        TestOpcodeOptions::new(OpCode::Inx, 2, |cpu, _memory| {
+            assert_eq!(cpu.x_index, expected, "X register incremented incorrectly");
+            assert_eq!(
+                cpu.flags.contains(StatusFlags::NEGATIVE),
+                (expected as i8) < 0,
+                "NEGATIVE flag set incorrectly"
+            );
+            assert_eq!(
+                cpu.flags.contains(StatusFlags::ZERO),
+                expected == 0,
+                "ZERO flag set incorrectly"
+            );
+        })
+        .with_prepare(|cpu| cpu.x_index = x)
+        .test();
+    }
+}
+
+#[test]
+fn iny() {
+    for y in 0..u8::MAX {
+        let expected = y.wrapping_add(1);
+
+        TestOpcodeOptions::new(OpCode::Iny, 2, |cpu, _memory| {
+            assert_eq!(cpu.y_index, expected, "Y register incremented incorrectly");
+            assert_eq!(
+                cpu.flags.contains(StatusFlags::NEGATIVE),
+                (expected as i8) < 0,
+                "NEGATIVE flag set incorrectly"
+            );
+            assert_eq!(
+                cpu.flags.contains(StatusFlags::ZERO),
+                expected == 0,
+                "ZERO flag set incorrectly"
+            );
+        })
+        .with_prepare(|cpu| cpu.y_index = y)
+        .test();
+    }
+}
