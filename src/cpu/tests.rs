@@ -1,5 +1,4 @@
 #![allow(clippy::arithmetic_side_effects)]
-
 use utils::TestOpcodeOptions;
 
 use crate::{
@@ -132,4 +131,50 @@ fn nop() {
         cpu.flags = flags;
     })
     .test();
+}
+
+#[test]
+fn dex() {
+    for x in 0..u8::MAX {
+        let expected = x.wrapping_sub(1);
+
+        TestOpcodeOptions::new(OpCode::Dex, 2, |cpu, _memory| {
+            assert_eq!(cpu.x_index, expected, "X register decremented incorrectly");
+            assert_eq!(
+                cpu.flags.contains(StatusFlags::NEGATIVE),
+                (expected as i8) < 0,
+                "NEGATIVE flag set incorrectly"
+            );
+            assert_eq!(
+                cpu.flags.contains(StatusFlags::ZERO),
+                expected == 0,
+                "ZERO flag set incorrectly"
+            );
+        })
+        .with_prepare(|cpu| cpu.x_index = x)
+        .test();
+    }
+}
+
+#[test]
+fn dey() {
+    for y in 0..u8::MAX {
+        let expected = y.wrapping_sub(1);
+
+        TestOpcodeOptions::new(OpCode::Dey, 2, |cpu, _memory| {
+            assert_eq!(cpu.y_index, expected, "Y register decremented incorrectly");
+            assert_eq!(
+                cpu.flags.contains(StatusFlags::NEGATIVE),
+                (expected as i8) < 0,
+                "NEGATIVE flag set incorrectly"
+            );
+            assert_eq!(
+                cpu.flags.contains(StatusFlags::ZERO),
+                expected == 0,
+                "ZERO flag set incorrectly"
+            );
+        })
+        .with_prepare(|cpu| cpu.y_index = y)
+        .test();
+    }
 }

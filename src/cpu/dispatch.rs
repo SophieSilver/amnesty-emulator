@@ -1,8 +1,8 @@
 use super::Cpu;
 use crate::memory::Memory;
-use utils::fetch_from_pc;
 use num_enum::{FromPrimitive, IntoPrimitive};
 use std::ops::ControlFlow;
+use utils::fetch_from_pc;
 
 pub(in crate::cpu) mod instructions;
 use instructions::*;
@@ -49,6 +49,10 @@ pub enum OpCode {
     CmpAbsoluteY = 0xD9,
     CmpIndirectX = 0xC1,
     CmpIndirectY = 0xD1,
+
+    // DE*
+    Dex = 0xCA,
+    Dey = 0x88,
 
     // EOR
     EorImmediate = 0x49,
@@ -161,6 +165,10 @@ pub fn dispatch_current_opcode<M: Memory>(cpu: &mut Cpu, memory: &mut M) -> Cont
         OpCode::CmpAbsoluteY => cmp::absolute_y(cpu, memory),
         OpCode::CmpIndirectX => cmp::indirect_x(cpu, memory),
         OpCode::CmpIndirectY => cmp::indirect_y(cpu, memory),
+
+        // DE*
+        OpCode::Dex => dex(cpu, memory),
+        OpCode::Dey => dey(cpu, memory),
 
         // EOR
         OpCode::EorImmediate => eor::immediate(cpu, memory),
