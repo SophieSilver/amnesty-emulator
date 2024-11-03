@@ -1,13 +1,12 @@
-use crate::{
-    cpu::{Cpu, StatusFlags},
-    memory::MemoryMapping,
-};
+use crate::cpu::{Cpu, StatusFlags};
 use utils::possible_pairs_with_carry;
 
 use super::*;
 
-fn verify(a: u8, b: u8, carry: bool) -> impl Fn(&mut Cpu, &mut MemoryMapping) {
-    let unsigned_result = (a as u32).wrapping_sub(b as u32).wrapping_sub(!carry as u32);
+fn verify(a: u8, b: u8, carry: bool) -> impl Fn(&mut Cpu, &mut TestMemory) {
+    let unsigned_result = (a as u32)
+        .wrapping_sub(b as u32)
+        .wrapping_sub(!carry as u32);
     let signed_result = a as i8 as i32 - b as i8 as i32 - !carry as i32;
 
     let should_carry = (u8::MIN as u32..=u8::MAX as u32).contains(&unsigned_result);
@@ -17,8 +16,7 @@ fn verify(a: u8, b: u8, carry: bool) -> impl Fn(&mut Cpu, &mut MemoryMapping) {
 
     move |cpu, _memory| {
         assert_eq!(
-            cpu.accumulator,
-            truncated_result,
+            cpu.accumulator, truncated_result,
             "Addition result incorrect a = {a}, b = {b}, carry = {carry}"
         );
         assert_eq!(

@@ -2,7 +2,10 @@
 
 use utils::TestOpcodeOptions;
 
-use crate::cpu::dispatch::OpCode;
+use crate::{
+    cpu::dispatch::OpCode,
+    memory::{ram::Ram, Memory},
+};
 
 use super::StatusFlags;
 
@@ -21,6 +24,27 @@ mod ldx;
 mod ldy;
 mod ora;
 mod sbc;
+
+#[derive(Debug, Clone)]
+struct TestMemory {
+    ram: Ram,
+}
+
+impl TestMemory {
+    pub fn new() -> Self {
+        Self { ram: Ram::new() }
+    }
+}
+
+impl Memory for TestMemory {
+    fn load(&mut self, address: u16) -> u8 {
+        self.ram.load(address)
+    }
+
+    fn store(&mut self, address: u16, value: u8) {
+        self.ram.store(address, value)
+    }
+}
 
 #[test]
 fn clc() {

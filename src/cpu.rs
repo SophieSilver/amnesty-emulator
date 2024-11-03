@@ -5,7 +5,7 @@ use std::ops::ControlFlow;
 use bitflags::bitflags;
 use dispatch::{dispatch_current_opcode, OpCode};
 
-use crate::memory::MemoryMapping;
+use crate::memory::Memory;
 
 mod dispatch;
 #[cfg(test)]
@@ -89,7 +89,7 @@ impl Cpu {
     }
 
     /// Advances the CPU state one clock cycle forward
-    pub fn run_cycle(&mut self, memory: &mut MemoryMapping) {
+    pub fn run_cycle<M: Memory>(&mut self, memory: &mut M) {
         let instruction_status = dispatch_current_opcode(self, memory);
 
         match instruction_status {

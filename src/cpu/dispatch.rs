@@ -1,5 +1,5 @@
 use super::Cpu;
-use crate::memory::MemoryMapping;
+use crate::memory::Memory;
 use helpers::fetch_from_pc;
 use num_enum::{FromPrimitive, IntoPrimitive};
 use std::ops::ControlFlow;
@@ -115,7 +115,7 @@ pub enum OpCode {
     Unimplemented = 0x0,
 }
 
-pub fn dispatch_current_opcode(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
+pub fn dispatch_current_opcode<M: Memory>(cpu: &mut Cpu, memory: &mut M) -> ControlFlow<()> {
     // First cycle is always fetching the opcode
     if cpu.current_cycle == 0 {
         cpu.current_opcode = OpCode::from(fetch_from_pc(cpu, memory));

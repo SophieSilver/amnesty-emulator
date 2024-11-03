@@ -2,7 +2,7 @@
 
 use crate::{
     cpu::{Cpu, StatusFlags},
-    memory::MemoryMapping,
+    memory::Memory,
 };
 
 /// Get the X index register, used as an argument to templates
@@ -43,7 +43,7 @@ pub fn sub_would_overflow(a: i8, b: i8, carry: bool) -> bool {
     add_would_overflow(a, !b, carry)
 }
 
-pub fn fetch_from_pc(cpu: &mut Cpu, memory: &mut MemoryMapping) -> u8 {
+pub fn fetch_from_pc<M: Memory>(cpu: &mut Cpu, memory: &mut M) -> u8 {
     let value = memory.load(cpu.program_counter);
     cpu.program_counter = cpu.program_counter.wrapping_add(1);
 
@@ -88,7 +88,11 @@ macro_rules! impl_addressing_modes {
         ] $(,)?     // allow trailing comma
     } => {
         $(
-            pub fn $mode(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
+            pub fn $mode<M: $crate::memory::Memory>(
+                cpu: &mut $crate::cpu::Cpu,
+                memory: &mut M
+            ) -> ControlFlow<()>
+            {
                $crate::cpu::dispatch::instructions::templates::$instruction_type::$mode(cpu, memory, $common)
             }
         )*

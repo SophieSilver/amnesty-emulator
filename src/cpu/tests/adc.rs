@@ -1,11 +1,8 @@
 use super::*;
-use crate::{
-    cpu::{Cpu, StatusFlags},
-    memory::MemoryMapping,
-};
+use crate::cpu::{Cpu, StatusFlags};
 use utils::{possible_pairs_with_carry, TestOpcodePreset as Preset};
 
-fn verify(a: u8, b: u8, carry: bool) -> impl Fn(&mut Cpu, &mut MemoryMapping) {
+fn verify(a: u8, b: u8, carry: bool) -> impl Fn(&mut Cpu, &mut TestMemory) {
     // just dump everything into u32 and see what's out of range
     let unsigned_result = a as u32 + b as u32 + carry as u32;
     // first casting to i8 to have it sign extended

@@ -1,13 +1,10 @@
 use utils::{possible_byte_pairs, TestOpcodePreset as Preset};
 
-use crate::{
-    cpu::{Cpu, StatusFlags},
-    memory::MemoryMapping,
-};
+use crate::cpu::{Cpu, StatusFlags};
 
 use super::*;
 
-fn verify(a: u8, b: u8) -> impl Fn(&mut Cpu, &mut MemoryMapping) {
+fn verify(a: u8, b: u8) -> impl Fn(&mut Cpu, &mut TestMemory) {
     let result = a & b;
     let zero = result == 0;
     let negative_flag = (b as i8) < 0;

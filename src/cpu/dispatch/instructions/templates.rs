@@ -9,7 +9,7 @@ use std::ops::ControlFlow;
 
 use crate::{
     cpu::{Cpu, InternalFlags},
-    memory::MemoryMapping,
+    memory::Memory,
 };
 
 use super::{fetch_from_pc, get_x_index, get_y_index};
@@ -17,9 +17,9 @@ use super::{fetch_from_pc, get_x_index, get_y_index};
 pub mod read {
     use super::*;
 
-    pub fn immediate<F: FnOnce(&mut Cpu, u8)>(
+    pub fn immediate<M: Memory, F: FnOnce(&mut Cpu, u8)>(
         cpu: &mut Cpu,
-        memory: &mut MemoryMapping,
+        memory: &mut M,
         f: F,
     ) -> ControlFlow<()> //
     {
@@ -33,9 +33,9 @@ pub mod read {
         }
     }
 
-    pub fn zeropage<F: FnOnce(&mut Cpu, u8)>(
+    pub fn zeropage<M: Memory, F: FnOnce(&mut Cpu, u8)>(
         cpu: &mut Cpu,
-        memory: &mut MemoryMapping,
+        memory: &mut M,
         f: F,
     ) -> ControlFlow<()> //
     {
@@ -55,13 +55,14 @@ pub mod read {
         ControlFlow::Continue(())
     }
 
-    pub fn zeropage_indexed<F, I>(
+    pub fn zeropage_indexed<M, F, I>(
         cpu: &mut Cpu,
-        memory: &mut MemoryMapping,
+        memory: &mut M,
         get_index: I,
         f: F,
     ) -> ControlFlow<()>
     where
+        M: Memory,
         F: FnOnce(&mut Cpu, u8),
         I: FnOnce(&Cpu) -> u8,
     {
@@ -92,27 +93,27 @@ pub mod read {
         ControlFlow::Continue(())
     }
 
-    pub fn zeropage_x<F: FnOnce(&mut Cpu, u8)>(
+    pub fn zeropage_x<M: Memory, F: FnOnce(&mut Cpu, u8)>(
         cpu: &mut Cpu,
-        memory: &mut MemoryMapping,
+        memory: &mut M,
         f: F,
     ) -> ControlFlow<()> //
     {
         zeropage_indexed(cpu, memory, get_x_index, f)
     }
 
-    pub fn zeropage_y<F: FnOnce(&mut Cpu, u8)>(
+    pub fn zeropage_y<M: Memory, F: FnOnce(&mut Cpu, u8)>(
         cpu: &mut Cpu,
-        memory: &mut MemoryMapping,
+        memory: &mut M,
         f: F,
     ) -> ControlFlow<()> //
     {
         zeropage_indexed(cpu, memory, get_y_index, f)
     }
 
-    pub fn absolute<F: FnOnce(&mut Cpu, u8)>(
+    pub fn absolute<M: Memory, F: FnOnce(&mut Cpu, u8)>(
         cpu: &mut Cpu,
-        memory: &mut MemoryMapping,
+        memory: &mut M,
         f: F,
     ) -> ControlFlow<()> //
     {
@@ -134,13 +135,14 @@ pub mod read {
         ControlFlow::Continue(())
     }
 
-    pub fn absolute_indexed<F, I>(
+    pub fn absolute_indexed<M, F, I>(
         cpu: &mut Cpu,
-        memory: &mut MemoryMapping,
+        memory: &mut M,
         get_index: I,
         f: F,
     ) -> ControlFlow<()>
     where
+        M: Memory,
         F: FnOnce(&mut Cpu, u8),
         I: FnOnce(&Cpu) -> u8,
     {
@@ -185,27 +187,27 @@ pub mod read {
         ControlFlow::Continue(())
     }
 
-    pub fn absolute_x<F: FnOnce(&mut Cpu, u8)>(
+    pub fn absolute_x<M: Memory, F: FnOnce(&mut Cpu, u8)>(
         cpu: &mut Cpu,
-        memory: &mut MemoryMapping,
+        memory: &mut M,
         f: F,
     ) -> ControlFlow<()> //
     {
         absolute_indexed(cpu, memory, get_x_index, f)
     }
 
-    pub fn absolute_y<F: FnOnce(&mut Cpu, u8)>(
+    pub fn absolute_y<M: Memory, F: FnOnce(&mut Cpu, u8)>(
         cpu: &mut Cpu,
-        memory: &mut MemoryMapping,
+        memory: &mut M,
         f: F,
     ) -> ControlFlow<()> //
     {
         absolute_indexed(cpu, memory, get_y_index, f)
     }
 
-    pub fn indirect_x<F: FnOnce(&mut Cpu, u8)>(
+    pub fn indirect_x<M: Memory, F: FnOnce(&mut Cpu, u8)>(
         cpu: &mut Cpu,
-        memory: &mut MemoryMapping,
+        memory: &mut M,
         f: F,
     ) -> ControlFlow<()> //
     {
@@ -237,9 +239,9 @@ pub mod read {
         ControlFlow::Continue(())
     }
 
-    pub fn indirect_y<F: FnOnce(&mut Cpu, u8)>(
+    pub fn indirect_y<M: Memory, F: FnOnce(&mut Cpu, u8)>(
         cpu: &mut Cpu,
-        memory: &mut MemoryMapping,
+        memory: &mut M,
         f: F,
     ) -> ControlFlow<()> //
     {
@@ -284,9 +286,9 @@ pub mod read {
     }
 }
 
-pub fn implied<F: FnOnce(&mut Cpu)>(
+pub fn implied<M: Memory, F: FnOnce(&mut Cpu)>(
     cpu: &mut Cpu,
-    memory: &mut MemoryMapping,
+    memory: &mut M,
     f: F,
 ) -> ControlFlow<()> //
 {

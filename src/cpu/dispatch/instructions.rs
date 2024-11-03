@@ -19,7 +19,7 @@
 
 use crate::{
     cpu::{Cpu, StatusFlags},
-    memory::MemoryMapping,
+    memory::Memory,
 };
 use std::ops::ControlFlow;
 

@@ -1,7 +1,9 @@
 use crate::{
     cpu::{dispatch::OpCode, Cpu},
-    memory::{ram::Ram, MemoryMapping},
+    memory::Memory,
 };
+
+use super::TestMemory;
 
 mod presets;
 
@@ -61,7 +63,7 @@ const OPCODE_ADDR: u16 = 0x0200;
 pub struct TestOpcodeOptions<'a, PrepareFunc, VerifyFunc>
 where
     PrepareFunc: FnOnce(&mut Cpu),
-    VerifyFunc: FnOnce(&mut Cpu, &mut MemoryMapping),
+    VerifyFunc: FnOnce(&mut Cpu, &mut TestMemory),
 {
     /// What opcode to test
     ///
@@ -107,7 +109,7 @@ where
 // using a function pointer here for less headache with existential types
 impl<'a, VerifyFunc> TestOpcodeOptions<'a, fn(&mut Cpu), VerifyFunc>
 where
-    VerifyFunc: FnOnce(&mut Cpu, &mut MemoryMapping),
+    VerifyFunc: FnOnce(&mut Cpu, &mut TestMemory),
 {
     #[must_use]
     pub fn new(opcode: OpCode, expected_cycles: u8, verify: VerifyFunc) -> Self {
@@ -127,7 +129,7 @@ where
 impl<'a, PrepareFunc, VerifyFunc> TestOpcodeOptions<'a, PrepareFunc, VerifyFunc>
 where
     PrepareFunc: FnOnce(&mut Cpu),
-    VerifyFunc: FnOnce(&mut Cpu, &mut MemoryMapping),
+    VerifyFunc: FnOnce(&mut Cpu, &mut TestMemory),
 {
     /// Run the test with current Options
     pub fn test(self) {
@@ -145,9 +147,8 @@ where
         }
 
         // initialize the CPU and the memory
-        let mut ram = Ram::new();
         let mut cpu = Cpu::new();
-        let mut memory = MemoryMapping { ram: &mut ram };
+        let mut memory = TestMemory::new();
 
         // prepare memory
         memory.store(OPCODE_ADDR, self.opcode.into());

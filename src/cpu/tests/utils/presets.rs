@@ -1,6 +1,9 @@
 use crate::{
-    cpu::{tests::consts::*, Cpu},
-    memory::MemoryMapping,
+    cpu::{
+        tests::{consts::*, TestMemory},
+        Cpu,
+    },
+    memory::Memory,
 };
 
 use super::{TestOpcodePreset, OPCODE_ADDR};
@@ -9,7 +12,7 @@ use super::{TestOpcodePreset, OPCODE_ADDR};
 ///
 /// # Returns
 /// the argument length
-pub fn apply_preset(preset: TestOpcodePreset, cpu: &mut Cpu, memory: &mut MemoryMapping) -> u16 {
+pub fn apply_preset(preset: TestOpcodePreset, cpu: &mut Cpu, memory: &mut TestMemory) -> u16 {
     let arg_addr: u16 = OPCODE_ADDR + 1;
     match preset {
         TestOpcodePreset::None => 0,
