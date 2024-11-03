@@ -27,63 +27,15 @@ use std::ops::ControlFlow;
 pub(in crate::cpu) mod helpers;
 mod templates;
 use helpers::*;
-use templates::implied;
 
 pub mod adc;
 pub mod and;
 pub mod bit;
 pub mod cmp;
 pub mod eor;
+pub mod implied;
 pub mod lda;
 pub mod ldx;
 pub mod ldy;
 pub mod ora;
 pub mod sbc;
-
-// implied instructions
-
-pub fn clc(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
-    implied(cpu, memory, |cpu| {
-        cpu.flags.remove(StatusFlags::CARRY);
-    })
-}
-
-pub fn cld(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
-    implied(cpu, memory, |cpu| {
-        cpu.flags.remove(StatusFlags::DECIMAL);
-    })
-}
-
-pub fn cli(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
-    implied(cpu, memory, |cpu| {
-        cpu.flags.remove(StatusFlags::INTERRUPT_DISABLE);
-    })
-}
-
-pub fn clv(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
-    implied(cpu, memory, |cpu| {
-        cpu.flags.remove(StatusFlags::OVERFLOW);
-    })
-}
-
-pub fn sec(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
-    implied(cpu, memory, |cpu| {
-        cpu.flags.insert(StatusFlags::CARRY);
-    })
-}
-
-pub fn sed(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
-    implied(cpu, memory, |cpu| {
-        cpu.flags.insert(StatusFlags::DECIMAL);
-    })
-}
-
-pub fn sei(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
-    implied(cpu, memory, |cpu| {
-        cpu.flags.insert(StatusFlags::INTERRUPT_DISABLE);
-    })
-}
-
-pub fn nop(cpu: &mut Cpu, memory: &mut MemoryMapping) -> ControlFlow<()> {
-    implied(cpu, memory, |_| {})
-}
