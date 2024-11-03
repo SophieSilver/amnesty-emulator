@@ -35,6 +35,11 @@ pub enum OpCode {
     BitZeroPage = 0x24,
     BitAbsolute = 0x2C,
 
+    Clc = 0x18,
+    Cld = 0xD8,
+    Cli = 0x58,
+    Clv = 0xB8,
+
     // CMP
     CmpImmediate = 0xC9,
     CmpZeroPage = 0xC5,
@@ -136,6 +141,12 @@ pub fn dispatch_current_opcode(cpu: &mut Cpu, memory: &mut MemoryMapping) -> Con
         OpCode::BitZeroPage => bit::zeropage(cpu, memory),
         OpCode::BitAbsolute => bit::absolute(cpu, memory),
 
+        // CL*
+        OpCode::Clc => clc(cpu, memory),
+        OpCode::Cld => cld(cpu, memory),
+        OpCode::Cli => cli(cpu, memory),
+        OpCode::Clv => clv(cpu, memory),
+
         // CMP
         OpCode::CmpImmediate => cmp::immediate(cpu, memory),
         OpCode::CmpZeroPage => cmp::zeropage(cpu, memory),
@@ -180,6 +191,7 @@ pub fn dispatch_current_opcode(cpu: &mut Cpu, memory: &mut MemoryMapping) -> Con
         OpCode::LdyAbsolute => ldy::absolute(cpu, memory),
         OpCode::LdyAbsoluteX => ldy::absolute_x(cpu, memory),
 
+        // NOP
         OpCode::Nop => nop(cpu, memory),
 
         // ORA

@@ -23,6 +23,42 @@ mod ora;
 mod sbc;
 
 #[test]
+fn clc() {
+    TestOpcodeOptions::new(OpCode::Clc, 2, |cpu, _memory| {
+        assert!(!cpu.flags.contains(StatusFlags::CARRY))
+    })
+    .with_prepare(|cpu| cpu.flags.insert(StatusFlags::CARRY))
+    .test();
+}
+
+#[test]
+fn cld() {
+    TestOpcodeOptions::new(OpCode::Cld, 2, |cpu, _memory| {
+        assert!(!cpu.flags.contains(StatusFlags::DECIMAL))
+    })
+    .with_prepare(|cpu| cpu.flags.insert(StatusFlags::DECIMAL))
+    .test();
+}
+
+#[test]
+fn cli() {
+    TestOpcodeOptions::new(OpCode::Cli, 2, |cpu, _memory| {
+        assert!(!cpu.flags.contains(StatusFlags::INTERRUPT_DISABLE))
+    })
+    .with_prepare(|cpu| cpu.flags.insert(StatusFlags::INTERRUPT_DISABLE))
+    .test();
+}
+
+#[test]
+fn clv() {
+    TestOpcodeOptions::new(OpCode::Clv, 2, |cpu, _memory| {
+        assert!(!cpu.flags.contains(StatusFlags::OVERFLOW))
+    })
+    .with_prepare(|cpu| cpu.flags.insert(StatusFlags::OVERFLOW))
+    .test();
+}
+
+#[test]
 fn nop() {
     let a = 2;
     let sp = 3;
