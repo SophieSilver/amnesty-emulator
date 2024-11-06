@@ -54,7 +54,7 @@ pub fn fetch_from_pc<M: Memory>(cpu: &mut Cpu, memory: &mut M) -> u8 {
 }
 
 /// Set a register to a value and also correctly set the NEGATIVE and ZERO flags
-pub fn set_register(register: &mut u8, value: u8, flags: &mut StatusFlags) {
+pub fn set_register_with_flags(register: &mut u8, value: u8, flags: &mut StatusFlags) {
     *register = value;
     flags.set(StatusFlags::NEGATIVE, (value as i8).is_negative());
     flags.set(StatusFlags::ZERO, value == 0);

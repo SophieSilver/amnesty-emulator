@@ -16,7 +16,7 @@ fn common(cpu: &mut Cpu, value: u8) {
     cpu.flags.set(StatusFlags::CARRY, carry);
     cpu.flags.set(StatusFlags::OVERFLOW, overflow);
 
-    set_register(&mut cpu.accumulator, result, &mut cpu.flags);
+    set_register_with_flags(&mut cpu.accumulator, result, &mut cpu.flags);
 }
 
 impl_addressing_modes! {
