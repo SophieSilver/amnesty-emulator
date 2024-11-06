@@ -56,6 +56,8 @@ pub struct Cpu {
     current_cycle: u8,
 
     /// The address of a pointer to dereference in indirect addressing modes
+    /// 
+    /// Also used as a scratch register in RMW instructions
     pointer_address: u8,
 
     /// The address of a value to fetch in absolute and indirect addressing modes
