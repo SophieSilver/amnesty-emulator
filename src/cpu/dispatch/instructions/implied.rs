@@ -73,3 +73,40 @@ pub fn sei<M: Memory>(cpu: &mut Cpu, memory: &mut M) -> ControlFlow<()> {
 pub fn nop<M: Memory>(cpu: &mut Cpu, memory: &mut M) -> ControlFlow<()> {
     templates::implied(cpu, memory, |_| {})
 }
+
+pub fn tax<M: Memory>(cpu: &mut Cpu, memory: &mut M) -> ControlFlow<()> {
+    templates::implied(cpu, memory, |cpu| {
+        set_register(&mut cpu.x_index, cpu.accumulator, &mut cpu.flags);
+    })
+}
+
+pub fn tay<M: Memory>(cpu: &mut Cpu, memory: &mut M) -> ControlFlow<()> {
+    templates::implied(cpu, memory, |cpu| {
+        set_register(&mut cpu.y_index, cpu.accumulator, &mut cpu.flags);
+    })
+}
+
+pub fn tsx<M: Memory>(cpu: &mut Cpu, memory: &mut M) -> ControlFlow<()> {
+    templates::implied(cpu, memory, |cpu| {
+        set_register(&mut cpu.x_index, cpu.stack_ptr, &mut cpu.flags);
+    })
+}
+
+pub fn txa<M: Memory>(cpu: &mut Cpu, memory: &mut M) -> ControlFlow<()> {
+    templates::implied(cpu, memory, |cpu| {
+        set_register(&mut cpu.accumulator, cpu.x_index, &mut cpu.flags);
+    })
+}
+
+pub fn txs<M: Memory>(cpu: &mut Cpu, memory: &mut M) -> ControlFlow<()> {
+    templates::implied(cpu, memory, |cpu| {
+        // TXS doesn't set flags
+        cpu.stack_ptr = cpu.x_index;
+    })
+}
+
+pub fn tya<M: Memory>(cpu: &mut Cpu, memory: &mut M) -> ControlFlow<()> {
+    templates::implied(cpu, memory, |cpu| {
+        set_register(&mut cpu.accumulator, cpu.y_index, &mut cpu.flags);
+    })
+}

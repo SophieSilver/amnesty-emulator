@@ -1,5 +1,5 @@
 #![allow(clippy::arithmetic_side_effects)]
-use utils::TestOpcodeOptions;
+use utils::{possible_values_with_2_bools, TestOpcodeOptions};
 
 use crate::{
     cpu::dispatch::OpCode,
@@ -221,6 +221,155 @@ fn iny() {
             );
         })
         .with_prepare(|cpu| cpu.y_index = y)
+        .test();
+    }
+}
+
+#[test]
+fn tax() {
+    for value in 0..u8::MAX {
+        TestOpcodeOptions::new(OpCode::Tax, 2, |cpu, _memory| {
+            assert!(
+                cpu.x_index == value && cpu.x_index == cpu.accumulator,
+                "register transfered incorrectly"
+            );
+            assert_eq!(
+                cpu.flags.contains(StatusFlags::NEGATIVE),
+                (value as i8) < 0,
+                "NEGATIVE flag set incorrectly"
+            );
+            assert_eq!(
+                cpu.flags.contains(StatusFlags::ZERO),
+                value == 0,
+                "ZERO flag set incorrectly"
+            );
+        })
+        .with_prepare(|cpu| cpu.accumulator = value)
+        .test();
+    }
+}
+
+#[test]
+fn tay() {
+    for value in 0..u8::MAX {
+        TestOpcodeOptions::new(OpCode::Tay, 2, |cpu, _memory| {
+            assert!(
+                cpu.y_index == value && cpu.y_index == cpu.accumulator,
+                "register transfered incorrectly"
+            );
+            assert_eq!(
+                cpu.flags.contains(StatusFlags::NEGATIVE),
+                (value as i8) < 0,
+                "NEGATIVE flag set incorrectly"
+            );
+            assert_eq!(
+                cpu.flags.contains(StatusFlags::ZERO),
+                value == 0,
+                "ZERO flag set incorrectly"
+            );
+        })
+        .with_prepare(|cpu| cpu.accumulator = value)
+        .test();
+    }
+}
+
+#[test]
+fn tsx() {
+    for value in 0..u8::MAX {
+        TestOpcodeOptions::new(OpCode::Tsx, 2, |cpu, _memory| {
+            assert!(
+                cpu.x_index == value && cpu.x_index == cpu.stack_ptr,
+                "register transfered incorrectly"
+            );
+            assert_eq!(
+                cpu.flags.contains(StatusFlags::NEGATIVE),
+                (value as i8) < 0,
+                "NEGATIVE flag set incorrectly"
+            );
+            assert_eq!(
+                cpu.flags.contains(StatusFlags::ZERO),
+                value == 0,
+                "ZERO flag set incorrectly"
+            );
+        })
+        .with_prepare(|cpu| cpu.stack_ptr = value)
+        .test();
+    }
+}
+
+#[test]
+fn txa() {
+    for value in 0..u8::MAX {
+        TestOpcodeOptions::new(OpCode::Txa, 2, |cpu, _memory| {
+            assert!(
+                cpu.accumulator == value && cpu.accumulator == cpu.x_index,
+                "register transfered incorrectly"
+            );
+            assert_eq!(
+                cpu.flags.contains(StatusFlags::NEGATIVE),
+                (value as i8) < 0,
+                "NEGATIVE flag set incorrectly"
+            );
+            assert_eq!(
+                cpu.flags.contains(StatusFlags::ZERO),
+                value == 0,
+                "ZERO flag set incorrectly"
+            );
+        })
+        .with_prepare(|cpu| cpu.x_index = value)
+        .test();
+    }
+}
+
+#[test]
+fn txs() {
+    // TXS doesn't change flags
+    for (value, negative, zero) in possible_values_with_2_bools() {
+        TestOpcodeOptions::new(OpCode::Txs, 2, |cpu, _memory| {
+            assert!(
+                cpu.stack_ptr == value && cpu.stack_ptr == cpu.x_index,
+                "register transfered incorrectly"
+            );
+            assert_eq!(
+                cpu.flags.contains(StatusFlags::NEGATIVE),
+                negative,
+                "NEGATIVE flag modified incorrectly"
+            );
+            assert_eq!(
+                cpu.flags.contains(StatusFlags::ZERO),
+                zero,
+                "ZERO flag modified incorrectly"
+            );
+        })
+        .with_prepare(|cpu| {
+            cpu.x_index = value;
+            cpu.flags.set(StatusFlags::NEGATIVE, negative);
+            cpu.flags.set(StatusFlags::ZERO, zero);
+        })
+        .test();
+    }
+}
+
+#[test]
+fn tya() {
+    for value in 0..u8::MAX {
+        TestOpcodeOptions::new(OpCode::Tya, 2, |cpu, _memory| {
+            assert!(
+                cpu.accumulator == value && cpu.accumulator == cpu.y_index,
+                "register transfered incorrectly"
+            );
+            assert_eq!(
+                cpu.flags.contains(StatusFlags::NEGATIVE),
+                (value as i8) < 0,
+                "NEGATIVE flag set incorrectly"
+            );
+            assert_eq!(
+                cpu.flags.contains(StatusFlags::ZERO),
+                value == 0,
+                "ZERO flag set incorrectly"
+            );
+        })
+        .with_prepare(|cpu| cpu.y_index = value)
         .test();
     }
 }

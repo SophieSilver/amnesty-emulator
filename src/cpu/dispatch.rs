@@ -119,6 +119,14 @@ pub enum OpCode {
     Sed = 0xF8,
     Sei = 0x78,
 
+    // T??
+    Tax = 0xAA,
+    Tay = 0xA8,
+    Tsx = 0xBA,
+    Txa = 0x8A,
+    Txs = 0x9A,
+    Tya = 0x98,
+
     #[default]
     Unimplemented = 0x0,
 }
@@ -235,9 +243,18 @@ pub fn dispatch_current_opcode<M: Memory>(cpu: &mut Cpu, memory: &mut M) -> Cont
         OpCode::SbcIndirectX => sbc::indirect_x(cpu, memory),
         OpCode::SbcIndirectY => sbc::indirect_y(cpu, memory),
 
+        // SE*
         OpCode::Sec => sec(cpu, memory),
         OpCode::Sed => sed(cpu, memory),
         OpCode::Sei => sei(cpu, memory),
+
+        // T??
+        OpCode::Tax => tax(cpu, memory),
+        OpCode::Tay => tay(cpu, memory),
+        OpCode::Tsx => tsx(cpu, memory),
+        OpCode::Txa => txa(cpu, memory),
+        OpCode::Txs => txs(cpu, memory),
+        OpCode::Tya => tya(cpu, memory),
 
         _ => unimplemented!(),
     }

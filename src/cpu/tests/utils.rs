@@ -20,6 +20,12 @@ pub fn possible_pairs_with_carry() -> impl Iterator<Item = (u8, u8, bool)> {
     possible_byte_pairs().flat_map(|(a, b)| [(a, b, false), (a, b, true)])
 }
 
+pub fn possible_values_with_2_bools() -> impl Iterator<Item = (u8, bool, bool)> {
+    let possible_bools = [(false, false), (false, true), (true, false), (true, true)];
+
+    (0..u8::MAX).flat_map(move |value| possible_bools.map(|(b1, b2)| (value, b1, b2)))
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Preset {
     Immediate(u8),
