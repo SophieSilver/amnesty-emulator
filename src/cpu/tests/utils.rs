@@ -5,7 +5,7 @@ use crate::{
     memory::Memory,
 };
 
-use super::TestMemory;
+use super::{consts::*, TestMemory};
 
 mod presets;
 
@@ -45,6 +45,30 @@ pub enum Preset {
     IndirectY(u8),
     IndirectYOverflow(u8),
     IndirectYPageSplit(u8),
+}
+
+impl Preset {
+    pub fn final_value_addr(&self) -> u16 {
+        match self {
+            Preset::Immediate(_) => OPCODE_ADDR.wrapping_add(1),
+            Preset::ZeroPage(_) => ZEROPAGE_ADDR as u16,
+            Preset::ZeroPageX(_) | Preset::ZeroPageY(_) => ZEROPAGE_X_FINAL_ADDR,
+            Preset::ZeroPageXOverflow(_) | Preset::ZeroPageYOverflow(_) => {
+                ZEROPAGE_X_FINAL_ADDR_OVERFLOW
+            }
+            Preset::Absolute(_) => ABSOLUTE_ADDR,
+            Preset::AbsoluteX(_) | Preset::AbsoluteY(_) => ABSOLUTE_X_FINAL_ADDR,
+            Preset::AbsoluteXOverflow(_) | Preset::AbsoluteYOverflow(_) => {
+                ABSOLUTE_X_FINAL_ADDR_OVERFLOW
+            }
+            Preset::IndirectX(_) => INDIRECT_X_ADDR,
+            Preset::IndirectXOverflow(_) => INDIRECT_X_ADDR_OVERFLOW,
+            Preset::IndirectXPageSplit(_) => INDIRECT_X_ADDR_PAGE_SPLIT,
+            Preset::IndirectY(_) => INDIRECT_Y_FINAL_ADDR,
+            Preset::IndirectYOverflow(_) => INDIRECT_Y_FINAL_ADDR_OVERFLOW,
+            Preset::IndirectYPageSplit(_) => INDIRECT_Y_FINAL_ADDR_PAGE_SPLIT,
+        }
+    }
 }
 
 const OPCODE_ADDR: u16 = 0x0200;
