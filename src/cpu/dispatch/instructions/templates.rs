@@ -15,6 +15,7 @@ use crate::{
 use super::{fetch_from_pc, get_x_index, get_y_index};
 
 pub mod read;
+pub mod write;
 
 pub fn implied<M: Memory, F: FnOnce(&mut Cpu)>(
     cpu: &mut Cpu,
