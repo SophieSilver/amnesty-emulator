@@ -119,6 +119,15 @@ pub enum OpCode {
     Sed = 0xF8,
     Sei = 0x78,
 
+    // STA
+    StaZeroPage = 0x85,
+    StaZeroPageX = 0x95,
+    StaAbsolute = 0x8D,
+    StaAbsoluteX = 0x9D,
+    StaAbsoluteY = 0x99,
+    StaIndirectX = 0x81,
+    StaIndirectY = 0x91,
+
     // T??
     Tax = 0xAA,
     Tay = 0xA8,
@@ -247,6 +256,15 @@ pub fn dispatch_current_opcode<M: Memory>(cpu: &mut Cpu, memory: &mut M) -> Cont
         OpCode::Sec => sec(cpu, memory),
         OpCode::Sed => sed(cpu, memory),
         OpCode::Sei => sei(cpu, memory),
+
+        // STA
+        OpCode::StaZeroPage => sta::zeropage(cpu, memory),
+        OpCode::StaZeroPageX => sta::zeropage_x(cpu, memory),
+        OpCode::StaAbsolute => sta::absolute(cpu, memory),
+        OpCode::StaAbsoluteX => sta::absolute_x(cpu, memory),
+        OpCode::StaAbsoluteY => sta::absolute_y(cpu, memory),
+        OpCode::StaIndirectX => sta::indirect_x(cpu, memory),
+        OpCode::StaIndirectY => sta::indirect_y(cpu, memory),
 
         // T??
         OpCode::Tax => tax(cpu, memory),
