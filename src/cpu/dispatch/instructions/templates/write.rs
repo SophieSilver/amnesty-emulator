@@ -41,8 +41,6 @@ where
             let _ = memory.load(cpu.effective_address);
             cpu.effective_address =
                 (cpu.effective_address as u8).wrapping_add(get_index(cpu)) as u16;
-
-            return ControlFlow::Break(());
         }
         3 => {
             memory.store(cpu.effective_address, f(cpu));
