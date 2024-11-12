@@ -40,6 +40,7 @@ pub mod ora;
 pub mod sbc;
 pub mod sta;
 pub mod stx;
+pub mod sty;
 
 mod implied;
 pub use implied::*;
