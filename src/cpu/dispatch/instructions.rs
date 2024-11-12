@@ -39,6 +39,7 @@ pub mod ldy;
 pub mod ora;
 pub mod sbc;
 pub mod sta;
+pub mod stx;
 
 mod implied;
 pub use implied::*;

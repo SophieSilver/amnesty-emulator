@@ -128,6 +128,11 @@ pub enum OpCode {
     StaIndirectX = 0x81,
     StaIndirectY = 0x91,
 
+    // STX
+    StxZeroPage = 0x86,
+    StxZeroPageY = 0x96,
+    StxAbsolute = 0x8E,
+
     // T??
     Tax = 0xAA,
     Tay = 0xA8,
@@ -265,6 +270,11 @@ pub fn dispatch_current_opcode<M: Memory>(cpu: &mut Cpu, memory: &mut M) -> Cont
         OpCode::StaAbsoluteY => sta::absolute_y(cpu, memory),
         OpCode::StaIndirectX => sta::indirect_x(cpu, memory),
         OpCode::StaIndirectY => sta::indirect_y(cpu, memory),
+
+        // STX
+        OpCode::StxZeroPage => stx::zeropage(cpu, memory),
+        OpCode::StxZeroPageY => stx::zeropage_y(cpu, memory),
+        OpCode::StxAbsolute => stx::absolute(cpu, memory),
 
         // T??
         OpCode::Tax => tax(cpu, memory),

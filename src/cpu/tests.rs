@@ -24,6 +24,7 @@ mod ldy;
 mod ora;
 mod sbc;
 mod sta;
+mod stx;
 
 #[derive(Debug, Clone)]
 struct TestMemory {
