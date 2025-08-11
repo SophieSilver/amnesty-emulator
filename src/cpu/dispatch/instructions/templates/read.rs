@@ -6,7 +6,7 @@ pub fn immediate<M: Memory, F: FnOnce(&mut Cpu, u8)>(
     f: F,
 ) -> ControlFlow<()> //
 {
-    match cpu.current_cycle {
+    match cpu.current_instruction_cycle {
         1 => {
             let value = fetch_from_pc(cpu, memory);
             f(cpu, value);
@@ -22,7 +22,7 @@ pub fn zeropage<M: Memory, F: FnOnce(&mut Cpu, u8)>(
     f: F,
 ) -> ControlFlow<()> //
 {
-    match cpu.current_cycle {
+    match cpu.current_instruction_cycle {
         1 => {
             cpu.effective_address = fetch_from_pc(cpu, memory) as u16;
         }
@@ -49,7 +49,7 @@ where
     F: FnOnce(&mut Cpu, u8),
     I: FnOnce(&Cpu) -> u8,
 {
-    match cpu.current_cycle {
+    match cpu.current_instruction_cycle {
         1 => {
             cpu.effective_address = fetch_from_pc(cpu, memory) as u16;
         }
@@ -95,7 +95,7 @@ pub fn absolute<M: Memory, F: FnOnce(&mut Cpu, u8)>(
     f: F,
 ) -> ControlFlow<()> //
 {
-    match cpu.current_cycle {
+    match cpu.current_instruction_cycle {
         1 => {
             cpu.effective_address = fetch_from_pc(cpu, memory) as u16;
         }
@@ -124,7 +124,7 @@ where
     F: FnOnce(&mut Cpu, u8),
     I: FnOnce(&Cpu) -> u8,
 {
-    match cpu.current_cycle {
+    match cpu.current_instruction_cycle {
         1 => {
             cpu.effective_address = fetch_from_pc(cpu, memory) as u16;
         }
@@ -189,7 +189,7 @@ pub fn indirect_x<M: Memory, F: FnOnce(&mut Cpu, u8)>(
     f: F,
 ) -> ControlFlow<()> //
 {
-    match cpu.current_cycle {
+    match cpu.current_instruction_cycle {
         1 => {
             cpu.pointer_address = fetch_from_pc(cpu, memory);
         }
@@ -223,7 +223,7 @@ pub fn indirect_y<M: Memory, F: FnOnce(&mut Cpu, u8)>(
     f: F,
 ) -> ControlFlow<()> //
 {
-    match cpu.current_cycle {
+    match cpu.current_instruction_cycle {
         1 => {
             cpu.pointer_address = fetch_from_pc(cpu, memory);
         }

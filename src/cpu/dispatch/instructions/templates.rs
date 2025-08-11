@@ -23,7 +23,7 @@ pub fn implied<M: Memory, F: FnOnce(&mut Cpu)>(
     f: F,
 ) -> ControlFlow<()> //
 {
-    match cpu.current_cycle {
+    match cpu.current_instruction_cycle {
         1 => {
             _ = memory.load(cpu.program_counter);
             f(cpu);

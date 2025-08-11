@@ -152,7 +152,7 @@ pub enum OpCode {
 
 pub fn dispatch_current_opcode<M: Memory>(cpu: &mut Cpu, memory: &mut M) -> ControlFlow<()> {
     // First cycle is always fetching the opcode
-    if cpu.current_cycle == 0 {
+    if cpu.current_instruction_cycle == 0 {
         cpu.current_opcode = OpCode::from(fetch_from_pc(cpu, memory));
         return ControlFlow::Continue(());
     }

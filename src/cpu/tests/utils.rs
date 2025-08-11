@@ -212,19 +212,13 @@ where
         cpu.program_counter = OPCODE_ADDR;
         (self.prepare)(&mut cpu);
 
-        // execute
-        for i in 0..self.expected_cycles {
-            cpu.run_cycle(&mut memory);
-
-            if i != self.expected_cycles - 1 {
-                assert_ne!(cpu.current_cycle, 0, "instruction ended prematurely");
-            } else {
-                assert_eq!(
-                    cpu.current_cycle, 0,
-                    "instruction hasn't ended when expected"
-                );
-            }
-        }
+        let start_cycle = cpu.clock_cycle;
+        cpu.run_instruction(&mut memory);
+        assert_eq!(
+            cpu.clock_cycle - start_cycle,
+            self.expected_cycles as u64,
+            "instruction didn't take the expected amount of cycles"
+        );
 
         if self.check_pc {
             let expected_pc = OPCODE_ADDR + 1 + argument_len;

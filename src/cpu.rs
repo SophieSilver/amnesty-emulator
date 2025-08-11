@@ -53,7 +53,7 @@ pub struct Cpu {
     current_opcode: OpCode,
 
     /// Which cycle we're on within the current instruction
-    current_cycle: u8,
+    current_instruction_cycle: u8,
 
     /// The address of a pointer to dereference in indirect addressing modes
     /// 
@@ -65,6 +65,8 @@ pub struct Cpu {
 
     /// Used to keep simple boolean state internal to the emulator
     internal_flags: InternalFlags,
+
+    pub clock_cycle: u64,
 
     /// Accumulator register
     pub accumulator: u8,
@@ -90,18 +92,30 @@ impl Cpu {
         Self::default()
     }
 
+    pub fn run_instruction<M: Memory>(&mut self, memory: &mut M) {
+        self.run_clock_cycle(memory);
+
+        while self.current_instruction_cycle > 0 {
+            self.run_clock_cycle(memory);
+        }
+
+
+    }
+
     /// Advances the CPU state one clock cycle forward
-    pub fn run_cycle<M: Memory>(&mut self, memory: &mut M) {
+    fn run_clock_cycle<M: Memory>(&mut self, memory: &mut M) {
         let instruction_status = dispatch_current_opcode(self, memory);
 
         match instruction_status {
             ControlFlow::Continue(()) => {
-                self.current_cycle = self.current_cycle.wrapping_add(1);
+                self.current_instruction_cycle = self.current_instruction_cycle.wrapping_add(1);
             }
             ControlFlow::Break(_) => {
-                self.current_cycle = 0;
+                self.current_instruction_cycle = 0;
             }
         }
+
+        self.clock_cycle += 1;
     }
 }
 
@@ -111,13 +125,14 @@ impl Default for Cpu {
             current_opcode: OpCode::Unimplemented,
             internal_flags: InternalFlags::default(),
             pointer_address: 0,
-            current_cycle: 0,
+            current_instruction_cycle: 0,
             effective_address: 0,
             accumulator: 0,
             x_index: 0,
             y_index: 0,
             program_counter: 0,
             stack_ptr: 0xFF,
+            clock_cycle: 0,
             flags: StatusFlags::default(),
         }
     }
