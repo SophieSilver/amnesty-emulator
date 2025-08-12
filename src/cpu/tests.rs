@@ -2,7 +2,7 @@
 use utils::*;
 
 use crate::{
-    cpu::dispatch::OpCode,
+    cpu::instructions::opcode::OpCode,
     memory::{ram::Ram, Memory},
 };
 

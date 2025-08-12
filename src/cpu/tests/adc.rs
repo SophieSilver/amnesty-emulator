@@ -1,5 +1,5 @@
 use super::*;
-use crate::cpu::{Cpu, StatusFlags};
+use crate::cpu::{instructions::opcode, Cpu, StatusFlags};
 use utils::{possible_pairs_with_carry, Preset};
 
 fn verify(a: u8, b: u8, carry: bool) -> impl Fn(&mut Cpu, &mut TestMemory) {
@@ -13,7 +13,7 @@ fn verify(a: u8, b: u8, carry: bool) -> impl Fn(&mut Cpu, &mut TestMemory) {
 
     move |cpu, _memory| {
         assert_eq!(
-            cpu.accumulator,
+            cpu.a,
             a.wrapping_add(b).wrapping_add(carry as u8),
             "Addition result incorrect"
         );
@@ -29,12 +29,12 @@ fn verify(a: u8, b: u8, carry: bool) -> impl Fn(&mut Cpu, &mut TestMemory) {
         );
         assert_eq!(
             cpu.flags.contains(StatusFlags::NEGATIVE),
-            (cpu.accumulator as i8).is_negative(),
+            (cpu.a as i8).is_negative(),
             "NEGATIVE flag set incorrectly"
         );
         assert_eq!(
             cpu.flags.contains(StatusFlags::ZERO),
-            cpu.accumulator == 0,
+            cpu.a == 0,
             "ZERO flag set incorrectly"
         );
     }
@@ -42,7 +42,7 @@ fn verify(a: u8, b: u8, carry: bool) -> impl Fn(&mut Cpu, &mut TestMemory) {
 
 fn prepare(a: u8, carry: bool) -> impl Fn(&mut Cpu) {
     move |cpu| {
-        cpu.accumulator = a;
+        cpu.a = a;
         cpu.flags.set(StatusFlags::CARRY, carry);
     }
 }
@@ -60,7 +60,7 @@ fn immediate() {
 #[test]
 fn zeropage() {
     for (a, b, carry) in possible_pairs_with_carry() {
-        TestOpcodeOptions::new(OpCode::AdcZeroPage, 3, verify(a, b, carry))
+        TestOpcodeOptions::new(OpCode::AdcZeropage, 3, verify(a, b, carry))
             .with_prepare(prepare(a, carry))
             .with_preset(Preset::ZeroPage(b))
             .test();
@@ -70,7 +70,7 @@ fn zeropage() {
 #[test]
 fn zeropage_x() {
     for (a, b, carry) in possible_pairs_with_carry() {
-        TestOpcodeOptions::new(OpCode::AdcZeroPageX, 4, verify(a, b, carry))
+        TestOpcodeOptions::new(OpCode::AdcZeropageX, 4, verify(a, b, carry))
             .with_prepare(prepare(a, carry))
             .with_preset(Preset::ZeroPageX(b))
             .test();
@@ -80,7 +80,7 @@ fn zeropage_x() {
 #[test]
 fn zeropage_x_overflow() {
     for (a, b, carry) in possible_pairs_with_carry() {
-        TestOpcodeOptions::new(OpCode::AdcZeroPageX, 4, verify(a, b, carry))
+        TestOpcodeOptions::new(OpCode::AdcZeropageX, 4, verify(a, b, carry))
             .with_prepare(prepare(a, carry))
             .with_preset(Preset::ZeroPageXOverflow(b))
             .test();
@@ -90,7 +90,7 @@ fn zeropage_x_overflow() {
 #[test]
 fn absolute() {
     for (a, b, carry) in possible_pairs_with_carry() {
-        TestOpcodeOptions::new(OpCode::AdcAbsolute, 4, verify(a, b, carry))
+        TestOpcodeOptions::new(opcode::OpCode::AdcAbsolute, 4, verify(a, b, carry))
             .with_prepare(prepare(a, carry))
             .with_preset(Preset::Absolute(b))
             .test();
@@ -100,7 +100,7 @@ fn absolute() {
 #[test]
 fn absolute_x() {
     for (a, b, carry) in possible_pairs_with_carry() {
-        TestOpcodeOptions::new(OpCode::AdcAbsoluteX, 4, verify(a, b, carry))
+        TestOpcodeOptions::new(opcode::OpCode::AdcAbsoluteX, 4, verify(a, b, carry))
             .with_prepare(prepare(a, carry))
             .with_preset(Preset::AbsoluteX(b))
             .test();
@@ -110,7 +110,7 @@ fn absolute_x() {
 #[test]
 fn absolute_y() {
     for (a, b, carry) in possible_pairs_with_carry() {
-        TestOpcodeOptions::new(OpCode::AdcAbsoluteY, 4, verify(a, b, carry))
+        TestOpcodeOptions::new(opcode::OpCode::AdcAbsoluteY, 4, verify(a, b, carry))
             .with_prepare(prepare(a, carry))
             .with_preset(Preset::AbsoluteY(b))
             .test();
@@ -120,7 +120,7 @@ fn absolute_y() {
 #[test]
 fn absolute_x_overflow() {
     for (a, b, carry) in possible_pairs_with_carry() {
-        TestOpcodeOptions::new(OpCode::AdcAbsoluteX, 5, verify(a, b, carry))
+        TestOpcodeOptions::new(opcode::OpCode::AdcAbsoluteX, 5, verify(a, b, carry))
             .with_prepare(prepare(a, carry))
             .with_preset(Preset::AbsoluteXOverflow(b))
             .test();
@@ -130,7 +130,7 @@ fn absolute_x_overflow() {
 #[test]
 fn absolute_y_overflow() {
     for (a, b, carry) in possible_pairs_with_carry() {
-        TestOpcodeOptions::new(OpCode::AdcAbsoluteY, 5, verify(a, b, carry))
+        TestOpcodeOptions::new(opcode::OpCode::AdcAbsoluteY, 5, verify(a, b, carry))
             .with_prepare(prepare(a, carry))
             .with_preset(Preset::AbsoluteYOverflow(b))
             .test();
@@ -140,7 +140,7 @@ fn absolute_y_overflow() {
 #[test]
 fn indirect_x() {
     for (a, b, carry) in possible_pairs_with_carry() {
-        TestOpcodeOptions::new(OpCode::AdcIndirectX, 6, verify(a, b, carry))
+        TestOpcodeOptions::new(opcode::OpCode::AdcIndirectX, 6, verify(a, b, carry))
             .with_prepare(prepare(a, carry))
             .with_preset(Preset::IndirectX(b))
             .test();
@@ -150,7 +150,7 @@ fn indirect_x() {
 #[test]
 fn indirect_y() {
     for (a, b, carry) in possible_pairs_with_carry() {
-        TestOpcodeOptions::new(OpCode::AdcIndirectY, 5, verify(a, b, carry))
+        TestOpcodeOptions::new(opcode::OpCode::AdcIndirectY, 5, verify(a, b, carry))
             .with_prepare(prepare(a, carry))
             .with_preset(Preset::IndirectY(b))
             .test();
@@ -160,7 +160,7 @@ fn indirect_y() {
 #[test]
 fn indirect_x_overflow() {
     for (a, b, carry) in possible_pairs_with_carry() {
-        TestOpcodeOptions::new(OpCode::AdcIndirectX, 6, verify(a, b, carry))
+        TestOpcodeOptions::new(opcode::OpCode::AdcIndirectX, 6, verify(a, b, carry))
             .with_prepare(prepare(a, carry))
             .with_preset(Preset::IndirectXOverflow(b))
             .test();
@@ -170,7 +170,7 @@ fn indirect_x_overflow() {
 #[test]
 fn indirect_y_overflow() {
     for (a, b, carry) in possible_pairs_with_carry() {
-        TestOpcodeOptions::new(OpCode::AdcIndirectY, 6, verify(a, b, carry))
+        TestOpcodeOptions::new(opcode::OpCode::AdcIndirectY, 6, verify(a, b, carry))
             .with_prepare(prepare(a, carry))
             .with_preset(Preset::IndirectYOverflow(b))
             .test();
@@ -180,7 +180,7 @@ fn indirect_y_overflow() {
 #[test]
 fn indirect_x_page_split() {
     for (a, b, carry) in possible_pairs_with_carry() {
-        TestOpcodeOptions::new(OpCode::AdcIndirectX, 6, verify(a, b, carry))
+        TestOpcodeOptions::new(opcode::OpCode::AdcIndirectX, 6, verify(a, b, carry))
             .with_prepare(prepare(a, carry))
             .with_preset(Preset::IndirectXPageSplit(b))
             .test();
@@ -190,7 +190,7 @@ fn indirect_x_page_split() {
 #[test]
 fn indirect_y_page_split() {
     for (a, b, carry) in possible_pairs_with_carry() {
-        TestOpcodeOptions::new(OpCode::AdcIndirectY, 5, verify(a, b, carry))
+        TestOpcodeOptions::new(opcode::OpCode::AdcIndirectY, 5, verify(a, b, carry))
             .with_prepare(prepare(a, carry))
             .with_preset(Preset::IndirectYPageSplit(b))
             .test();

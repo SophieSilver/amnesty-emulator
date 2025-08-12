@@ -1,3 +1,5 @@
+use crate::cpu::instructions::opcode::{self, OpCode};
+
 use super::*;
 
 #[test]
@@ -5,7 +7,7 @@ fn immediate() {
     const TARGET: u8 = 0x42;
 
     TestOpcodeOptions::new(OpCode::LdyImmediate, 2, |cpu, _memory| {
-        assert_eq!(cpu.y_index, TARGET);
+        assert_eq!(cpu.y, TARGET);
     })
     .with_arguments(&[TARGET])
     .test();
@@ -16,8 +18,8 @@ fn zeropage() {
     const TARGET: u8 = 0x21;
     const ADDR: u16 = 0x42;
 
-    TestOpcodeOptions::new(OpCode::LdyZeroPage, 3, |cpu, _memory| {
-        assert_eq!(cpu.y_index, TARGET);
+    TestOpcodeOptions::new(OpCode::LdyZeropage, 3, |cpu, _memory| {
+        assert_eq!(cpu.y, TARGET);
     })
     .with_arguments(&[ADDR as u8])
     .with_additional_values(&[(ADDR, TARGET)])
@@ -31,11 +33,11 @@ fn zeropage_x() {
     const OFFSET: u8 = 0x3;
     const FINAL_ADDR: u16 = (BASE_ADDR as u8).wrapping_add(OFFSET) as u16;
 
-    TestOpcodeOptions::new(OpCode::LdyZeroPageX, 4, |cpu, _memory| {
-        assert_eq!(cpu.y_index, TARGET);
+    TestOpcodeOptions::new(OpCode::LdyZeropageX, 4, |cpu, _memory| {
+        assert_eq!(cpu.y, TARGET);
     })
     .with_arguments(&[BASE_ADDR as u8])
-    .with_prepare(|cpu| cpu.x_index = OFFSET)
+    .with_prepare(|cpu| cpu.x = OFFSET)
     .with_additional_values(&[(FINAL_ADDR, TARGET)])
     .test();
 }
@@ -47,11 +49,11 @@ fn zeropage_x_overflow() {
     const OFFSET: u8 = 0xFA;
     const FINAL_ADDR: u16 = (BASE_ADDR as u8).wrapping_add(OFFSET) as u16;
 
-    TestOpcodeOptions::new(OpCode::LdyZeroPageX, 4, |cpu, _memory| {
-        assert_eq!(cpu.y_index, TARGET);
+    TestOpcodeOptions::new(OpCode::LdyZeropageX, 4, |cpu, _memory| {
+        assert_eq!(cpu.y, TARGET);
     })
     .with_arguments(&[BASE_ADDR as u8])
-    .with_prepare(|cpu| cpu.x_index = OFFSET)
+    .with_prepare(|cpu| cpu.x = OFFSET)
     .with_additional_values(&[(FINAL_ADDR, TARGET)])
     .test();
 }
@@ -62,7 +64,7 @@ fn absolute() {
     const ADDR: u16 = 0x0457;
 
     TestOpcodeOptions::new(OpCode::LdyAbsolute, 4, |cpu, _memory| {
-        assert_eq!(cpu.y_index, TARGET);
+        assert_eq!(cpu.y, TARGET);
     })
     .with_arguments(&ADDR.to_le_bytes())
     .with_additional_values(&[(ADDR, TARGET)])
@@ -77,10 +79,10 @@ fn absolute_x() {
     const FINAL_ADDR: u16 = BASE_ADDR.wrapping_add(OFFSET as u16);
 
     TestOpcodeOptions::new(OpCode::LdyAbsoluteX, 4, |cpu, _memory| {
-        assert_eq!(cpu.y_index, TARGET);
+        assert_eq!(cpu.y, TARGET);
     })
     .with_arguments(&BASE_ADDR.to_le_bytes())
-    .with_prepare(|cpu| cpu.x_index = OFFSET)
+    .with_prepare(|cpu| cpu.x = OFFSET)
     .with_additional_values(&[(FINAL_ADDR, TARGET)])
     .test();
 }
@@ -93,10 +95,10 @@ fn absolute_x_overflow() {
     const FINAL_ADDR: u16 = BASE_ADDR.wrapping_add(OFFSET as u16);
 
     TestOpcodeOptions::new(OpCode::LdyAbsoluteX, 5, |cpu, _memory| {
-        assert_eq!(cpu.y_index, TARGET);
+        assert_eq!(cpu.y, TARGET);
     })
     .with_arguments(&BASE_ADDR.to_le_bytes())
-    .with_prepare(|cpu| cpu.x_index = OFFSET)
+    .with_prepare(|cpu| cpu.x = OFFSET)
     .with_additional_values(&[(FINAL_ADDR, TARGET)])
     .test();
 }

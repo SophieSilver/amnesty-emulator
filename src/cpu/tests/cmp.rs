@@ -1,4 +1,7 @@
-use crate::cpu::{Cpu, StatusFlags};
+use crate::cpu::{
+    instructions::opcode::{self, OpCode},
+    Cpu, StatusFlags,
+};
 use utils::possible_byte_pairs;
 
 use super::*;
@@ -28,7 +31,7 @@ fn immediate() {
     for (a, b) in possible_byte_pairs() {
         TestOpcodeOptions::new(OpCode::CmpImmediate, 2, verify(a, b))
             .with_prepare(|cpu| {
-                cpu.accumulator = a;
+                cpu.a = a;
             })
             .with_arguments(&[b])
             .test();
@@ -40,9 +43,9 @@ fn zeropage() {
     for (a, b) in possible_byte_pairs() {
         let addr = 0x25;
 
-        TestOpcodeOptions::new(OpCode::CmpZeroPage, 3, verify(a, b))
+        TestOpcodeOptions::new(OpCode::CmpZeropage, 3, verify(a, b))
             .with_prepare(|cpu| {
-                cpu.accumulator = a;
+                cpu.a = a;
             })
             .with_arguments(&[addr])
             .with_additional_values(&[(addr as u16, b)])
@@ -56,10 +59,10 @@ fn zeropage_x() {
         let base_addr = 0x25;
         let offset = 0x20;
 
-        TestOpcodeOptions::new(OpCode::CmpZeroPageX, 4, verify(a, b))
+        TestOpcodeOptions::new(OpCode::CmpZeropageX, 4, verify(a, b))
             .with_prepare(|cpu| {
-                cpu.accumulator = a;
-                cpu.x_index = offset;
+                cpu.a = a;
+                cpu.x = offset;
             })
             .with_arguments(&[base_addr])
             .with_additional_values(&[(base_addr.wrapping_add(offset) as u16, b)])
@@ -73,10 +76,10 @@ fn zeropage_x_overflow() {
         let base_addr = 0x85;
         let offset = 0xD0;
 
-        TestOpcodeOptions::new(OpCode::CmpZeroPageX, 4, verify(a, b))
+        TestOpcodeOptions::new(OpCode::CmpZeropageX, 4, verify(a, b))
             .with_prepare(|cpu| {
-                cpu.accumulator = a;
-                cpu.x_index = offset;
+                cpu.a = a;
+                cpu.x = offset;
             })
             .with_arguments(&[base_addr])
             .with_additional_values(&[(base_addr.wrapping_add(offset) as u16, b)])
@@ -91,7 +94,7 @@ fn absolute() {
 
         TestOpcodeOptions::new(OpCode::CmpAbsolute, 4, verify(a, b))
             .with_prepare(|cpu| {
-                cpu.accumulator = a;
+                cpu.a = a;
             })
             .with_arguments(&addr.to_le_bytes())
             .with_additional_values(&[(addr, b)])
@@ -107,8 +110,8 @@ fn absolute_x() {
 
         TestOpcodeOptions::new(OpCode::CmpAbsoluteX, 4, verify(a, b))
             .with_prepare(|cpu| {
-                cpu.accumulator = a;
-                cpu.x_index = offset;
+                cpu.a = a;
+                cpu.x = offset;
             })
             .with_arguments(&addr.to_le_bytes())
             .with_additional_values(&[(addr.wrapping_add(offset as u16), b)])
@@ -124,8 +127,8 @@ fn absolute_y() {
 
         TestOpcodeOptions::new(OpCode::CmpAbsoluteY, 4, verify(a, b))
             .with_prepare(|cpu| {
-                cpu.accumulator = a;
-                cpu.y_index = offset;
+                cpu.a = a;
+                cpu.y = offset;
             })
             .with_arguments(&addr.to_le_bytes())
             .with_additional_values(&[(addr.wrapping_add(offset as u16), b)])
@@ -141,8 +144,8 @@ fn absolute_x_overflow() {
 
         TestOpcodeOptions::new(OpCode::CmpAbsoluteX, 5, verify(a, b))
             .with_prepare(|cpu| {
-                cpu.accumulator = a;
-                cpu.x_index = offset;
+                cpu.a = a;
+                cpu.x = offset;
             })
             .with_arguments(&addr.to_le_bytes())
             .with_additional_values(&[(addr.wrapping_add(offset as u16), b)])
@@ -158,8 +161,8 @@ fn absolute_y_overflow() {
 
         TestOpcodeOptions::new(OpCode::CmpAbsoluteY, 5, verify(a, b))
             .with_prepare(|cpu| {
-                cpu.accumulator = a;
-                cpu.y_index = offset;
+                cpu.a = a;
+                cpu.y = offset;
             })
             .with_arguments(&addr.to_le_bytes())
             .with_additional_values(&[(addr.wrapping_add(offset as u16), b)])
@@ -177,8 +180,8 @@ fn indirect_x() {
 
         TestOpcodeOptions::new(OpCode::CmpIndirectX, 6, verify(a, b))
             .with_prepare(|cpu| {
-                cpu.accumulator = a;
-                cpu.x_index = offset;
+                cpu.a = a;
+                cpu.x = offset;
             })
             .with_arguments(&[ptr_base])
             .with_additional_values(&[
@@ -200,8 +203,8 @@ fn indirect_y() {
 
         TestOpcodeOptions::new(OpCode::CmpIndirectY, 5, verify(a, b))
             .with_prepare(|cpu| {
-                cpu.accumulator = a;
-                cpu.y_index = offset;
+                cpu.a = a;
+                cpu.y = offset;
             })
             .with_arguments(&[ptr])
             .with_additional_values(&[
@@ -223,8 +226,8 @@ fn indirect_x_overflow() {
 
         TestOpcodeOptions::new(OpCode::CmpIndirectX, 6, verify(a, b))
             .with_prepare(|cpu| {
-                cpu.accumulator = a;
-                cpu.x_index = offset;
+                cpu.a = a;
+                cpu.x = offset;
             })
             .with_arguments(&[ptr_base])
             .with_additional_values(&[
@@ -246,8 +249,8 @@ fn indirect_y_overflow() {
 
         TestOpcodeOptions::new(OpCode::CmpIndirectY, 6, verify(a, b))
             .with_prepare(|cpu| {
-                cpu.accumulator = a;
-                cpu.y_index = offset;
+                cpu.a = a;
+                cpu.y = offset;
             })
             .with_arguments(&[ptr])
             .with_additional_values(&[
@@ -269,8 +272,8 @@ fn indirect_x_page_split() {
 
         TestOpcodeOptions::new(OpCode::CmpIndirectX, 6, verify(a, b))
             .with_prepare(|cpu| {
-                cpu.accumulator = a;
-                cpu.x_index = offset;
+                cpu.a = a;
+                cpu.x = offset;
             })
             .with_arguments(&[ptr_base])
             .with_additional_values(&[
@@ -292,8 +295,8 @@ fn indirect_y_page_split() {
 
         TestOpcodeOptions::new(OpCode::CmpIndirectY, 5, verify(a, b))
             .with_prepare(|cpu| {
-                cpu.accumulator = a;
-                cpu.y_index = offset;
+                cpu.a = a;
+                cpu.y = offset;
             })
             .with_arguments(&[ptr])
             .with_additional_values(&[

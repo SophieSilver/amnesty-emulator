@@ -1,3 +1,5 @@
+use crate::cpu::instructions::opcode::{self, OpCode};
+
 use super::*;
 
 #[test]
@@ -5,7 +7,7 @@ fn immediate() {
     const TARGET: u8 = 0x42;
 
     TestOpcodeOptions::new(OpCode::LdaImmediate, 2, |cpu, _memory| {
-        assert_eq!(cpu.accumulator, TARGET);
+        assert_eq!(cpu.a, TARGET);
     })
     .with_arguments(&[TARGET])
     .test();
@@ -16,8 +18,8 @@ fn zeropage() {
     const TARGET: u8 = 0x21;
     const ADDR: u16 = 0x42;
 
-    TestOpcodeOptions::new(OpCode::LdaZeroPage, 3, |cpu, _memory| {
-        assert_eq!(cpu.accumulator, TARGET);
+    TestOpcodeOptions::new(OpCode::LdaZeropage, 3, |cpu, _memory| {
+        assert_eq!(cpu.a, TARGET);
     })
     .with_arguments(&[ADDR as u8])
     .with_additional_values(&[(ADDR, TARGET)])
@@ -31,11 +33,11 @@ fn zeropage_x() {
     const OFFSET: u8 = 0x3;
     const FINAL_ADDR: u16 = (BASE_ADDR as u8).wrapping_add(OFFSET) as u16;
 
-    TestOpcodeOptions::new(OpCode::LdaZeroPageX, 4, |cpu, _memory| {
-        assert_eq!(cpu.accumulator, TARGET);
+    TestOpcodeOptions::new(OpCode::LdaZeropageX, 4, |cpu, _memory| {
+        assert_eq!(cpu.a, TARGET);
     })
     .with_arguments(&[BASE_ADDR as u8])
-    .with_prepare(|cpu| cpu.x_index = OFFSET)
+    .with_prepare(|cpu| cpu.x = OFFSET)
     .with_additional_values(&[(FINAL_ADDR, TARGET)])
     .test();
 }
@@ -47,11 +49,11 @@ fn zeropage_x_overflow() {
     const OFFSET: u8 = 0xFA;
     const FINAL_ADDR: u16 = (BASE_ADDR as u8).wrapping_add(OFFSET) as u16;
 
-    TestOpcodeOptions::new(OpCode::LdaZeroPageX, 4, |cpu, _memory| {
-        assert_eq!(cpu.accumulator, TARGET);
+    TestOpcodeOptions::new(OpCode::LdaZeropageX, 4, |cpu, _memory| {
+        assert_eq!(cpu.a, TARGET);
     })
     .with_arguments(&[BASE_ADDR as u8])
-    .with_prepare(|cpu| cpu.x_index = OFFSET)
+    .with_prepare(|cpu| cpu.x = OFFSET)
     .with_additional_values(&[(FINAL_ADDR, TARGET)])
     .test();
 }
@@ -62,7 +64,7 @@ fn absolute() {
     const ADDR: u16 = 0x0457;
 
     TestOpcodeOptions::new(OpCode::LdaAbsolute, 4, |cpu, _memory| {
-        assert_eq!(cpu.accumulator, TARGET);
+        assert_eq!(cpu.a, TARGET);
     })
     .with_arguments(&ADDR.to_le_bytes())
     .with_additional_values(&[(ADDR, TARGET)])
@@ -77,10 +79,10 @@ fn absolute_x() {
     const FINAL_ADDR: u16 = BASE_ADDR.wrapping_add(OFFSET as u16);
 
     TestOpcodeOptions::new(OpCode::LdaAbsoluteX, 4, |cpu, _memory| {
-        assert_eq!(cpu.accumulator, TARGET);
+        assert_eq!(cpu.a, TARGET);
     })
     .with_arguments(&BASE_ADDR.to_le_bytes())
-    .with_prepare(|cpu| cpu.x_index = OFFSET)
+    .with_prepare(|cpu| cpu.x = OFFSET)
     .with_additional_values(&[(FINAL_ADDR, TARGET)])
     .test();
 }
@@ -93,10 +95,10 @@ fn absolute_x_overflow() {
     const FINAL_ADDR: u16 = BASE_ADDR.wrapping_add(OFFSET as u16);
 
     TestOpcodeOptions::new(OpCode::LdaAbsoluteX, 5, |cpu, _memory| {
-        assert_eq!(cpu.accumulator, TARGET);
+        assert_eq!(cpu.a, TARGET);
     })
     .with_arguments(&BASE_ADDR.to_le_bytes())
-    .with_prepare(|cpu| cpu.x_index = OFFSET)
+    .with_prepare(|cpu| cpu.x = OFFSET)
     .with_additional_values(&[(FINAL_ADDR, TARGET)])
     .test();
 }
@@ -109,10 +111,10 @@ fn absolute_y() {
     const FINAL_ADDR: u16 = BASE_ADDR.wrapping_add(OFFSET as u16);
 
     TestOpcodeOptions::new(OpCode::LdaAbsoluteY, 4, |cpu, _memory| {
-        assert_eq!(cpu.accumulator, TARGET);
+        assert_eq!(cpu.a, TARGET);
     })
     .with_arguments(&BASE_ADDR.to_le_bytes())
-    .with_prepare(|cpu| cpu.y_index = OFFSET)
+    .with_prepare(|cpu| cpu.y = OFFSET)
     .with_additional_values(&[(FINAL_ADDR, TARGET)])
     .test();
 }
@@ -125,10 +127,10 @@ fn absolute_y_overflow() {
     const FINAL_ADDR: u16 = BASE_ADDR.wrapping_add(OFFSET as u16);
 
     TestOpcodeOptions::new(OpCode::LdaAbsoluteY, 5, |cpu, _memory| {
-        assert_eq!(cpu.accumulator, TARGET);
+        assert_eq!(cpu.a, TARGET);
     })
     .with_arguments(&BASE_ADDR.to_le_bytes())
-    .with_prepare(|cpu| cpu.y_index = OFFSET)
+    .with_prepare(|cpu| cpu.y = OFFSET)
     .with_additional_values(&[(FINAL_ADDR, TARGET)])
     .test();
 }
@@ -142,10 +144,10 @@ fn indirect_x() {
     const ADDR: u16 = 0x0432;
 
     TestOpcodeOptions::new(OpCode::LdaIndirectX, 6, |cpu, _memory| {
-        assert_eq!(cpu.accumulator, TARGET);
+        assert_eq!(cpu.a, TARGET);
     })
     .with_arguments(&[BASE_PTR])
-    .with_prepare(|cpu| cpu.x_index = OFFSET)
+    .with_prepare(|cpu| cpu.x = OFFSET)
     .with_additional_values(&[
         (FINAL_PTR as u16, ADDR.to_le_bytes()[0]),
         (FINAL_PTR.wrapping_add(1) as u16, ADDR.to_le_bytes()[1]),
@@ -163,10 +165,10 @@ fn indirect_x_overflow() {
     const ADDR: u16 = 0x0432;
 
     TestOpcodeOptions::new(OpCode::LdaIndirectX, 6, |cpu, _memory| {
-        assert_eq!(cpu.accumulator, TARGET);
+        assert_eq!(cpu.a, TARGET);
     })
     .with_arguments(&[BASE_PTR])
-    .with_prepare(|cpu| cpu.x_index = OFFSET)
+    .with_prepare(|cpu| cpu.x = OFFSET)
     .with_additional_values(&[
         (FINAL_PTR as u16, ADDR.to_le_bytes()[0]),
         (FINAL_PTR.wrapping_add(1) as u16, ADDR.to_le_bytes()[1]),
@@ -186,10 +188,10 @@ fn indirect_x_page_split() {
     const ADDR: u16 = 0x0432;
 
     TestOpcodeOptions::new(OpCode::LdaIndirectX, 6, |cpu, _memory| {
-        assert_eq!(cpu.accumulator, TARGET);
+        assert_eq!(cpu.a, TARGET);
     })
     .with_arguments(&[BASE_PTR])
-    .with_prepare(|cpu| cpu.x_index = OFFSET)
+    .with_prepare(|cpu| cpu.x = OFFSET)
     .with_additional_values(&[
         (FINAL_PTR as u16, ADDR.to_le_bytes()[0]),
         (FINAL_PTR.wrapping_add(1) as u16, ADDR.to_le_bytes()[1]),
@@ -207,7 +209,7 @@ fn indirect_y() {
     const FINAL_ADDR: u16 = BASE_ADDR.wrapping_add(OFFSET as u16);
 
     TestOpcodeOptions::new(OpCode::LdaIndirectY, 5, |cpu, _memory| {
-        assert_eq!(cpu.accumulator, TARGET);
+        assert_eq!(cpu.a, TARGET);
     })
     .with_arguments(&[PTR])
     .with_additional_values(&[
@@ -215,7 +217,7 @@ fn indirect_y() {
         (PTR.wrapping_add(1) as u16, BASE_ADDR.to_le_bytes()[1]),
         (FINAL_ADDR, TARGET),
     ])
-    .with_prepare(|cpu| cpu.y_index = OFFSET)
+    .with_prepare(|cpu| cpu.y = OFFSET)
     .test();
 }
 
@@ -228,7 +230,7 @@ fn indirect_y_overflow() {
     const FINAL_ADDR: u16 = BASE_ADDR.wrapping_add(OFFSET as u16);
 
     TestOpcodeOptions::new(OpCode::LdaIndirectY, 6, |cpu, _memory| {
-        assert_eq!(cpu.accumulator, TARGET);
+        assert_eq!(cpu.a, TARGET);
     })
     .with_arguments(&[PTR])
     .with_additional_values(&[
@@ -236,7 +238,7 @@ fn indirect_y_overflow() {
         (PTR.wrapping_add(1) as u16, BASE_ADDR.to_le_bytes()[1]),
         (FINAL_ADDR, TARGET),
     ])
-    .with_prepare(|cpu| cpu.y_index = OFFSET)
+    .with_prepare(|cpu| cpu.y = OFFSET)
     .test();
 }
 
@@ -250,7 +252,7 @@ fn indirect_y_page_split() {
     const FINAL_ADDR: u16 = BASE_ADDR.wrapping_add(OFFSET as u16);
 
     TestOpcodeOptions::new(OpCode::LdaIndirectY, 5, |cpu, _memory| {
-        assert_eq!(cpu.accumulator, TARGET);
+        assert_eq!(cpu.a, TARGET);
     })
     .with_arguments(&[PTR])
     .with_additional_values(&[
@@ -258,6 +260,6 @@ fn indirect_y_page_split() {
         (PTR.wrapping_add(1) as u16, BASE_ADDR.to_le_bytes()[1]),
         (FINAL_ADDR, TARGET),
     ])
-    .with_prepare(|cpu| cpu.y_index = OFFSET)
+    .with_prepare(|cpu| cpu.y = OFFSET)
     .test();
 }

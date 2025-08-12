@@ -1,12 +1,15 @@
 use utils::Preset;
 
-use crate::cpu::Cpu;
+use crate::cpu::{
+    instructions::opcode::{self, OpCode},
+    Cpu,
+};
 
 use super::*;
 
 fn verify(value: u8, preset: Preset) -> impl Fn(&mut Cpu, &mut TestMemory) {
     move |cpu, memory| {
-        assert_eq!(cpu.accumulator, value, "A register has the wrong value");
+        assert_eq!(cpu.a, value, "A register has the wrong value");
         assert_eq!(
             memory.load(preset.final_value_addr()),
             value,
@@ -16,12 +19,12 @@ fn verify(value: u8, preset: Preset) -> impl Fn(&mut Cpu, &mut TestMemory) {
 }
 
 fn prepare(value: u8) -> impl Fn(&mut Cpu) {
-    move |cpu| cpu.accumulator = value
+    move |cpu| cpu.a = value
 }
 
 #[test]
 fn zeropage() {
-    TestOpcodeOptions::new(OpCode::StaZeroPage, 3, verify(0x69, Preset::ZeroPage(0)))
+    TestOpcodeOptions::new(OpCode::StaZeropage, 3, verify(0x69, Preset::ZeroPage(0)))
         .with_prepare(prepare(0x69))
         .with_preset(Preset::ZeroPage(0))
         .test();
@@ -29,7 +32,7 @@ fn zeropage() {
 
 #[test]
 fn zeropage_x() {
-    TestOpcodeOptions::new(OpCode::StaZeroPageX, 4, verify(0x69, Preset::ZeroPageX(0)))
+    TestOpcodeOptions::new(OpCode::StaZeropageX, 4, verify(0x69, Preset::ZeroPageX(0)))
         .with_prepare(prepare(0x69))
         .with_preset(Preset::ZeroPageX(0))
         .test();

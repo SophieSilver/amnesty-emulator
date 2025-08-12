@@ -1,4 +1,7 @@
-use crate::cpu::{Cpu, StatusFlags};
+use crate::cpu::{
+    instructions::opcode::{self, OpCode},
+    Cpu, StatusFlags,
+};
 use utils::possible_pairs_with_carry;
 
 use super::*;
@@ -16,7 +19,7 @@ fn verify(a: u8, b: u8, carry: bool) -> impl Fn(&mut Cpu, &mut TestMemory) {
 
     move |cpu, _memory| {
         assert_eq!(
-            cpu.accumulator, truncated_result,
+            cpu.a, truncated_result,
             "Addition result incorrect a = {a}, b = {b}, carry = {carry}"
         );
         assert_eq!(
@@ -31,12 +34,12 @@ fn verify(a: u8, b: u8, carry: bool) -> impl Fn(&mut Cpu, &mut TestMemory) {
         );
         assert_eq!(
             cpu.flags.contains(StatusFlags::NEGATIVE),
-            (cpu.accumulator as i8).is_negative(),
+            (cpu.a as i8).is_negative(),
             "NEGATIVE flag set incorrectly a = {a}, b = {b}, carry = {carry}"
         );
         assert_eq!(
             cpu.flags.contains(StatusFlags::ZERO),
-            cpu.accumulator == 0,
+            cpu.a == 0,
             "ZERO flag set incorrectly a = {a}, b = {b}, carry = {carry}"
         );
     }
@@ -47,7 +50,7 @@ fn immediate() {
     for (a, b, carry) in possible_pairs_with_carry() {
         TestOpcodeOptions::new(OpCode::SbcImmediate, 2, verify(a, b, carry))
             .with_prepare(|cpu| {
-                cpu.accumulator = a;
+                cpu.a = a;
                 cpu.flags.set(StatusFlags::CARRY, carry);
             })
             .with_arguments(&[b])
@@ -60,9 +63,9 @@ fn zeropage() {
     for (a, b, carry) in possible_pairs_with_carry() {
         let addr = 0x25;
 
-        TestOpcodeOptions::new(OpCode::SbcZeroPage, 3, verify(a, b, carry))
+        TestOpcodeOptions::new(OpCode::SbcZeropage, 3, verify(a, b, carry))
             .with_prepare(|cpu| {
-                cpu.accumulator = a;
+                cpu.a = a;
                 cpu.flags.set(StatusFlags::CARRY, carry);
             })
             .with_arguments(&[addr])
@@ -77,10 +80,10 @@ fn zeropage_x() {
         let base_addr = 0x25;
         let offset = 0x20;
 
-        TestOpcodeOptions::new(OpCode::SbcZeroPageX, 4, verify(a, b, carry))
+        TestOpcodeOptions::new(OpCode::SbcZeropageX, 4, verify(a, b, carry))
             .with_prepare(|cpu| {
-                cpu.accumulator = a;
-                cpu.x_index = offset;
+                cpu.a = a;
+                cpu.x = offset;
                 cpu.flags.set(StatusFlags::CARRY, carry);
             })
             .with_arguments(&[base_addr])
@@ -95,10 +98,10 @@ fn zeropage_x_overflow() {
         let base_addr = 0x85;
         let offset = 0xD0;
 
-        TestOpcodeOptions::new(OpCode::SbcZeroPageX, 4, verify(a, b, carry))
+        TestOpcodeOptions::new(OpCode::SbcZeropageX, 4, verify(a, b, carry))
             .with_prepare(|cpu| {
-                cpu.accumulator = a;
-                cpu.x_index = offset;
+                cpu.a = a;
+                cpu.x = offset;
                 cpu.flags.set(StatusFlags::CARRY, carry);
             })
             .with_arguments(&[base_addr])
@@ -114,7 +117,7 @@ fn absolute() {
 
         TestOpcodeOptions::new(OpCode::SbcAbsolute, 4, verify(a, b, carry))
             .with_prepare(|cpu| {
-                cpu.accumulator = a;
+                cpu.a = a;
                 cpu.flags.set(StatusFlags::CARRY, carry);
             })
             .with_arguments(&addr.to_le_bytes())
@@ -131,8 +134,8 @@ fn absolute_x() {
 
         TestOpcodeOptions::new(OpCode::SbcAbsoluteX, 4, verify(a, b, carry))
             .with_prepare(|cpu| {
-                cpu.accumulator = a;
-                cpu.x_index = offset;
+                cpu.a = a;
+                cpu.x = offset;
                 cpu.flags.set(StatusFlags::CARRY, carry);
             })
             .with_arguments(&addr.to_le_bytes())
@@ -149,8 +152,8 @@ fn absolute_y() {
 
         TestOpcodeOptions::new(OpCode::SbcAbsoluteY, 4, verify(a, b, carry))
             .with_prepare(|cpu| {
-                cpu.accumulator = a;
-                cpu.y_index = offset;
+                cpu.a = a;
+                cpu.y = offset;
                 cpu.flags.set(StatusFlags::CARRY, carry);
             })
             .with_arguments(&addr.to_le_bytes())
@@ -167,8 +170,8 @@ fn absolute_x_overflow() {
 
         TestOpcodeOptions::new(OpCode::SbcAbsoluteX, 5, verify(a, b, carry))
             .with_prepare(|cpu| {
-                cpu.accumulator = a;
-                cpu.x_index = offset;
+                cpu.a = a;
+                cpu.x = offset;
                 cpu.flags.set(StatusFlags::CARRY, carry);
             })
             .with_arguments(&addr.to_le_bytes())
@@ -185,8 +188,8 @@ fn absolute_y_overflow() {
 
         TestOpcodeOptions::new(OpCode::SbcAbsoluteY, 5, verify(a, b, carry))
             .with_prepare(|cpu| {
-                cpu.accumulator = a;
-                cpu.y_index = offset;
+                cpu.a = a;
+                cpu.y = offset;
                 cpu.flags.set(StatusFlags::CARRY, carry);
             })
             .with_arguments(&addr.to_le_bytes())
@@ -205,8 +208,8 @@ fn indirect_x() {
 
         TestOpcodeOptions::new(OpCode::SbcIndirectX, 6, verify(a, b, carry))
             .with_prepare(|cpu| {
-                cpu.accumulator = a;
-                cpu.x_index = offset;
+                cpu.a = a;
+                cpu.x = offset;
                 cpu.flags.set(StatusFlags::CARRY, carry);
             })
             .with_arguments(&[ptr_base])
@@ -229,8 +232,8 @@ fn indirect_y() {
 
         TestOpcodeOptions::new(OpCode::SbcIndirectY, 5, verify(a, b, carry))
             .with_prepare(|cpu| {
-                cpu.accumulator = a;
-                cpu.y_index = offset;
+                cpu.a = a;
+                cpu.y = offset;
                 cpu.flags.set(StatusFlags::CARRY, carry);
             })
             .with_arguments(&[ptr])
@@ -253,8 +256,8 @@ fn indirect_x_overflow() {
 
         TestOpcodeOptions::new(OpCode::SbcIndirectX, 6, verify(a, b, carry))
             .with_prepare(|cpu| {
-                cpu.accumulator = a;
-                cpu.x_index = offset;
+                cpu.a = a;
+                cpu.x = offset;
                 cpu.flags.set(StatusFlags::CARRY, carry);
             })
             .with_arguments(&[ptr_base])
@@ -277,8 +280,8 @@ fn indirect_y_overflow() {
 
         TestOpcodeOptions::new(OpCode::SbcIndirectY, 6, verify(a, b, carry))
             .with_prepare(|cpu| {
-                cpu.accumulator = a;
-                cpu.y_index = offset;
+                cpu.a = a;
+                cpu.y = offset;
                 cpu.flags.set(StatusFlags::CARRY, carry);
             })
             .with_arguments(&[ptr])
@@ -301,8 +304,8 @@ fn indirect_x_page_split() {
 
         TestOpcodeOptions::new(OpCode::SbcIndirectX, 6, verify(a, b, carry))
             .with_prepare(|cpu| {
-                cpu.accumulator = a;
-                cpu.x_index = offset;
+                cpu.a = a;
+                cpu.x = offset;
                 cpu.flags.set(StatusFlags::CARRY, carry);
             })
             .with_arguments(&[ptr_base])
@@ -325,8 +328,8 @@ fn indirect_y_page_split() {
 
         TestOpcodeOptions::new(OpCode::SbcIndirectY, 5, verify(a, b, carry))
             .with_prepare(|cpu| {
-                cpu.accumulator = a;
-                cpu.y_index = offset;
+                cpu.a = a;
+                cpu.y = offset;
                 cpu.flags.set(StatusFlags::CARRY, carry);
             })
             .with_arguments(&[ptr])

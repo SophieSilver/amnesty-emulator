@@ -1,7 +1,10 @@
 use presets::apply_preset;
 
 use crate::{
-    cpu::{dispatch::OpCode, Cpu},
+    cpu::{
+        instructions::opcode::{self, OpCode},
+        Cpu,
+    },
     memory::Memory,
 };
 
@@ -209,13 +212,13 @@ where
         let argument_len = self.argument_source.apply(&mut cpu, &mut memory);
 
         // prepare the cpu
-        cpu.program_counter = OPCODE_ADDR;
+        cpu.pc = OPCODE_ADDR;
         (self.prepare)(&mut cpu);
 
-        let start_cycle = cpu.clock_cycle;
-        cpu.run_instruction(&mut memory);
+        let start_cycle = cpu.clock_cycle_count;
+        cpu.execute_next_instruction(&mut memory);
         assert_eq!(
-            cpu.clock_cycle - start_cycle,
+            cpu.clock_cycle_count - start_cycle,
             self.expected_cycles as u64,
             "instruction didn't take the expected amount of cycles"
         );
@@ -223,7 +226,7 @@ where
         if self.check_pc {
             let expected_pc = OPCODE_ADDR + 1 + argument_len;
             assert_eq!(
-                cpu.program_counter, expected_pc,
+                cpu.pc, expected_pc,
                 "instruction pointer incorrectly set after instruction"
             );
         }

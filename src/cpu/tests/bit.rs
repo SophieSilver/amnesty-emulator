@@ -1,4 +1,4 @@
-use utils::{possible_byte_pairs, Preset as Preset};
+use utils::{possible_byte_pairs, Preset};
 
 use crate::cpu::{Cpu, StatusFlags};
 
@@ -32,8 +32,8 @@ fn verify(a: u8, b: u8) -> impl Fn(&mut Cpu, &mut TestMemory) {
 #[test]
 fn zeropage() {
     for (a, b) in possible_byte_pairs() {
-        TestOpcodeOptions::new(OpCode::BitZeroPage, 3, verify(a, b))
-            .with_prepare(|cpu| cpu.accumulator = a)
+        TestOpcodeOptions::new(OpCode::BitZeropage, 3, verify(a, b))
+            .with_prepare(|cpu| cpu.a = a)
             .with_preset(Preset::ZeroPage(b))
             .test();
     }
@@ -43,7 +43,7 @@ fn zeropage() {
 fn absolute() {
     for (a, b) in possible_byte_pairs() {
         TestOpcodeOptions::new(OpCode::BitAbsolute, 4, verify(a, b))
-            .with_prepare(|cpu| cpu.accumulator = a)
+            .with_prepare(|cpu| cpu.a = a)
             .with_preset(Preset::Absolute(b))
             .test();
     }

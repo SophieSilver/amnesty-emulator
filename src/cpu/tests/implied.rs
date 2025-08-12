@@ -1,3 +1,5 @@
+use crate::cpu::instructions::opcode::{self, OpCode};
+
 use super::*;
 
 #[test]
@@ -72,17 +74,17 @@ pub(crate) fn nop() {
     let flags = StatusFlags::CARRY | StatusFlags::NEGATIVE | StatusFlags::OVERFLOW;
 
     TestOpcodeOptions::new(OpCode::Nop, 2, |cpu, _memory| {
-        assert_eq!(cpu.accumulator, a);
-        assert_eq!(cpu.stack_ptr, sp);
-        assert_eq!(cpu.x_index, x);
-        assert_eq!(cpu.y_index, y);
+        assert_eq!(cpu.a, a);
+        assert_eq!(cpu.sp, sp);
+        assert_eq!(cpu.x, x);
+        assert_eq!(cpu.y, y);
         assert_eq!(cpu.flags, flags);
     })
     .with_prepare(|cpu| {
-        cpu.accumulator = 2;
-        cpu.stack_ptr = 3;
-        cpu.x_index = 4;
-        cpu.y_index = 5;
+        cpu.a = 2;
+        cpu.sp = 3;
+        cpu.x = 4;
+        cpu.y = 5;
         cpu.flags = flags;
     })
     .test();
@@ -94,7 +96,7 @@ pub(crate) fn dex() {
         let expected = x.wrapping_sub(1);
 
         TestOpcodeOptions::new(OpCode::Dex, 2, |cpu, _memory| {
-            assert_eq!(cpu.x_index, expected, "X register decremented incorrectly");
+            assert_eq!(cpu.x, expected, "X register decremented incorrectly");
             assert_eq!(
                 cpu.flags.contains(StatusFlags::NEGATIVE),
                 (expected as i8) < 0,
@@ -106,7 +108,7 @@ pub(crate) fn dex() {
                 "ZERO flag set incorrectly"
             );
         })
-        .with_prepare(|cpu| cpu.x_index = x)
+        .with_prepare(|cpu| cpu.x = x)
         .test();
     }
 }
@@ -117,7 +119,7 @@ pub(crate) fn dey() {
         let expected = y.wrapping_sub(1);
 
         TestOpcodeOptions::new(OpCode::Dey, 2, |cpu, _memory| {
-            assert_eq!(cpu.y_index, expected, "Y register decremented incorrectly");
+            assert_eq!(cpu.y, expected, "Y register decremented incorrectly");
             assert_eq!(
                 cpu.flags.contains(StatusFlags::NEGATIVE),
                 (expected as i8) < 0,
@@ -129,7 +131,7 @@ pub(crate) fn dey() {
                 "ZERO flag set incorrectly"
             );
         })
-        .with_prepare(|cpu| cpu.y_index = y)
+        .with_prepare(|cpu| cpu.y = y)
         .test();
     }
 }
@@ -140,7 +142,7 @@ pub(crate) fn inx() {
         let expected = x.wrapping_add(1);
 
         TestOpcodeOptions::new(OpCode::Inx, 2, |cpu, _memory| {
-            assert_eq!(cpu.x_index, expected, "X register incremented incorrectly");
+            assert_eq!(cpu.x, expected, "X register incremented incorrectly");
             assert_eq!(
                 cpu.flags.contains(StatusFlags::NEGATIVE),
                 (expected as i8) < 0,
@@ -152,7 +154,7 @@ pub(crate) fn inx() {
                 "ZERO flag set incorrectly"
             );
         })
-        .with_prepare(|cpu| cpu.x_index = x)
+        .with_prepare(|cpu| cpu.x = x)
         .test();
     }
 }
@@ -163,7 +165,7 @@ pub(crate) fn iny() {
         let expected = y.wrapping_add(1);
 
         TestOpcodeOptions::new(OpCode::Iny, 2, |cpu, _memory| {
-            assert_eq!(cpu.y_index, expected, "Y register incremented incorrectly");
+            assert_eq!(cpu.y, expected, "Y register incremented incorrectly");
             assert_eq!(
                 cpu.flags.contains(StatusFlags::NEGATIVE),
                 (expected as i8) < 0,
@@ -175,7 +177,7 @@ pub(crate) fn iny() {
                 "ZERO flag set incorrectly"
             );
         })
-        .with_prepare(|cpu| cpu.y_index = y)
+        .with_prepare(|cpu| cpu.y = y)
         .test();
     }
 }
@@ -185,7 +187,7 @@ pub(crate) fn tax() {
     for value in 0..u8::MAX {
         TestOpcodeOptions::new(OpCode::Tax, 2, |cpu, _memory| {
             assert!(
-                cpu.x_index == value && cpu.x_index == cpu.accumulator,
+                cpu.x == value && cpu.x == cpu.a,
                 "register transfered incorrectly"
             );
             assert_eq!(
@@ -199,7 +201,7 @@ pub(crate) fn tax() {
                 "ZERO flag set incorrectly"
             );
         })
-        .with_prepare(|cpu| cpu.accumulator = value)
+        .with_prepare(|cpu| cpu.a = value)
         .test();
     }
 }
@@ -209,7 +211,7 @@ pub(crate) fn tay() {
     for value in 0..u8::MAX {
         TestOpcodeOptions::new(OpCode::Tay, 2, |cpu, _memory| {
             assert!(
-                cpu.y_index == value && cpu.y_index == cpu.accumulator,
+                cpu.y == value && cpu.y == cpu.a,
                 "register transfered incorrectly"
             );
             assert_eq!(
@@ -223,7 +225,7 @@ pub(crate) fn tay() {
                 "ZERO flag set incorrectly"
             );
         })
-        .with_prepare(|cpu| cpu.accumulator = value)
+        .with_prepare(|cpu| cpu.a = value)
         .test();
     }
 }
@@ -233,7 +235,7 @@ pub(crate) fn tsx() {
     for value in 0..u8::MAX {
         TestOpcodeOptions::new(OpCode::Tsx, 2, |cpu, _memory| {
             assert!(
-                cpu.x_index == value && cpu.x_index == cpu.stack_ptr,
+                cpu.x == value && cpu.x == cpu.sp,
                 "register transfered incorrectly"
             );
             assert_eq!(
@@ -247,7 +249,7 @@ pub(crate) fn tsx() {
                 "ZERO flag set incorrectly"
             );
         })
-        .with_prepare(|cpu| cpu.stack_ptr = value)
+        .with_prepare(|cpu| cpu.sp = value)
         .test();
     }
 }
@@ -257,7 +259,7 @@ pub(crate) fn txa() {
     for value in 0..u8::MAX {
         TestOpcodeOptions::new(OpCode::Txa, 2, |cpu, _memory| {
             assert!(
-                cpu.accumulator == value && cpu.accumulator == cpu.x_index,
+                cpu.a == value && cpu.a == cpu.x,
                 "register transfered incorrectly"
             );
             assert_eq!(
@@ -271,7 +273,7 @@ pub(crate) fn txa() {
                 "ZERO flag set incorrectly"
             );
         })
-        .with_prepare(|cpu| cpu.x_index = value)
+        .with_prepare(|cpu| cpu.x = value)
         .test();
     }
 }
@@ -282,7 +284,7 @@ pub(crate) fn txs() {
     for (value, negative, zero) in possible_values_with_2_bools() {
         TestOpcodeOptions::new(OpCode::Txs, 2, |cpu, _memory| {
             assert!(
-                cpu.stack_ptr == value && cpu.stack_ptr == cpu.x_index,
+                cpu.sp == value && cpu.sp == cpu.x,
                 "register transfered incorrectly"
             );
             assert_eq!(
@@ -297,7 +299,7 @@ pub(crate) fn txs() {
             );
         })
         .with_prepare(|cpu| {
-            cpu.x_index = value;
+            cpu.x = value;
             cpu.flags.set(StatusFlags::NEGATIVE, negative);
             cpu.flags.set(StatusFlags::ZERO, zero);
         })
@@ -310,7 +312,7 @@ pub(crate) fn tya() {
     for value in 0..u8::MAX {
         TestOpcodeOptions::new(OpCode::Tya, 2, |cpu, _memory| {
             assert!(
-                cpu.accumulator == value && cpu.accumulator == cpu.y_index,
+                cpu.a == value && cpu.a == cpu.y,
                 "register transfered incorrectly"
             );
             assert_eq!(
@@ -324,7 +326,7 @@ pub(crate) fn tya() {
                 "ZERO flag set incorrectly"
             );
         })
-        .with_prepare(|cpu| cpu.y_index = value)
+        .with_prepare(|cpu| cpu.y = value)
         .test();
     }
 }
