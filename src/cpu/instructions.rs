@@ -7,18 +7,22 @@ mod adc;
 mod and;
 mod bit;
 mod cmp;
+mod eor;
 mod lda;
 mod ldx;
 mod ldy;
+mod ora;
 mod sbc;
 
 pub use adc::*;
 pub use and::*;
 pub use bit::*;
 pub use cmp::*;
+pub use eor::*;
 pub use lda::*;
 pub use ldx::*;
 pub use ldy::*;
+pub use ora::*;
 pub use sbc::*;
 
 pub mod opcode;
@@ -60,6 +64,16 @@ pub fn execute_opcode<M: Memory>(executor: &mut Executor<M>, opcode: OpCode) {
         OpCode::CmpIndirectX => Cmp::indirect_x(executor),
         OpCode::CmpIndirectY => Cmp::indirect_y(executor),
 
+        // EOR
+        OpCode::EorImmediate => Eor::immediate(executor),
+        OpCode::EorZeropage => Eor::zeropage(executor),
+        OpCode::EorZeropageX => Eor::zeropage_x(executor),
+        OpCode::EorAbsolute => Eor::absolute(executor),
+        OpCode::EorAbsoluteX => Eor::absolute_x(executor),
+        OpCode::EorAbsoluteY => Eor::absolute_y(executor),
+        OpCode::EorIndirectX => Eor::indirect_x(executor),
+        OpCode::EorIndirectY => Eor::indirect_y(executor),
+
         // LDA
         OpCode::LdaImmediate => Lda::immediate(executor),
         OpCode::LdaZeropage => Lda::zeropage(executor),
@@ -83,6 +97,16 @@ pub fn execute_opcode<M: Memory>(executor: &mut Executor<M>, opcode: OpCode) {
         OpCode::LdyZeropageX => Ldy::zeropage_x(executor),
         OpCode::LdyAbsolute => Ldy::absolute(executor),
         OpCode::LdyAbsoluteX => Ldy::absolute_x(executor),
+
+        // ORA
+        OpCode::OraImmediate => Ora::immediate(executor),
+        OpCode::OraZeropage => Ora::zeropage(executor),
+        OpCode::OraZeropageX => Ora::zeropage_x(executor),
+        OpCode::OraAbsolute => Ora::absolute(executor),
+        OpCode::OraAbsoluteX => Ora::absolute_x(executor),
+        OpCode::OraAbsoluteY => Ora::absolute_y(executor),
+        OpCode::OraIndirectX => Ora::indirect_x(executor),
+        OpCode::OraIndirectY => Ora::indirect_y(executor),
 
         // SBC
         OpCode::SbcImmediate => Sbc::immediate(executor),
