@@ -1,5 +1,5 @@
 use crate::cpu::{
-    instructions::opcode::{self, OpCode},
+    instructions::opcode::OpCode,
     Cpu, StatusFlags,
 };
 use utils::possible_pairs_with_carry;

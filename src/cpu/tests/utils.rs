@@ -136,9 +136,9 @@ impl<'a> ArgumentSource for ExplicitSource<'a> {
 /// ## Checks
 /// The test will fail (panic) if:
 /// - The instruction terminates too early or does not terminate in `expected_cycles`
-///     (by checking `cpu.current_cycle`)
+///   (by checking `cpu.current_cycle`)
 /// - `check_pc` is `true` AND
-///     after executing the instruction the PC isn't equal to `0x200 + arguments.len()`
+///   after executing the instruction the PC isn't equal to `0x200 + arguments.len()`
 /// - provided `verify` closure panics
 #[derive(Debug)]
 pub struct TestOpcodeOptions<PrepareFunc, VerifyFunc, A = EmptySource>

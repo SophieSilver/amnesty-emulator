@@ -1,7 +1,7 @@
 use utils::Preset;
 
 use crate::cpu::{
-    instructions::opcode::{self, OpCode},
+    instructions::opcode::OpCode,
     Cpu,
 };
 

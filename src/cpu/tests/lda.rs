@@ -1,4 +1,4 @@
-use crate::cpu::instructions::opcode::{self, OpCode};
+use crate::cpu::instructions::opcode::OpCode;
 
 use super::*;
 
