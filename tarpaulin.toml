@@ -1,0 +1,11 @@
+[config]
+engine = "Llvm"
+manifest-path = "Cargo.toml"
+
+skip-clean = true
+output-dir = "coverage"
+out = ["Html", "Lcov"]
+count = true
+line = true
+branch = true
+exclude-files = ["src/main.rs"]

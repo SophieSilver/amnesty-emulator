@@ -1,29 +1,44 @@
 use super::executor::Executor;
-use crate::{cpu::instructions::addressing_modes::read::*, memory::Memory};
+use crate::{
+    cpu::instructions::addressing_modes::{implied::Implied, read::*},
+    memory::Memory,
+};
 
 mod addressing_modes;
 
 mod adc;
 mod and;
 mod bit;
+mod cl_;
 mod cmp;
+mod de_;
 mod eor;
+mod in_;
 mod lda;
 mod ldx;
 mod ldy;
+mod nop;
 mod ora;
 mod sbc;
+mod se_;
+mod t__;
 
 pub use adc::*;
 pub use and::*;
 pub use bit::*;
+pub use cl_::*;
 pub use cmp::*;
+pub use de_::*;
 pub use eor::*;
+pub use in_::*;
 pub use lda::*;
 pub use ldx::*;
 pub use ldy::*;
+pub use nop::*;
 pub use ora::*;
 pub use sbc::*;
+pub use se_::*;
+pub use t__::*;
 
 pub mod opcode;
 use opcode::OpCode;
@@ -54,6 +69,12 @@ pub fn execute_opcode<M: Memory>(executor: &mut Executor<M>, opcode: OpCode) {
         OpCode::BitZeropage => Bit::zeropage(executor),
         OpCode::BitAbsolute => Bit::absolute(executor),
 
+        // CL*
+        OpCode::Clc => Clc::implied(executor),
+        OpCode::Cld => Cld::implied(executor),
+        OpCode::Cli => Cli::implied(executor),
+        OpCode::Clv => Clv::implied(executor),
+
         // CMP
         OpCode::CmpImmediate => Cmp::immediate(executor),
         OpCode::CmpZeropage => Cmp::zeropage(executor),
@@ -64,6 +85,10 @@ pub fn execute_opcode<M: Memory>(executor: &mut Executor<M>, opcode: OpCode) {
         OpCode::CmpIndirectX => Cmp::indirect_x(executor),
         OpCode::CmpIndirectY => Cmp::indirect_y(executor),
 
+        // DE*
+        OpCode::Dex => Dex::implied(executor),
+        OpCode::Dey => Dey::implied(executor),
+
         // EOR
         OpCode::EorImmediate => Eor::immediate(executor),
         OpCode::EorZeropage => Eor::zeropage(executor),
@@ -73,6 +98,10 @@ pub fn execute_opcode<M: Memory>(executor: &mut Executor<M>, opcode: OpCode) {
         OpCode::EorAbsoluteY => Eor::absolute_y(executor),
         OpCode::EorIndirectX => Eor::indirect_x(executor),
         OpCode::EorIndirectY => Eor::indirect_y(executor),
+
+        // IN*
+        OpCode::Inx => Inx::implied(executor),
+        OpCode::Iny => Iny::implied(executor),
 
         // LDA
         OpCode::LdaImmediate => Lda::immediate(executor),
@@ -98,6 +127,8 @@ pub fn execute_opcode<M: Memory>(executor: &mut Executor<M>, opcode: OpCode) {
         OpCode::LdyAbsolute => Ldy::absolute(executor),
         OpCode::LdyAbsoluteX => Ldy::absolute_x(executor),
 
+        OpCode::Nop => Nop::implied(executor),
+
         // ORA
         OpCode::OraImmediate => Ora::immediate(executor),
         OpCode::OraZeropage => Ora::zeropage(executor),
@@ -117,6 +148,19 @@ pub fn execute_opcode<M: Memory>(executor: &mut Executor<M>, opcode: OpCode) {
         OpCode::SbcAbsoluteY => Sbc::absolute_y(executor),
         OpCode::SbcIndirectX => Sbc::indirect_x(executor),
         OpCode::SbcIndirectY => Sbc::indirect_y(executor),
+
+        // SE*
+        OpCode::Sec => Sec::implied(executor),
+        OpCode::Sed => Sed::implied(executor),
+        OpCode::Sei => Sei::implied(executor),
+
+        // T**
+        OpCode::Tax => Tax::implied(executor),
+        OpCode::Tay => Tay::implied(executor),
+        OpCode::Tsx => Tsx::implied(executor),
+        OpCode::Txa => Txa::implied(executor),
+        OpCode::Txs => Txs::implied(executor),
+        OpCode::Tya => Tya::implied(executor),
 
         _ => unimplemented!(),
     }

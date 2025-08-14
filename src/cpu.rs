@@ -1,13 +1,8 @@
 #![warn(clippy::arithmetic_side_effects)]
 
 use bitflags::bitflags;
-use num_enum::FromPrimitive;
-// use dispatch::{dispatch_current_opcode, OpCode};
 
-use crate::{
-    cpu::{executor::Executor, instructions::opcode::OpCode},
-    memory::Memory,
-};
+use crate::{cpu::executor::Executor, memory::Memory};
 
 mod arithmetic;
 mod executor;

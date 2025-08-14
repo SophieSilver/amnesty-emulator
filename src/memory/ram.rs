@@ -52,12 +52,12 @@ impl Debug for Ram {
         };
 
         writeln!(f, "[")?;
-        write!(f, "{:>8} | ", "")?;
+        write!(f, "    {:>4} | ", "")?;
         write_slice(f, &[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15])?;
         writeln!(f, "{empty:->8}-+-{empty:->47}", empty = "")?;
         for (i, chunk) in self.buf.chunks(16).enumerate() {
             let offset = i * 16;
-            write!(f, "{offset:0>8X} | ")?;
+            write!(f, "    {offset:0>4X} | ")?;
             write_slice(f, chunk)?;
         }
         writeln!(f, "]")?;

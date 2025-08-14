@@ -1,10 +1,7 @@
 use presets::apply_preset;
 
 use crate::{
-    cpu::{
-        instructions::opcode::{self, OpCode},
-        Cpu,
-    },
+    cpu::{instructions::opcode::OpCode, Cpu},
     memory::Memory,
 };
 
