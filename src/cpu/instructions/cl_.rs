@@ -1,8 +1,8 @@
-use crate::cpu::{instructions::addressing_modes::implied, Cpu, StatusFlags};
+use crate::cpu::{instructions::addressing_modes::implied::*, Cpu, StatusFlags};
 
 pub struct Clc;
 
-impl implied::Instruction for Clc {
+impl ImpliedInstruction for Clc {
     fn instruction(cpu: &mut Cpu) {
         cpu.flags.remove(StatusFlags::CARRY);
     }
@@ -10,7 +10,7 @@ impl implied::Instruction for Clc {
 
 pub struct Cld;
 
-impl implied::Instruction for Cld {
+impl ImpliedInstruction for Cld {
     fn instruction(cpu: &mut Cpu) {
         cpu.flags.remove(StatusFlags::DECIMAL);
     }
@@ -18,7 +18,7 @@ impl implied::Instruction for Cld {
 
 pub struct Cli;
 
-impl implied::Instruction for Cli {
+impl ImpliedInstruction for Cli {
     fn instruction(cpu: &mut Cpu) {
         cpu.flags.remove(StatusFlags::INTERRUPT_DISABLE);
     }
@@ -26,7 +26,7 @@ impl implied::Instruction for Cli {
 
 pub struct Clv;
 
-impl implied::Instruction for Clv {
+impl ImpliedInstruction for Clv {
     fn instruction(cpu: &mut Cpu) {
         cpu.flags.remove(StatusFlags::OVERFLOW);
     }

@@ -1,8 +1,8 @@
-use crate::cpu::{arithmetic, instructions::addressing_modes::read, Cpu, StatusFlags};
+use crate::cpu::{arithmetic, instructions::addressing_modes::read::*, Cpu, StatusFlags};
 
 pub struct Cmp;
 
-impl read::Instruction for Cmp {
+impl ReadInstruction for Cmp {
     fn instruction(cpu: &mut Cpu, value: u8) {
         let (result, carry) = arithmetic::sub_with_carry(cpu.a, value, true);
 
@@ -12,11 +12,11 @@ impl read::Instruction for Cmp {
     }
 }
 
-impl read::Immediate for Cmp {}
-impl read::Zeropage for Cmp {}
-impl read::ZeropageX for Cmp {}
-impl read::Absolute for Cmp {}
-impl read::AbsoluteX for Cmp {}
-impl read::AbsoluteY for Cmp {}
-impl read::IndirectX for Cmp {}
-impl read::IndirectY for Cmp {}
+impl ReadImmediate for Cmp {}
+impl ReadZeropage for Cmp {}
+impl ReadZeropageX for Cmp {}
+impl ReadAbsolute for Cmp {}
+impl ReadAbsoluteX for Cmp {}
+impl ReadAbsoluteY for Cmp {}
+impl ReadIndirectX for Cmp {}
+impl ReadIndirectY for Cmp {}

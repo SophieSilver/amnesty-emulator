@@ -1,6 +1,6 @@
 use super::executor::Executor;
 use crate::{
-    cpu::instructions::addressing_modes::{implied::Implied, read::*},
+    cpu::instructions::addressing_modes::{implied::*, read::*, write::*},
     memory::Memory,
 };
 
@@ -21,6 +21,7 @@ mod nop;
 mod ora;
 mod sbc;
 mod se_;
+mod sta;
 mod t__;
 
 pub use adc::*;
@@ -38,6 +39,7 @@ pub use nop::*;
 pub use ora::*;
 pub use sbc::*;
 pub use se_::*;
+pub use sta::*;
 pub use t__::*;
 
 pub mod opcode;
@@ -153,6 +155,15 @@ pub fn execute_opcode<M: Memory>(executor: &mut Executor<M>, opcode: OpCode) {
         OpCode::Sec => Sec::implied(executor),
         OpCode::Sed => Sed::implied(executor),
         OpCode::Sei => Sei::implied(executor),
+
+        // STA
+        OpCode::StaZeropage => Sta::zeropage(executor),
+        OpCode::StaZeropageX => Sta::zeropage_x(executor),
+        OpCode::StaAbsolute => Sta::absolute(executor),
+        OpCode::StaAbsoluteX => Sta::absolute_x(executor),
+        OpCode::StaAbsoluteY => Sta::absolute_y(executor),
+        OpCode::StaIndirectX => Sta::indirect_x(executor),
+        OpCode::StaIndirectY => Sta::indirect_y(executor),
 
         // T**
         OpCode::Tax => Tax::implied(executor),

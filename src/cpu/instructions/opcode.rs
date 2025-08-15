@@ -28,6 +28,7 @@ pub enum OpCode {
     BitZeropage = 0x24,
     BitAbsolute = 0x2C,
 
+    // CL*
     Clc = 0x18,
     Cld = 0xD8,
     Cli = 0x58,
@@ -57,7 +58,7 @@ pub enum OpCode {
     EorIndirectX = 0x41,
     EorIndirectY = 0x51,
 
-    // INX/Y
+    // IN*
     Inx = 0xE8,
     Iny = 0xC8,
 
@@ -131,7 +132,7 @@ pub enum OpCode {
     StyZeropageX = 0x94,
     StyAbsolute = 0x8C,
 
-    // T??
+    // T**
     Tax = 0xAA,
     Tay = 0xA8,
     Tsx = 0xBA,

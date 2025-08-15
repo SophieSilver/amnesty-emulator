@@ -1,8 +1,8 @@
-use crate::cpu::{instructions::addressing_modes::read, Cpu, StatusFlags};
+use crate::cpu::{instructions::addressing_modes::read::*, Cpu, StatusFlags};
 
 pub struct Bit;
 
-impl read::Instruction for Bit {
+impl ReadInstruction for Bit {
     fn instruction(cpu: &mut Cpu, value: u8) {
         let bit7 = value >> 7 & 1 != 0;
         let bit6 = value >> 6 & 1 != 0;
@@ -14,5 +14,5 @@ impl read::Instruction for Bit {
     }
 }
 
-impl read::Zeropage for Bit {}
-impl read::Absolute for Bit {}
+impl ReadZeropage for Bit {}
+impl ReadAbsolute for Bit {}

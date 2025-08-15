@@ -1,11 +1,11 @@
 use crate::cpu::{
-    arithmetic, instructions::addressing_modes::read, register_getters::a_register, Cpu,
+    arithmetic, instructions::addressing_modes::read::*, register_getters::a_register, Cpu,
     StatusFlags,
 };
 
 pub struct Adc;
 
-impl read::Instruction for Adc {
+impl ReadInstruction for Adc {
     fn instruction(cpu: &mut Cpu, value: u8) {
         let carry = cpu.flags.contains(StatusFlags::CARRY);
         let (result, new_carry) = arithmetic::add_with_carry(cpu.a, value, carry);
@@ -17,11 +17,11 @@ impl read::Instruction for Adc {
     }
 }
 
-impl read::Immediate for Adc {}
-impl read::Zeropage for Adc {}
-impl read::ZeropageX for Adc {}
-impl read::Absolute for Adc {}
-impl read::AbsoluteX for Adc {}
-impl read::AbsoluteY for Adc {}
-impl read::IndirectX for Adc {}
-impl read::IndirectY for Adc {}
+impl ReadImmediate for Adc {}
+impl ReadZeropage for Adc {}
+impl ReadZeropageX for Adc {}
+impl ReadAbsolute for Adc {}
+impl ReadAbsoluteX for Adc {}
+impl ReadAbsoluteY for Adc {}
+impl ReadIndirectX for Adc {}
+impl ReadIndirectY for Adc {}

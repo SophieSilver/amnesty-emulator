@@ -1,8 +1,8 @@
-use crate::cpu::{instructions::addressing_modes::implied, Cpu, StatusFlags};
+use crate::cpu::{instructions::addressing_modes::implied::*, Cpu, StatusFlags};
 
 pub struct Sec;
 
-impl implied::Instruction for Sec {
+impl ImpliedInstruction for Sec {
     fn instruction(cpu: &mut Cpu) {
         cpu.flags.insert(StatusFlags::CARRY);
     }
@@ -10,7 +10,7 @@ impl implied::Instruction for Sec {
 
 pub struct Sed;
 
-impl implied::Instruction for Sed {
+impl ImpliedInstruction for Sed {
     fn instruction(cpu: &mut Cpu) {
         cpu.flags.insert(StatusFlags::DECIMAL);
     }
@@ -18,7 +18,7 @@ impl implied::Instruction for Sed {
 
 pub struct Sei;
 
-impl implied::Instruction for Sei {
+impl ImpliedInstruction for Sei {
     fn instruction(cpu: &mut Cpu) {
         cpu.flags.insert(StatusFlags::INTERRUPT_DISABLE);
     }

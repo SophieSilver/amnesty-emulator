@@ -6,7 +6,7 @@ use crate::cpu::{
 
 pub struct Dex;
 
-impl implied::Instruction for Dex {
+impl implied::ImpliedInstruction for Dex {
     fn instruction(cpu: &mut Cpu) {
         cpu.set_register_with_flags(x_register, cpu.x.wrapping_sub(1));
     }
@@ -14,7 +14,7 @@ impl implied::Instruction for Dex {
 
 pub struct Dey;
 
-impl implied::Instruction for Dey {
+impl implied::ImpliedInstruction for Dey {
     fn instruction(cpu: &mut Cpu) {
         cpu.set_register_with_flags(y_register, cpu.y.wrapping_sub(1));
     }

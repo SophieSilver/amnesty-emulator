@@ -3,11 +3,11 @@ use crate::{
     memory::Memory,
 };
 
-pub trait Instruction {
+pub trait ImpliedInstruction {
     fn instruction(cpu: &mut Cpu);
 }
 
-pub trait Implied: Instruction {
+pub trait Implied: ImpliedInstruction {
     fn implied<M: Memory>(executor: &mut Executor<M>) {
         // dummy read at PC
         let _ = executor.read_cycle(executor.cpu.pc);
@@ -15,4 +15,4 @@ pub trait Implied: Instruction {
     }
 }
 
-impl<I: Instruction> Implied for I {}
+impl<I: ImpliedInstruction> Implied for I {}
