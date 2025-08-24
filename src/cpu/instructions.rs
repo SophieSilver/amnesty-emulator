@@ -22,6 +22,8 @@ mod ora;
 mod sbc;
 mod se_;
 mod sta;
+mod stx;
+mod sty;
 mod t__;
 
 pub use adc::*;
@@ -40,6 +42,8 @@ pub use ora::*;
 pub use sbc::*;
 pub use se_::*;
 pub use sta::*;
+pub use stx::*;
+pub use sty::*;
 pub use t__::*;
 
 pub mod opcode;
@@ -164,6 +168,16 @@ pub fn execute_opcode<M: Memory>(executor: &mut Executor<M>, opcode: OpCode) {
         OpCode::StaAbsoluteY => Sta::absolute_y(executor),
         OpCode::StaIndirectX => Sta::indirect_x(executor),
         OpCode::StaIndirectY => Sta::indirect_y(executor),
+
+        // STX
+        OpCode::StxZeropage => Stx::zeropage(executor),
+        OpCode::StxZeropageY => Stx::zeropage_y(executor),
+        OpCode::StxAbsolute => Stx::absolute(executor),
+
+        // Sty
+        OpCode::StyZeropage => Sty::zeropage(executor),
+        OpCode::StyZeropageX => Sty::zeropage_x(executor),
+        OpCode::StyAbsolute => Sty::absolute(executor),
 
         // T**
         OpCode::Tax => Tax::implied(executor),
