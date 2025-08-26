@@ -13,3 +13,17 @@ impl TestReadArgs for BytePairsWithCarry {
         (u8::MIN..u8::MAX).flat_map(|byte| [(byte, false), (byte, true)])
     }
 }
+
+pub struct BytePairs;
+
+impl TestReadArgs for BytePairs {
+    type AdditionalArgs = u8;
+
+    fn args() -> impl Iterator<Item = u8> {
+        u8::MIN..u8::MAX
+    }
+
+    fn additional_args() -> impl Iterator<Item = Self::AdditionalArgs> {
+        u8::MIN..u8::MAX
+    }
+}

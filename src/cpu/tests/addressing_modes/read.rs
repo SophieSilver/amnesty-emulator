@@ -202,7 +202,6 @@ pub trait TestReadIndirectY: TestReadInstruction {
     }
 }
 
-
 #[derive(Debug, Clone, Copy)]
 struct TestInstructionOptions {
     opcode: OpCode,
@@ -241,7 +240,7 @@ fn test_instruction<I: TestReadInstruction + ?Sized>(
                 OPCODE_ADDR + addressing_mode.instruction_length()
             );
 
-            I::verify(&executor.cpu, arg, additional_args);
+            I::verify(executor.cpu, arg, additional_args);
         }
     }
 }

@@ -153,5 +153,5 @@ fn indirect_x_page_split() {
 
 #[test]
 fn indirect_y_page_split() {
-    Adc::test_indirect_y_overflow();
+    Adc::test_indirect_y_page_split();
 }
