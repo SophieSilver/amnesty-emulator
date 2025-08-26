@@ -1,20 +1,22 @@
 use crate::cpu::{
-    instructions::opcode::OpCode,
-    tests::{
-        utils::{possible_byte_pairs, Preset, TestOpcodeOptions},
-        TestMemory,
-    },
+    instructions::{opcode::OpCode, Bit},
+    tests::{addressing_modes::read::*, test_args::BytePairs},
     Cpu, StatusFlags,
 };
 
+impl TestReadInstruction for Bit {
+    type Args = BytePairs;
 
-fn verify(a: u8, b: u8) -> impl Fn(&mut Cpu, &mut TestMemory) {
-    let result = a & b;
-    let zero = result == 0;
-    let negative_flag = (b as i8) < 0;
-    let overflow_flag = (b >> 6) & 1 == 1;
+    fn prepare(cpu: &mut Cpu, _: u8, a: u8) {
+        cpu.a = a;
+    }
 
-    move |cpu, _memory| {
+    fn verify(cpu: &Cpu, b: u8, a: u8) {
+        let result = a & b;
+        let zero = result == 0;
+        let negative_flag = (b as i8) < 0;
+        let overflow_flag = (b >> 6) & 1 == 1;
+
         assert_eq!(
             cpu.flags.contains(StatusFlags::ZERO),
             zero,
@@ -33,22 +35,20 @@ fn verify(a: u8, b: u8) -> impl Fn(&mut Cpu, &mut TestMemory) {
     }
 }
 
+impl TestReadZeropage for Bit {
+    const OPCODE: OpCode = OpCode::BitZeropage;
+}
+
+impl TestReadAbsolute for Bit {
+    const OPCODE: OpCode = OpCode::BitAbsolute;
+}
+
 #[test]
 fn zeropage() {
-    for (a, b) in possible_byte_pairs() {
-        TestOpcodeOptions::new(OpCode::BitZeropage, 3, verify(a, b))
-            .with_prepare(|cpu| cpu.a = a)
-            .with_preset(Preset::ZeroPage(b))
-            .test();
-    }
+    Bit::test_zeropage();
 }
 
 #[test]
 fn absolute() {
-    for (a, b) in possible_byte_pairs() {
-        TestOpcodeOptions::new(OpCode::BitAbsolute, 4, verify(a, b))
-            .with_prepare(|cpu| cpu.a = a)
-            .with_preset(Preset::Absolute(b))
-            .test();
-    }
+    Bit::test_absolute();
 }
