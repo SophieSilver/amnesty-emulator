@@ -1,10 +1,11 @@
 use crate::cpu::{
     instructions::opcode::OpCode,
+    tests::{
+        utils::{possible_byte_pairs, possible_pairs_with_carry, Preset, TestOpcodeOptions},
+        TestMemory,
+    },
     Cpu, StatusFlags,
 };
-use utils::possible_pairs_with_carry;
-
-use super::*;
 
 fn verify(a: u8, b: u8, carry: bool) -> impl Fn(&mut Cpu, &mut TestMemory) {
     let unsigned_result = (a as u32)

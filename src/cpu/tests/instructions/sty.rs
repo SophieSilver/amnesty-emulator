@@ -1,9 +1,14 @@
-use utils::Preset;
-
-use crate::cpu::Cpu;
-
-use super::*;
-
+use crate::{
+    cpu::{
+        instructions::opcode::OpCode,
+        tests::{
+            utils::{possible_byte_pairs, possible_pairs_with_carry, Preset, TestOpcodeOptions},
+            TestMemory,
+        },
+        Cpu, StatusFlags,
+    },
+    memory::Memory,
+};
 fn verify(value: u8, preset: Preset) -> impl Fn(&mut Cpu, &mut TestMemory) {
     move |cpu, memory| {
         assert_eq!(cpu.y, value, "Y register has the wrong value");

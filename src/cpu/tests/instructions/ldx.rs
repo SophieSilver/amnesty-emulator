@@ -1,6 +1,11 @@
-use crate::cpu::instructions::opcode::OpCode;
-
-use super::*;
+use crate::cpu::{
+    instructions::opcode::OpCode,
+    tests::{
+        utils::{possible_byte_pairs, Preset, TestOpcodeOptions},
+        TestMemory,
+    },
+    Cpu, StatusFlags,
+};
 
 #[test]
 fn immediate() {

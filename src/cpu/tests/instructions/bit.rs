@@ -1,8 +1,12 @@
-use utils::{possible_byte_pairs, Preset};
+use crate::cpu::{
+    instructions::opcode::OpCode,
+    tests::{
+        utils::{possible_byte_pairs, Preset, TestOpcodeOptions},
+        TestMemory,
+    },
+    Cpu, StatusFlags,
+};
 
-use crate::cpu::{Cpu, StatusFlags};
-
-use super::*;
 
 fn verify(a: u8, b: u8) -> impl Fn(&mut Cpu, &mut TestMemory) {
     let result = a & b;

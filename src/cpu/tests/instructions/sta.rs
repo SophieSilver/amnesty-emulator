@@ -1,11 +1,14 @@
-use utils::Preset;
-
-use crate::cpu::{
-    instructions::opcode::OpCode,
-    Cpu,
+use crate::{
+    cpu::{
+        instructions::opcode::OpCode,
+        tests::{
+            utils::{possible_byte_pairs, possible_pairs_with_carry, Preset, TestOpcodeOptions},
+            TestMemory,
+        },
+        Cpu, StatusFlags,
+    },
+    memory::Memory,
 };
-
-use super::*;
 
 fn verify(value: u8, preset: Preset) -> impl Fn(&mut Cpu, &mut TestMemory) {
     move |cpu, memory| {

@@ -1,6 +1,5 @@
-use super::*;
 use crate::cpu::{
-    instructions::Adc,
+    instructions::{opcode::OpCode, Adc},
     tests::{addressing_modes::read::*, test_args::BytePairsWithCarry},
     Cpu, StatusFlags,
 };

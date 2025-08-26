@@ -1,16 +1,17 @@
 use crate::cpu::{
     instructions::opcode::OpCode,
+    tests::{
+        utils::{possible_byte_pairs, TestOpcodeOptions},
+        TestMemory,
+    },
     Cpu, StatusFlags,
 };
-use utils::possible_byte_pairs;
-
-use super::*;
 
 fn verify(a: u8, b: u8) -> impl Fn(&mut Cpu, &mut TestMemory) {
-    let result = a ^ b;
+    let result = a & b;
 
     move |cpu, _memory| {
-        assert_eq!(cpu.a, result, "bitwise EOR result incorrect");
+        assert_eq!(cpu.a, result, "bitwise AND result incorrect");
         assert_eq!(
             cpu.flags.contains(StatusFlags::NEGATIVE),
             (cpu.a as i8).is_negative(),
@@ -27,7 +28,7 @@ fn verify(a: u8, b: u8) -> impl Fn(&mut Cpu, &mut TestMemory) {
 #[test]
 fn immediate() {
     for (a, b) in possible_byte_pairs() {
-        TestOpcodeOptions::new(OpCode::EorImmediate, 2, verify(a, b))
+        TestOpcodeOptions::new(OpCode::AndImmediate, 2, verify(a, b))
             .with_prepare(|cpu| cpu.a = a)
             .with_arguments(&[b])
             .test();
@@ -39,7 +40,7 @@ fn zeropage() {
     for (a, b) in possible_byte_pairs() {
         let addr = 0x25;
 
-        TestOpcodeOptions::new(OpCode::EorZeropage, 3, verify(a, b))
+        TestOpcodeOptions::new(OpCode::AndZeropage, 3, verify(a, b))
             .with_prepare(|cpu| cpu.a = a)
             .with_arguments(&[addr])
             .with_additional_values(&[(addr as u16, b)])
@@ -53,7 +54,7 @@ fn zeropage_x() {
         let base_addr = 0x25;
         let offset = 0x20;
 
-        TestOpcodeOptions::new(OpCode::EorZeropageX, 4, verify(a, b))
+        TestOpcodeOptions::new(OpCode::AndZeropageX, 4, verify(a, b))
             .with_prepare(|cpu| {
                 cpu.a = a;
                 cpu.x = offset;
@@ -70,7 +71,7 @@ fn zeropage_x_overflow() {
         let base_addr = 0x85;
         let offset = 0xD0;
 
-        TestOpcodeOptions::new(OpCode::EorZeropageX, 4, verify(a, b))
+        TestOpcodeOptions::new(OpCode::AndZeropageX, 4, verify(a, b))
             .with_prepare(|cpu| {
                 cpu.a = a;
                 cpu.x = offset;
@@ -86,7 +87,7 @@ fn absolute() {
     for (a, b) in possible_byte_pairs() {
         let addr: u16 = 0x0425;
 
-        TestOpcodeOptions::new(OpCode::EorAbsolute, 4, verify(a, b))
+        TestOpcodeOptions::new(OpCode::AndAbsolute, 4, verify(a, b))
             .with_prepare(|cpu| {
                 cpu.a = a;
             })
@@ -102,7 +103,7 @@ fn absolute_x() {
         let addr: u16 = 0x0425;
         let offset: u8 = 0x5A;
 
-        TestOpcodeOptions::new(OpCode::EorAbsoluteX, 4, verify(a, b))
+        TestOpcodeOptions::new(OpCode::AndAbsoluteX, 4, verify(a, b))
             .with_prepare(|cpu| {
                 cpu.a = a;
                 cpu.x = offset;
@@ -119,7 +120,7 @@ fn absolute_y() {
         let addr: u16 = 0x0425;
         let offset: u8 = 0x5A;
 
-        TestOpcodeOptions::new(OpCode::EorAbsoluteY, 4, verify(a, b))
+        TestOpcodeOptions::new(OpCode::AndAbsoluteY, 4, verify(a, b))
             .with_prepare(|cpu| {
                 cpu.a = a;
                 cpu.y = offset;
@@ -136,7 +137,7 @@ fn absolute_x_overflow() {
         let addr: u16 = 0x04A5;
         let offset: u8 = 0x6A;
 
-        TestOpcodeOptions::new(OpCode::EorAbsoluteX, 5, verify(a, b))
+        TestOpcodeOptions::new(OpCode::AndAbsoluteX, 5, verify(a, b))
             .with_prepare(|cpu| {
                 cpu.a = a;
                 cpu.x = offset;
@@ -153,7 +154,7 @@ fn absolute_y_overflow() {
         let addr: u16 = 0x04A5;
         let offset: u8 = 0x6A;
 
-        TestOpcodeOptions::new(OpCode::EorAbsoluteY, 5, verify(a, b))
+        TestOpcodeOptions::new(OpCode::AndAbsoluteY, 5, verify(a, b))
             .with_prepare(|cpu| {
                 cpu.a = a;
                 cpu.y = offset;
@@ -172,7 +173,7 @@ fn indirect_x() {
         let final_ptr = ptr_base.wrapping_add(offset) as u16;
         let addr: u16 = 0x0458;
 
-        TestOpcodeOptions::new(OpCode::EorIndirectX, 6, verify(a, b))
+        TestOpcodeOptions::new(OpCode::AndIndirectX, 6, verify(a, b))
             .with_prepare(|cpu| {
                 cpu.a = a;
                 cpu.x = offset;
@@ -195,7 +196,7 @@ fn indirect_y() {
         let base_addr: u16 = 0x0458;
         let final_addr = base_addr.wrapping_add(offset as u16);
 
-        TestOpcodeOptions::new(OpCode::EorIndirectY, 5, verify(a, b))
+        TestOpcodeOptions::new(OpCode::AndIndirectY, 5, verify(a, b))
             .with_prepare(|cpu| {
                 cpu.a = a;
                 cpu.y = offset;
@@ -218,7 +219,7 @@ fn indirect_x_overflow() {
         let final_ptr = ptr_base.wrapping_add(offset) as u16;
         let addr: u16 = 0x0458;
 
-        TestOpcodeOptions::new(OpCode::EorIndirectX, 6, verify(a, b))
+        TestOpcodeOptions::new(OpCode::AndIndirectX, 6, verify(a, b))
             .with_prepare(|cpu| {
                 cpu.a = a;
                 cpu.x = offset;
@@ -241,7 +242,7 @@ fn indirect_y_overflow() {
         let base_addr: u16 = 0x0458;
         let final_addr = base_addr.wrapping_add(offset as u16);
 
-        TestOpcodeOptions::new(OpCode::EorIndirectY, 6, verify(a, b))
+        TestOpcodeOptions::new(OpCode::AndIndirectY, 6, verify(a, b))
             .with_prepare(|cpu| {
                 cpu.a = a;
                 cpu.y = offset;
@@ -264,7 +265,7 @@ fn indirect_x_page_split() {
         let final_ptr = ptr_base.wrapping_add(offset);
         let addr: u16 = 0x0458;
 
-        TestOpcodeOptions::new(OpCode::EorIndirectX, 6, verify(a, b))
+        TestOpcodeOptions::new(OpCode::AndIndirectX, 6, verify(a, b))
             .with_prepare(|cpu| {
                 cpu.a = a;
                 cpu.x = offset;
@@ -287,7 +288,7 @@ fn indirect_y_page_split() {
         let base_addr: u16 = 0x0458;
         let final_addr = base_addr.wrapping_add(offset as u16);
 
-        TestOpcodeOptions::new(OpCode::EorIndirectY, 5, verify(a, b))
+        TestOpcodeOptions::new(OpCode::AndIndirectY, 5, verify(a, b))
             .with_prepare(|cpu| {
                 cpu.a = a;
                 cpu.y = offset;
