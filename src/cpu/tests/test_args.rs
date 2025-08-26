@@ -27,3 +27,17 @@ impl TestReadArgs for BytePairs {
         u8::MIN..u8::MAX
     }
 }
+
+pub struct SingleBytes;
+
+impl TestReadArgs for SingleBytes {
+    type AdditionalArgs = ();
+
+    fn args() -> impl Iterator<Item = u8> {
+        u8::MIN..u8::MAX
+    }
+
+    fn additional_args() -> impl Iterator<Item = Self::AdditionalArgs> {
+        std::iter::once(())
+    }
+}
