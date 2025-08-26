@@ -14,6 +14,7 @@ mod addrs;
 mod utils;
 
 mod addressing_modes;
+mod flags;
 mod test_args;
 
 mod instructions {

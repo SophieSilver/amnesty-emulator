@@ -1,6 +1,9 @@
 use crate::cpu::{
     instructions::{opcode::OpCode, Adc},
-    tests::{addressing_modes::read::*, test_args::BytePairsWithCarry},
+    tests::{
+        addressing_modes::read::*, flags::check_negative_and_zero_flags,
+        test_args::BytePairsWithCarry,
+    },
     Cpu, StatusFlags,
 };
 
@@ -36,16 +39,8 @@ impl TestReadInstruction for Adc {
             should_overflow,
             "OVERFLOW flag set incorrectly"
         );
-        assert_eq!(
-            cpu.flags.contains(StatusFlags::NEGATIVE),
-            (cpu.a as i8).is_negative(),
-            "NEGATIVE flag set incorrectly"
-        );
-        assert_eq!(
-            cpu.flags.contains(StatusFlags::ZERO),
-            cpu.a == 0,
-            "ZERO flag set incorrectly"
-        );
+
+        check_negative_and_zero_flags(cpu.a, cpu.flags);
     }
 }
 
