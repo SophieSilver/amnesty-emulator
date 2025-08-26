@@ -2,6 +2,41 @@ mod prepare;
 
 pub mod read;
 
+/// Implement addressing mode test traits for the given instruction
+/// and generate test functions for them
+///
+/// # Example:
+/// ```ignore
+/// test_addressing_modes! {
+///     instruction: Adc,
+///     instruction_type: Read,
+///     addressing_modes: [
+///         Immediate,
+///         Zeropage
+///     ],
+/// }
+/// ```
+/// 
+/// Will expand roughly into
+/// ```ignore
+/// impl TestReadImmediate for Adc {
+///     const OPCODE: OpCode = OpCode::AdcImmediate
+/// }
+/// 
+/// impl TestReadZeropage for Adc {
+///     const OPCODE: OpCode = OpCode::AdcZeropage
+/// }
+/// 
+/// #[test]
+/// fn immediate() {
+///     Adc::test_immediate();
+/// }
+/// 
+/// #[test]
+/// fn zeropage() {
+///     Adc::test_zeropage();
+/// }
+/// ```
 macro_rules! test_addressing_modes {
     (
         instruction: $instruction:ident,
