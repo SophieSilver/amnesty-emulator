@@ -1,6 +1,7 @@
 mod prepare;
 
 pub mod read;
+pub mod write;
 
 /// Implement addressing mode test traits for the given instruction
 /// and generate test functions for them

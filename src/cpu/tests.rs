@@ -16,9 +16,7 @@ mod test_args;
 
 mod instructions {
     mod adc;
-
     mod and;
-
     mod bit;
     mod cmp;
     mod eor;

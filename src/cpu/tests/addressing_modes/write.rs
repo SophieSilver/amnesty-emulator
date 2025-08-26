@@ -11,38 +11,12 @@ use crate::{
     memory::Memory,
 };
 
-pub trait TestReadArgs {
-    type AdditionalArgs: Copy;
-
-    fn args() -> impl Iterator<Item = u8>;
-    fn additional_args() -> impl Iterator<Item = Self::AdditionalArgs>;
+pub trait TestWriteInstruction {
+    fn prepare(cpu: &mut Cpu, arg: u8);
+    fn expected_value(cpu: &Cpu) -> u8;
 }
 
-pub trait TestReadInstruction {
-    type Args: TestReadArgs;
-
-    fn prepare(
-        cpu: &mut Cpu,
-        arg: u8,
-        additional_args: <Self::Args as TestReadArgs>::AdditionalArgs,
-    );
-
-    fn verify(cpu: &Cpu, arg: u8, additional_args: <Self::Args as TestReadArgs>::AdditionalArgs);
-}
-
-pub trait TestReadImmediate: TestReadInstruction {
-    const OPCODE: OpCode;
-
-    fn test_immediate() {
-        test_instruction::<Self>(TestInstructionOptions {
-            opcode: Self::OPCODE,
-            addressing_mode: AddressingMode::Immediate,
-            expected_clock_cycles: 2,
-        });
-    }
-}
-
-pub trait TestReadZeropage: TestReadInstruction {
+pub trait TestWriteZeropage: TestWriteInstruction {
     const OPCODE: OpCode;
 
     fn test_zeropage() {
@@ -54,7 +28,7 @@ pub trait TestReadZeropage: TestReadInstruction {
     }
 }
 
-pub trait TestReadZeropageX: TestReadInstruction {
+pub trait TestWriteZeropageX: TestWriteInstruction {
     const OPCODE: OpCode;
 
     fn test_zeropage_x() {
@@ -74,7 +48,7 @@ pub trait TestReadZeropageX: TestReadInstruction {
     }
 }
 
-pub trait TestReadZeropageY: TestReadInstruction {
+pub trait TestWriteZeropageY: TestWriteInstruction {
     const OPCODE: OpCode;
 
     fn test_zeropage_y() {
@@ -94,7 +68,7 @@ pub trait TestReadZeropageY: TestReadInstruction {
     }
 }
 
-pub trait TestReadAbsolute: TestReadInstruction {
+pub trait TestWriteAbsolute: TestWriteInstruction {
     const OPCODE: OpCode;
 
     fn test_absolute() {
@@ -106,14 +80,14 @@ pub trait TestReadAbsolute: TestReadInstruction {
     }
 }
 
-pub trait TestReadAbsoluteX: TestReadInstruction {
+pub trait TestWriteAbsoluteX: TestWriteInstruction {
     const OPCODE: OpCode;
 
     fn test_absolute_x() {
         test_instruction::<Self>(TestInstructionOptions {
             opcode: Self::OPCODE,
             addressing_mode: AddressingMode::AbsoluteX,
-            expected_clock_cycles: 4,
+            expected_clock_cycles: 5,
         });
     }
 
@@ -126,14 +100,14 @@ pub trait TestReadAbsoluteX: TestReadInstruction {
     }
 }
 
-pub trait TestReadAbsoluteY: TestReadInstruction {
+pub trait TestWriteAbsoluteY: TestWriteInstruction {
     const OPCODE: OpCode;
 
     fn test_absolute_y() {
         test_instruction::<Self>(TestInstructionOptions {
             opcode: Self::OPCODE,
             addressing_mode: AddressingMode::AbsoluteY,
-            expected_clock_cycles: 4,
+            expected_clock_cycles: 5,
         });
     }
 
@@ -146,7 +120,7 @@ pub trait TestReadAbsoluteY: TestReadInstruction {
     }
 }
 
-pub trait TestReadIndirectX: TestReadInstruction {
+pub trait TestWriteIndirectX: TestWriteInstruction {
     const OPCODE: OpCode;
 
     fn test_indirect_x() {
@@ -174,14 +148,14 @@ pub trait TestReadIndirectX: TestReadInstruction {
     }
 }
 
-pub trait TestReadIndirectY: TestReadInstruction {
+pub trait TestWriteIndirectY: TestWriteInstruction {
     const OPCODE: OpCode;
 
     fn test_indirect_y() {
         test_instruction::<Self>(TestInstructionOptions {
             opcode: Self::OPCODE,
             addressing_mode: AddressingMode::IndirectY,
-            expected_clock_cycles: 5,
+            expected_clock_cycles: 6,
         });
     }
 
@@ -197,7 +171,7 @@ pub trait TestReadIndirectY: TestReadInstruction {
         test_instruction::<Self>(TestInstructionOptions {
             opcode: Self::OPCODE,
             addressing_mode: AddressingMode::IndirectYPageSplit,
-            expected_clock_cycles: 5,
+            expected_clock_cycles: 6,
         });
     }
 }
@@ -209,43 +183,42 @@ struct TestInstructionOptions {
     expected_clock_cycles: u64,
 }
 
-fn test_instruction<I: TestReadInstruction + ?Sized>(
+fn test_instruction<I: TestWriteInstruction + ?Sized>(
     TestInstructionOptions {
         opcode,
         addressing_mode,
         expected_clock_cycles,
     }: TestInstructionOptions,
 ) {
-    for arg in I::Args::args() {
-        for additional_args in I::Args::additional_args() {
-            let mut cpu = Cpu::new();
-            let mut memory = TestMemory::new();
+    for arg in u8::MIN..u8::MAX {
+        let mut cpu = Cpu::new();
+        let mut memory = TestMemory::new();
 
-            cpu.pc = OPCODE_ADDR;
-            I::prepare(&mut cpu, arg, additional_args);
-            memory.store(OPCODE_ADDR, opcode as u8);
+        cpu.pc = OPCODE_ADDR;
+        I::prepare(&mut cpu, arg);
+        memory.store(OPCODE_ADDR, opcode as u8);
 
-            let mut executor = Executor {
-                cpu: &mut cpu,
-                memory: &mut memory,
-            };
+        let mut executor = Executor {
+            cpu: &mut cpu,
+            memory: &mut memory,
+        };
 
-            addressing_mode.prepare(&mut executor);
-            executor.memory.store(addressing_mode.value_addr(), arg);
-
-            executor.execute_next_instruction();
-            assert_eq!(
-                executor.cpu.clock_cycle_count, expected_clock_cycles,
-                "instruction {opcode:?} must take {expected_clock_cycles} clock cycles"
-            );
-            let instruction_length = addressing_mode.instruction_length();
-            assert_eq!(
-                executor.cpu.pc,
-                OPCODE_ADDR + instruction_length,
-                "after instruction {opcode:?} pc must be incremented {instruction_length} times"
-            );
-
-            I::verify(executor.cpu, arg, additional_args);
-        }
+        addressing_mode.prepare(&mut executor);
+        executor.execute_next_instruction();
+        assert_eq!(
+            executor.memory.load(addressing_mode.value_addr()),
+            I::expected_value(executor.cpu),
+            "value written must match the expected value"
+        );
+        assert_eq!(
+            executor.cpu.clock_cycle_count, expected_clock_cycles,
+            "instruction {opcode:?} must take {expected_clock_cycles} clock cycles"
+        );
+        let instruction_length = addressing_mode.instruction_length();
+        assert_eq!(
+            executor.cpu.pc,
+            OPCODE_ADDR + instruction_length,
+            "after instruction {opcode:?} pc must be incremented {instruction_length} times"
+        );
     }
 }
