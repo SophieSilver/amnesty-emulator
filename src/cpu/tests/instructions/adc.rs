@@ -1,7 +1,8 @@
 use crate::cpu::{
-    instructions::{opcode::OpCode, Adc},
+    instructions::Adc,
     tests::{
-        addressing_modes::read::*, flags::check_negative_and_zero_flags,
+        addressing_modes::{read::*, test_addressing_modes},
+        flags::check_negative_and_zero_flags,
         test_args::BytePairsWithCarry,
     },
     Cpu, StatusFlags,
@@ -44,109 +45,17 @@ impl TestReadInstruction for Adc {
     }
 }
 
-impl TestReadImmediate for Adc {
-    const OPCODE: OpCode = OpCode::AdcImmediate;
-}
-
-impl TestReadZeropage for Adc {
-    const OPCODE: OpCode = OpCode::AdcZeropage;
-}
-
-impl TestReadZeropageX for Adc {
-    const OPCODE: OpCode = OpCode::AdcZeropageX;
-}
-
-impl TestReadAbsolute for Adc {
-    const OPCODE: OpCode = OpCode::AdcAbsolute;
-}
-
-impl TestReadAbsoluteX for Adc {
-    const OPCODE: OpCode = OpCode::AdcAbsoluteX;
-}
-
-impl TestReadAbsoluteY for Adc {
-    const OPCODE: OpCode = OpCode::AdcAbsoluteY;
-}
-
-impl TestReadIndirectX for Adc {
-    const OPCODE: OpCode = OpCode::AdcIndirectX;
-}
-
-impl TestReadIndirectY for Adc {
-    const OPCODE: OpCode = OpCode::AdcIndirectY;
-}
-
-#[test]
-fn immediate() {
-    Adc::test_immediate();
-}
-
-#[test]
-fn zeropage() {
-    Adc::test_zeropage();
-}
-
-#[test]
-fn zeropage_x() {
-    Adc::test_zeropage_x();
-}
-
-#[test]
-fn zeropage_x_overflow() {
-    Adc::test_zeropage_x_overflow();
-}
-
-#[test]
-fn absolute() {
-    Adc::test_absolute();
-}
-
-#[test]
-fn absolute_x() {
-    Adc::test_absolute_x();
-}
-
-#[test]
-fn absolute_y() {
-    Adc::test_absolute_y();
-}
-
-#[test]
-fn absolute_x_overflow() {
-    Adc::test_absolute_x_overflow();
-}
-
-#[test]
-fn absolute_y_overflow() {
-    Adc::test_absolute_y_overflow();
-}
-
-#[test]
-fn indirect_x() {
-    Adc::test_indirect_x();
-}
-
-#[test]
-fn indirect_y() {
-    Adc::test_indirect_y();
-}
-
-#[test]
-fn indirect_x_overflow() {
-    Adc::test_indirect_x_overflow();
-}
-
-#[test]
-fn indirect_y_overflow() {
-    Adc::test_indirect_y_overflow();
-}
-
-#[test]
-fn indirect_x_page_split() {
-    Adc::test_indirect_x_page_split();
-}
-
-#[test]
-fn indirect_y_page_split() {
-    Adc::test_indirect_y_page_split();
+test_addressing_modes! {
+    instruction: Adc,
+    instruction_type: Read,
+    addressing_modes: [
+        Immediate,
+        Zeropage,
+        ZeropageX,
+        Absolute,
+        AbsoluteX,
+        AbsoluteY,
+        IndirectX,
+        IndirectY,
+    ],
 }

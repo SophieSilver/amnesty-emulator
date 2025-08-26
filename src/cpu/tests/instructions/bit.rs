@@ -1,6 +1,9 @@
 use crate::cpu::{
-    instructions::{opcode::OpCode, Bit},
-    tests::{addressing_modes::read::*, test_args::BytePairs},
+    instructions::Bit,
+    tests::{
+        addressing_modes::{read::*, test_addressing_modes},
+        test_args::BytePairs,
+    },
     Cpu, StatusFlags,
 };
 
@@ -35,20 +38,11 @@ impl TestReadInstruction for Bit {
     }
 }
 
-impl TestReadZeropage for Bit {
-    const OPCODE: OpCode = OpCode::BitZeropage;
-}
-
-impl TestReadAbsolute for Bit {
-    const OPCODE: OpCode = OpCode::BitAbsolute;
-}
-
-#[test]
-fn zeropage() {
-    Bit::test_zeropage();
-}
-
-#[test]
-fn absolute() {
-    Bit::test_absolute();
+test_addressing_modes! {
+    instruction: Bit,
+    instruction_type: Read,
+    addressing_modes: [
+        Zeropage,
+        Absolute,
+    ],
 }

@@ -1,6 +1,9 @@
 use crate::cpu::{
-    instructions::{opcode::OpCode, Cmp},
-    tests::{addressing_modes::read::*, test_args::BytePairs},
+    instructions::Cmp,
+    tests::{
+        addressing_modes::{read::*, test_addressing_modes},
+        test_args::BytePairs,
+    },
     Cpu, StatusFlags,
 };
 
@@ -30,109 +33,17 @@ impl TestReadInstruction for Cmp {
     }
 }
 
-impl TestReadImmediate for Cmp {
-    const OPCODE: OpCode = OpCode::CmpImmediate;
-}
-
-impl TestReadZeropage for Cmp {
-    const OPCODE: OpCode = OpCode::CmpZeropage;
-}
-
-impl TestReadZeropageX for Cmp {
-    const OPCODE: OpCode = OpCode::CmpZeropageX;
-}
-
-impl TestReadAbsolute for Cmp {
-    const OPCODE: OpCode = OpCode::CmpAbsolute;
-}
-
-impl TestReadAbsoluteX for Cmp {
-    const OPCODE: OpCode = OpCode::CmpAbsoluteX;
-}
-
-impl TestReadAbsoluteY for Cmp {
-    const OPCODE: OpCode = OpCode::CmpAbsoluteY;
-}
-
-impl TestReadIndirectX for Cmp {
-    const OPCODE: OpCode = OpCode::CmpIndirectX;
-}
-
-impl TestReadIndirectY for Cmp {
-    const OPCODE: OpCode = OpCode::CmpIndirectY;
-}
-
-#[test]
-fn immediate() {
-    Cmp::test_immediate();
-}
-
-#[test]
-fn zeropage() {
-    Cmp::test_zeropage();
-}
-
-#[test]
-fn zeropage_x() {
-    Cmp::test_zeropage_x();
-}
-
-#[test]
-fn zeropage_x_overflow() {
-    Cmp::test_zeropage_x_overflow();
-}
-
-#[test]
-fn absolute() {
-    Cmp::test_absolute();
-}
-
-#[test]
-fn absolute_x() {
-    Cmp::test_absolute_x();
-}
-
-#[test]
-fn absolute_y() {
-    Cmp::test_absolute_y();
-}
-
-#[test]
-fn absolute_x_overflow() {
-    Cmp::test_absolute_x_overflow();
-}
-
-#[test]
-fn absolute_y_overflow() {
-    Cmp::test_absolute_y_overflow();
-}
-
-#[test]
-fn indirect_x() {
-    Cmp::test_indirect_x();
-}
-
-#[test]
-fn indirect_y() {
-    Cmp::test_indirect_y();
-}
-
-#[test]
-fn indirect_x_overflow() {
-    Cmp::test_indirect_x_overflow();
-}
-
-#[test]
-fn indirect_y_overflow() {
-    Cmp::test_indirect_y_overflow();
-}
-
-#[test]
-fn indirect_x_page_split() {
-    Cmp::test_indirect_x_page_split();
-}
-
-#[test]
-fn indirect_y_page_split() {
-    Cmp::test_indirect_y_page_split();
+test_addressing_modes! {
+    instruction: Cmp,
+    instruction_type: Read,
+    addressing_modes: [
+        Immediate,
+        Zeropage,
+        ZeropageX,
+        Absolute,
+        AbsoluteX,
+        AbsoluteY,
+        IndirectX,
+        IndirectY,
+    ],
 }
