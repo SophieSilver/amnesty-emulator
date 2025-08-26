@@ -1,10 +1,7 @@
 #![allow(clippy::arithmetic_side_effects)]
 use utils::*;
 
-use crate::{
-    cpu::instructions::opcode::OpCode,
-    memory::{ram::Ram, Memory},
-};
+use crate::memory::{ram::Ram, Memory};
 
 use super::StatusFlags;
 

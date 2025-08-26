@@ -2,10 +2,10 @@ use crate::{
     cpu::{
         instructions::opcode::OpCode,
         tests::{
-            utils::{possible_byte_pairs, possible_pairs_with_carry, Preset, TestOpcodeOptions},
+            utils::{Preset, TestOpcodeOptions},
             TestMemory,
         },
-        Cpu, StatusFlags,
+        Cpu,
     },
     memory::Memory,
 };
