@@ -1,18 +1,21 @@
 use crate::cpu::{
-    instructions::opcode::OpCode,
-    tests::{
-        utils::{possible_byte_pairs, Preset, TestOpcodeOptions},
-        TestMemory,
-    },
+    instructions::{opcode::OpCode, Cmp},
+    tests::{addressing_modes::read::*, test_args::BytePairs},
     Cpu, StatusFlags,
 };
 
-fn verify(a: u8, b: u8) -> impl Fn(&mut Cpu, &mut TestMemory) {
-    let z = a == b;
-    let n = (a.wrapping_sub(b) as i8) < 0;
-    let c = a >= b;
+impl TestReadInstruction for Cmp {
+    type Args = BytePairs;
 
-    move |cpu, _memory| {
+    fn prepare(cpu: &mut Cpu, _: u8, a: u8) {
+        cpu.a = a;
+    }
+
+    fn verify(cpu: &Cpu, b: u8, a: u8) {
+        let z = a == b;
+        let n = (a.wrapping_sub(b) as i8) < 0;
+        let c = a >= b;
+
         assert_eq!(
             cpu.flags.contains(StatusFlags::CARRY),
             c,
@@ -27,284 +30,109 @@ fn verify(a: u8, b: u8) -> impl Fn(&mut Cpu, &mut TestMemory) {
     }
 }
 
+impl TestReadImmediate for Cmp {
+    const OPCODE: OpCode = OpCode::CmpImmediate;
+}
+
+impl TestReadZeropage for Cmp {
+    const OPCODE: OpCode = OpCode::CmpZeropage;
+}
+
+impl TestReadZeropageX for Cmp {
+    const OPCODE: OpCode = OpCode::CmpZeropageX;
+}
+
+impl TestReadAbsolute for Cmp {
+    const OPCODE: OpCode = OpCode::CmpAbsolute;
+}
+
+impl TestReadAbsoluteX for Cmp {
+    const OPCODE: OpCode = OpCode::CmpAbsoluteX;
+}
+
+impl TestReadAbsoluteY for Cmp {
+    const OPCODE: OpCode = OpCode::CmpAbsoluteY;
+}
+
+impl TestReadIndirectX for Cmp {
+    const OPCODE: OpCode = OpCode::CmpIndirectX;
+}
+
+impl TestReadIndirectY for Cmp {
+    const OPCODE: OpCode = OpCode::CmpIndirectY;
+}
+
 #[test]
 fn immediate() {
-    for (a, b) in possible_byte_pairs() {
-        TestOpcodeOptions::new(OpCode::CmpImmediate, 2, verify(a, b))
-            .with_prepare(|cpu| {
-                cpu.a = a;
-            })
-            .with_arguments(&[b])
-            .test();
-    }
+    Cmp::test_immediate();
 }
 
 #[test]
 fn zeropage() {
-    for (a, b) in possible_byte_pairs() {
-        let addr = 0x25;
-
-        TestOpcodeOptions::new(OpCode::CmpZeropage, 3, verify(a, b))
-            .with_prepare(|cpu| {
-                cpu.a = a;
-            })
-            .with_arguments(&[addr])
-            .with_additional_values(&[(addr as u16, b)])
-            .test();
-    }
+    Cmp::test_zeropage();
 }
 
 #[test]
 fn zeropage_x() {
-    for (a, b) in possible_byte_pairs() {
-        let base_addr = 0x25;
-        let offset = 0x20;
-
-        TestOpcodeOptions::new(OpCode::CmpZeropageX, 4, verify(a, b))
-            .with_prepare(|cpu| {
-                cpu.a = a;
-                cpu.x = offset;
-            })
-            .with_arguments(&[base_addr])
-            .with_additional_values(&[(base_addr.wrapping_add(offset) as u16, b)])
-            .test();
-    }
+    Cmp::test_zeropage_x();
 }
 
 #[test]
 fn zeropage_x_overflow() {
-    for (a, b) in possible_byte_pairs() {
-        let base_addr = 0x85;
-        let offset = 0xD0;
-
-        TestOpcodeOptions::new(OpCode::CmpZeropageX, 4, verify(a, b))
-            .with_prepare(|cpu| {
-                cpu.a = a;
-                cpu.x = offset;
-            })
-            .with_arguments(&[base_addr])
-            .with_additional_values(&[(base_addr.wrapping_add(offset) as u16, b)])
-            .test();
-    }
+    Cmp::test_zeropage_x_overflow();
 }
 
 #[test]
 fn absolute() {
-    for (a, b) in possible_byte_pairs() {
-        let addr: u16 = 0x0425;
-
-        TestOpcodeOptions::new(OpCode::CmpAbsolute, 4, verify(a, b))
-            .with_prepare(|cpu| {
-                cpu.a = a;
-            })
-            .with_arguments(&addr.to_le_bytes())
-            .with_additional_values(&[(addr, b)])
-            .test();
-    }
+    Cmp::test_absolute();
 }
 
 #[test]
 fn absolute_x() {
-    for (a, b) in possible_byte_pairs() {
-        let addr: u16 = 0x0425;
-        let offset: u8 = 0x5A;
-
-        TestOpcodeOptions::new(OpCode::CmpAbsoluteX, 4, verify(a, b))
-            .with_prepare(|cpu| {
-                cpu.a = a;
-                cpu.x = offset;
-            })
-            .with_arguments(&addr.to_le_bytes())
-            .with_additional_values(&[(addr.wrapping_add(offset as u16), b)])
-            .test();
-    }
+    Cmp::test_absolute_x();
 }
 
 #[test]
 fn absolute_y() {
-    for (a, b) in possible_byte_pairs() {
-        let addr: u16 = 0x0425;
-        let offset: u8 = 0x5A;
-
-        TestOpcodeOptions::new(OpCode::CmpAbsoluteY, 4, verify(a, b))
-            .with_prepare(|cpu| {
-                cpu.a = a;
-                cpu.y = offset;
-            })
-            .with_arguments(&addr.to_le_bytes())
-            .with_additional_values(&[(addr.wrapping_add(offset as u16), b)])
-            .test();
-    }
+    Cmp::test_absolute_y();
 }
 
 #[test]
 fn absolute_x_overflow() {
-    for (a, b) in possible_byte_pairs() {
-        let addr: u16 = 0x04A5;
-        let offset: u8 = 0x6A;
-
-        TestOpcodeOptions::new(OpCode::CmpAbsoluteX, 5, verify(a, b))
-            .with_prepare(|cpu| {
-                cpu.a = a;
-                cpu.x = offset;
-            })
-            .with_arguments(&addr.to_le_bytes())
-            .with_additional_values(&[(addr.wrapping_add(offset as u16), b)])
-            .test();
-    }
+    Cmp::test_absolute_x_overflow();
 }
 
 #[test]
 fn absolute_y_overflow() {
-    for (a, b) in possible_byte_pairs() {
-        let addr: u16 = 0x04A5;
-        let offset: u8 = 0x6A;
-
-        TestOpcodeOptions::new(OpCode::CmpAbsoluteY, 5, verify(a, b))
-            .with_prepare(|cpu| {
-                cpu.a = a;
-                cpu.y = offset;
-            })
-            .with_arguments(&addr.to_le_bytes())
-            .with_additional_values(&[(addr.wrapping_add(offset as u16), b)])
-            .test();
-    }
+    Cmp::test_absolute_y_overflow();
 }
 
 #[test]
 fn indirect_x() {
-    for (a, b) in possible_byte_pairs() {
-        let ptr_base: u8 = 0x3F;
-        let offset: u8 = 0x5A;
-        let final_ptr = ptr_base.wrapping_add(offset) as u16;
-        let addr: u16 = 0x0458;
-
-        TestOpcodeOptions::new(OpCode::CmpIndirectX, 6, verify(a, b))
-            .with_prepare(|cpu| {
-                cpu.a = a;
-                cpu.x = offset;
-            })
-            .with_arguments(&[ptr_base])
-            .with_additional_values(&[
-                (final_ptr, addr.to_le_bytes()[0]),
-                (final_ptr.wrapping_add(1), addr.to_le_bytes()[1]),
-                (addr, b),
-            ])
-            .test();
-    }
+    Cmp::test_indirect_x();
 }
 
 #[test]
 fn indirect_y() {
-    for (a, b) in possible_byte_pairs() {
-        let ptr: u8 = 0x3F;
-        let offset: u8 = 0x5A;
-        let base_addr: u16 = 0x0458;
-        let final_addr = base_addr.wrapping_add(offset as u16);
-
-        TestOpcodeOptions::new(OpCode::CmpIndirectY, 5, verify(a, b))
-            .with_prepare(|cpu| {
-                cpu.a = a;
-                cpu.y = offset;
-            })
-            .with_arguments(&[ptr])
-            .with_additional_values(&[
-                (ptr as u16, base_addr.to_le_bytes()[0]),
-                (ptr.wrapping_add(1) as u16, base_addr.to_le_bytes()[1]),
-                (final_addr, b),
-            ])
-            .test();
-    }
+    Cmp::test_indirect_y();
 }
 
 #[test]
 fn indirect_x_overflow() {
-    for (a, b) in possible_byte_pairs() {
-        let ptr_base: u8 = 0x3F;
-        let offset: u8 = 0xFA;
-        let final_ptr = ptr_base.wrapping_add(offset) as u16;
-        let addr: u16 = 0x0458;
-
-        TestOpcodeOptions::new(OpCode::CmpIndirectX, 6, verify(a, b))
-            .with_prepare(|cpu| {
-                cpu.a = a;
-                cpu.x = offset;
-            })
-            .with_arguments(&[ptr_base])
-            .with_additional_values(&[
-                (final_ptr, addr.to_le_bytes()[0]),
-                (final_ptr.wrapping_add(1), addr.to_le_bytes()[1]),
-                (addr, b),
-            ])
-            .test();
-    }
+    Cmp::test_indirect_x_overflow();
 }
 
 #[test]
 fn indirect_y_overflow() {
-    for (a, b) in possible_byte_pairs() {
-        let ptr: u8 = 0x3F;
-        let offset: u8 = 0xFA;
-        let base_addr: u16 = 0x0458;
-        let final_addr = base_addr.wrapping_add(offset as u16);
-
-        TestOpcodeOptions::new(OpCode::CmpIndirectY, 6, verify(a, b))
-            .with_prepare(|cpu| {
-                cpu.a = a;
-                cpu.y = offset;
-            })
-            .with_arguments(&[ptr])
-            .with_additional_values(&[
-                (ptr as u16, base_addr.to_le_bytes()[0]),
-                (ptr.wrapping_add(1) as u16, base_addr.to_le_bytes()[1]),
-                (final_addr, b),
-            ])
-            .test();
-    }
+    Cmp::test_indirect_y_overflow();
 }
 
 #[test]
 fn indirect_x_page_split() {
-    for (a, b) in possible_byte_pairs() {
-        let ptr_base: u8 = 0xFF;
-        let offset: u8 = 0x0;
-        let final_ptr = ptr_base.wrapping_add(offset);
-        let addr: u16 = 0x0458;
-
-        TestOpcodeOptions::new(OpCode::CmpIndirectX, 6, verify(a, b))
-            .with_prepare(|cpu| {
-                cpu.a = a;
-                cpu.x = offset;
-            })
-            .with_arguments(&[ptr_base])
-            .with_additional_values(&[
-                (final_ptr as u16, addr.to_le_bytes()[0]),
-                (final_ptr.wrapping_add(1) as u16, addr.to_le_bytes()[1]),
-                (addr, b),
-            ])
-            .test();
-    }
+    Cmp::test_indirect_x_page_split();
 }
 
 #[test]
 fn indirect_y_page_split() {
-    for (a, b) in possible_byte_pairs() {
-        let ptr: u8 = 0xFF;
-        let offset: u8 = 0x5A;
-        let base_addr: u16 = 0x0458;
-        let final_addr = base_addr.wrapping_add(offset as u16);
-
-        TestOpcodeOptions::new(OpCode::CmpIndirectY, 5, verify(a, b))
-            .with_prepare(|cpu| {
-                cpu.a = a;
-                cpu.y = offset;
-            })
-            .with_arguments(&[ptr])
-            .with_additional_values(&[
-                (ptr as u16, base_addr.to_le_bytes()[0]),
-                (ptr.wrapping_add(1) as u16, base_addr.to_le_bytes()[1]),
-                (final_addr, b),
-            ])
-            .test();
-    }
+    Cmp::test_indirect_y_page_split();
 }
