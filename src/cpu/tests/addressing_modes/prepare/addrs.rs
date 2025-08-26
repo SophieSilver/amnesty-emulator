@@ -1,3 +1,6 @@
+pub const OPCODE_ADDR: u16 = 0x0200;
+pub const ARG_ADDR: u16 = OPCODE_ADDR + 1;
+
 pub const ZEROPAGE_ADDR: u8 = 0x25;
 
 pub const ZEROPAGE_X_BASE_ADDR: u8 = 0x27;

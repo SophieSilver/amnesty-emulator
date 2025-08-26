@@ -9,9 +9,12 @@ use crate::{
 use super::StatusFlags;
 
 #[allow(dead_code)]
-mod consts;
+mod addrs;
 #[allow(dead_code)]
 mod utils;
+
+mod addressing_modes;
+mod test_args;
 
 mod adc;
 mod and;

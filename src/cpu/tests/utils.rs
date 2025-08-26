@@ -5,7 +5,7 @@ use crate::{
     memory::Memory,
 };
 
-use super::{consts::*, TestMemory};
+use super::{addrs::*, TestMemory};
 
 mod presets;
 
@@ -61,7 +61,7 @@ impl Preset {
             Preset::AbsoluteXOverflow(_) | Preset::AbsoluteYOverflow(_) => {
                 ABSOLUTE_X_FINAL_ADDR_OVERFLOW
             }
-            Preset::IndirectX(_) => INDIRECT_X_ADDR,
+            Preset::IndirectX(_) => INDIRECT_X_FINAL_ADDR,
             Preset::IndirectXOverflow(_) => INDIRECT_X_ADDR_OVERFLOW,
             Preset::IndirectXPageSplit(_) => INDIRECT_X_ADDR_PAGE_SPLIT,
             Preset::IndirectY(_) => INDIRECT_Y_FINAL_ADDR,

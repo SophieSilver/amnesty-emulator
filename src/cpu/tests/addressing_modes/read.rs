@@ -1,0 +1,247 @@
+use crate::{
+    cpu::{
+        executor::Executor,
+        instructions::opcode::OpCode,
+        tests::{
+            addressing_modes::prepare::{AddressingMode, OPCODE_ADDR},
+            TestMemory,
+        },
+        Cpu,
+    },
+    memory::Memory,
+};
+
+pub trait TestReadArgs {
+    type AdditionalArgs: Copy;
+
+    fn args() -> impl Iterator<Item = u8>;
+    fn additional_args() -> impl Iterator<Item = Self::AdditionalArgs>;
+}
+
+pub trait TestReadInstruction {
+    type Args: TestReadArgs;
+
+    fn prepare(
+        cpu: &mut Cpu,
+        arg: u8,
+        additional_args: <Self::Args as TestReadArgs>::AdditionalArgs,
+    );
+
+    fn verify(cpu: &Cpu, arg: u8, additional_args: <Self::Args as TestReadArgs>::AdditionalArgs);
+}
+
+pub trait TestReadImmediate: TestReadInstruction {
+    const OPCODE: OpCode;
+
+    fn test_immediate() {
+        test_instruction::<Self>(TestInstructionOptions {
+            opcode: Self::OPCODE,
+            addressing_mode: AddressingMode::Immediate,
+            expected_clock_cycles: 2,
+        });
+    }
+}
+
+pub trait TestReadZeropage: TestReadInstruction {
+    const OPCODE: OpCode;
+
+    fn test_zeropage() {
+        test_instruction::<Self>(TestInstructionOptions {
+            opcode: Self::OPCODE,
+            addressing_mode: AddressingMode::Zeropage,
+            expected_clock_cycles: 3,
+        });
+    }
+}
+
+pub trait TestReadZeropageX: TestReadInstruction {
+    const OPCODE: OpCode;
+
+    fn test_zeropage_x() {
+        test_instruction::<Self>(TestInstructionOptions {
+            opcode: Self::OPCODE,
+            addressing_mode: AddressingMode::ZeropageX,
+            expected_clock_cycles: 4,
+        });
+    }
+
+    fn test_zeropage_x_overflow() {
+        test_instruction::<Self>(TestInstructionOptions {
+            opcode: Self::OPCODE,
+            addressing_mode: AddressingMode::ZeropageXOverflow,
+            expected_clock_cycles: 4,
+        });
+    }
+}
+
+pub trait TestReadZeropageY: TestReadInstruction {
+    const OPCODE: OpCode;
+
+    fn test_zeropage_y() {
+        test_instruction::<Self>(TestInstructionOptions {
+            opcode: Self::OPCODE,
+            addressing_mode: AddressingMode::ZeropageY,
+            expected_clock_cycles: 4,
+        });
+    }
+
+    fn test_zeropage_y_overflow() {
+        test_instruction::<Self>(TestInstructionOptions {
+            opcode: Self::OPCODE,
+            addressing_mode: AddressingMode::ZeropageYOverflow,
+            expected_clock_cycles: 4,
+        });
+    }
+}
+
+pub trait TestReadAbsolute: TestReadInstruction {
+    const OPCODE: OpCode;
+
+    fn test_absolute() {
+        test_instruction::<Self>(TestInstructionOptions {
+            opcode: Self::OPCODE,
+            addressing_mode: AddressingMode::Absolute,
+            expected_clock_cycles: 4,
+        });
+    }
+}
+
+pub trait TestReadAbsoluteX: TestReadInstruction {
+    const OPCODE: OpCode;
+
+    fn test_absolute_x() {
+        test_instruction::<Self>(TestInstructionOptions {
+            opcode: Self::OPCODE,
+            addressing_mode: AddressingMode::AbsoluteX,
+            expected_clock_cycles: 4,
+        });
+    }
+
+    fn test_absolute_x_overflow() {
+        test_instruction::<Self>(TestInstructionOptions {
+            opcode: Self::OPCODE,
+            addressing_mode: AddressingMode::AbsoluteXOverflow,
+            expected_clock_cycles: 5,
+        });
+    }
+}
+
+pub trait TestReadAbsoluteY: TestReadInstruction {
+    const OPCODE: OpCode;
+
+    fn test_absolute_y() {
+        test_instruction::<Self>(TestInstructionOptions {
+            opcode: Self::OPCODE,
+            addressing_mode: AddressingMode::AbsoluteY,
+            expected_clock_cycles: 4,
+        });
+    }
+
+    fn test_absolute_y_overflow() {
+        test_instruction::<Self>(TestInstructionOptions {
+            opcode: Self::OPCODE,
+            addressing_mode: AddressingMode::AbsoluteYOverflow,
+            expected_clock_cycles: 5,
+        });
+    }
+}
+
+pub trait TestReadIndirectX: TestReadInstruction {
+    const OPCODE: OpCode;
+
+    fn test_indirect_x() {
+        test_instruction::<Self>(TestInstructionOptions {
+            opcode: Self::OPCODE,
+            addressing_mode: AddressingMode::IndirectX,
+            expected_clock_cycles: 6,
+        });
+    }
+
+    fn test_indirect_x_overflow() {
+        test_instruction::<Self>(TestInstructionOptions {
+            opcode: Self::OPCODE,
+            addressing_mode: AddressingMode::IndirectXOverflow,
+            expected_clock_cycles: 6,
+        });
+    }
+
+    fn test_indirect_x_page_split() {
+        test_instruction::<Self>(TestInstructionOptions {
+            opcode: Self::OPCODE,
+            addressing_mode: AddressingMode::IndirectXPageSplit,
+            expected_clock_cycles: 6,
+        });
+    }
+}
+
+pub trait TestReadIndirectY: TestReadInstruction {
+    const OPCODE: OpCode;
+
+    fn test_indirect_y() {
+        test_instruction::<Self>(TestInstructionOptions {
+            opcode: Self::OPCODE,
+            addressing_mode: AddressingMode::IndirectY,
+            expected_clock_cycles: 5,
+        });
+    }
+
+    fn test_indirect_y_overflow() {
+        test_instruction::<Self>(TestInstructionOptions {
+            opcode: Self::OPCODE,
+            addressing_mode: AddressingMode::IndirectYOverflow,
+            expected_clock_cycles: 6,
+        });
+    }
+
+    fn test_indirect_y_page_split() {
+        test_instruction::<Self>(TestInstructionOptions {
+            opcode: Self::OPCODE,
+            addressing_mode: AddressingMode::IndirectYPageSplit,
+            expected_clock_cycles: 5,
+        });
+    }
+}
+
+
+#[derive(Debug, Clone, Copy)]
+struct TestInstructionOptions {
+    opcode: OpCode,
+    addressing_mode: AddressingMode,
+    expected_clock_cycles: u64,
+}
+
+fn test_instruction<I: TestReadInstruction + ?Sized>(
+    TestInstructionOptions {
+        opcode,
+        addressing_mode,
+        expected_clock_cycles,
+    }: TestInstructionOptions,
+) {
+    for arg in I::Args::args() {
+        for additional_args in I::Args::additional_args() {
+            let mut cpu = Cpu::new();
+            let mut memory = TestMemory::new();
+
+            cpu.pc = OPCODE_ADDR;
+            I::prepare(&mut cpu, arg, additional_args);
+            memory.ram.store(OPCODE_ADDR, opcode as u8);
+
+            let mut executor = Executor {
+                cpu: &mut cpu,
+                memory: &mut memory,
+            };
+
+            addressing_mode.prepare(&mut executor);
+            executor.memory.store(addressing_mode.value_addr(), arg);
+
+            executor.execute_next_instruction();
+            assert_eq!(executor.cpu.clock_cycle_count, expected_clock_cycles);
+            assert_eq!(
+                executor.cpu.pc,
+                OPCODE_ADDR + addressing_mode.instruction_length()
+            );
+
+            I::verify(&executor.cpu, arg, additional_args);
+        }
+    }
+}

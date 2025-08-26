@@ -1,6 +1,6 @@
 use crate::{
     cpu::{
-        tests::{consts::*, TestMemory},
+        tests::{addrs::*, TestMemory},
         Cpu,
     },
     memory::Memory,
@@ -98,13 +98,13 @@ pub fn apply_preset(preset: Preset, cpu: &mut Cpu, memory: &mut TestMemory) -> u
             cpu.x = INDIRECT_X_OFFSET;
             memory.store(
                 INDIRECT_X_FINAL_PTR as u16,
-                INDIRECT_X_ADDR.to_le_bytes()[0],
+                INDIRECT_X_FINAL_ADDR.to_le_bytes()[0],
             );
             memory.store(
                 INDIRECT_X_FINAL_PTR.wrapping_add(1) as u16,
-                INDIRECT_X_ADDR.to_le_bytes()[1],
+                INDIRECT_X_FINAL_ADDR.to_le_bytes()[1],
             );
-            memory.store(INDIRECT_X_ADDR, value);
+            memory.store(INDIRECT_X_FINAL_ADDR, value);
 
             1
         }
