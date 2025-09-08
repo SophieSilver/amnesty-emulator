@@ -3,7 +3,6 @@ use crate::cpu::{
     tests::{
         addressing_modes::{implied::*, test_addressing_modes},
         flags::check_negative_and_zero_flags,
-        test_args::SingleBytes,
     },
     Cpu,
 };

@@ -1,9 +1,6 @@
 use crate::cpu::{
     instructions::Sec,
-    tests::{
-        addressing_modes::{implied::*, test_addressing_modes},
-        test_args::SingleBytes,
-    },
+    tests::addressing_modes::{implied::*, test_addressing_modes},
     Cpu, StatusFlags,
 };
 
