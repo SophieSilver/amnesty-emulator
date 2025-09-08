@@ -1,5 +1,6 @@
 mod prepare;
 
+pub mod implied;
 pub mod read;
 pub mod write;
 
@@ -16,29 +17,58 @@ pub mod write;
 ///         Zeropage
 ///     ],
 /// }
+///
+/// // special case for implied instruction type
+/// test_addressing_modes! {
+///     instruction: Clc,
+///     instruction_type: Implied,
+/// }
 /// ```
-/// 
+///
 /// Will expand roughly into
 /// ```ignore
 /// impl TestReadImmediate for Adc {
 ///     const OPCODE: OpCode = OpCode::AdcImmediate
 /// }
-/// 
+///
 /// impl TestReadZeropage for Adc {
 ///     const OPCODE: OpCode = OpCode::AdcZeropage
 /// }
-/// 
+///
 /// #[test]
 /// fn immediate() {
 ///     Adc::test_immediate();
 /// }
-/// 
+///
 /// #[test]
 /// fn zeropage() {
 ///     Adc::test_zeropage();
 /// }
 /// ```
 macro_rules! test_addressing_modes {
+    (
+        instruction: $instruction:ident,
+        instruction_type: Implied $(,)?
+    ) => {
+        const _: () = {
+            use $crate::cpu::tests::addressing_modes::implied::TestImplied;
+            use $crate::cpu::instructions::opcode::OpCode;
+
+            impl TestImplied for $instruction {
+                const OPCODE: OpCode = OpCode::$instruction;
+            }
+
+        };
+
+        paste::paste! {
+            #[test]
+            fn [<$instruction:lower>]() {
+                use $crate::cpu::tests::addressing_modes::implied::TestImplied;
+                <$instruction as TestImplied>::test_implied();
+            }
+        }
+    };
+
     (
         instruction: $instruction:ident,
         instruction_type: $instruction_type:ident,

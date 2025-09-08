@@ -19,7 +19,7 @@ bitflags! {
     /// https://www.nesdev.org/wiki/Status_flags
     #[derive(Debug, Clone, Copy, PartialEq, Eq)]
     pub struct StatusFlags: u8 {
-        const CARRY = 1;
+        const CARRY = 1 << 0;
         const ZERO = 1 << 1;
         const INTERRUPT_DISABLE = 1 << 2;
         const DECIMAL = 1 << 3;

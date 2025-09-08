@@ -41,6 +41,7 @@ impl IndexMut<u16> for Ram {
     }
 }
 
+#[cfg(not(tarpaulin_include))]
 impl Debug for Ram {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let write_slice = |f: &mut Formatter, slice: &[u8]| {

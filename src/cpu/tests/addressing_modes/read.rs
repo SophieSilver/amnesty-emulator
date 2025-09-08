@@ -242,7 +242,7 @@ fn test_instruction<I: TestReadInstruction + ?Sized>(
             assert_eq!(
                 executor.cpu.pc,
                 OPCODE_ADDR + instruction_length,
-                "after instruction {opcode:?} pc must be incremented {instruction_length} times"
+                "after instruction {opcode:?} PC must be incremented {instruction_length} times"
             );
 
             I::verify(executor.cpu, arg, additional_args);

@@ -1,34 +1,11 @@
 #![allow(clippy::arithmetic_side_effects)]
-use utils::*;
-
 use crate::memory::{ram::Ram, Memory};
-
-use super::StatusFlags;
-
-#[allow(dead_code)]
-mod addrs;
-#[allow(dead_code)]
-mod utils;
 
 mod addressing_modes;
 mod flags;
 mod test_args;
 
-mod instructions {
-    mod adc;
-    mod and;
-    mod bit;
-    mod cmp;
-    mod eor;
-    mod lda;
-    mod ldx;
-    mod ldy;
-    mod ora;
-    mod sbc;
-    mod sta;
-    mod stx;
-    mod sty;
-}
+mod instructions;
 
 #[derive(Debug, Clone)]
 struct TestMemory {
@@ -50,5 +27,3 @@ impl Memory for TestMemory {
         self.ram.store(address, value)
     }
 }
-
-mod implied;
