@@ -13,6 +13,8 @@ mod cld;
 mod cli;
 mod clv;
 mod cmp;
+mod cpx;
+mod cpy;
 mod dex;
 mod dey;
 mod eor;
@@ -45,6 +47,8 @@ pub use cld::*;
 pub use cli::*;
 pub use clv::*;
 pub use cmp::*;
+pub use cpx::*;
+pub use cpy::*;
 pub use dex::*;
 pub use dey::*;
 pub use eor::*;
@@ -110,6 +114,16 @@ pub fn execute_opcode<M: Memory>(executor: &mut Executor<M>, opcode: Opcode) {
         Opcode::CmpAbsoluteY => Cmp::absolute_y(executor),
         Opcode::CmpIndirectX => Cmp::indirect_x(executor),
         Opcode::CmpIndirectY => Cmp::indirect_y(executor),
+
+        // CPX
+        Opcode::CpxImmediate => Cpx::immediate(executor),
+        Opcode::CpxZeropage => Cpx::zeropage(executor),
+        Opcode::CpxAbsolute => Cpx::absolute(executor),
+
+        // CPY
+        Opcode::CpyImmediate => Cpy::immediate(executor),
+        Opcode::CpyZeropage => Cpy::zeropage(executor),
+        Opcode::CpyAbsolute => Cpy::absolute(executor),
 
         // DE*
         Opcode::Dex => Dex::implied(executor),

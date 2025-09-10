@@ -81,8 +81,7 @@ impl Cpu {
     ) {
         *get_register(self) = value;
 
-        self.flags
-            .set(StatusFlags::NEGATIVE, (value as i8).is_negative());
+        self.flags.set(StatusFlags::NEGATIVE, (value as i8) < 0);
         self.flags.set(StatusFlags::ZERO, value == 0);
     }
 }

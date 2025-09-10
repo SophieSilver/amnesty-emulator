@@ -44,6 +44,16 @@ pub enum Opcode {
     CmpIndirectX = 0xC1,
     CmpIndirectY = 0xD1,
 
+    // CPX
+    CpxImmediate = 0xE0,
+    CpxZeropage = 0xE4,
+    CpxAbsolute = 0xEC,
+
+    // CPY
+    CpyImmediate = 0xC0,
+    CpyZeropage = 0xC4,
+    CpyAbsolute = 0xCC,
+
     // DEX/Y
     Dex = 0xCA,
     Dey = 0x88,
