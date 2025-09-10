@@ -4,9 +4,11 @@ use bitflags::bitflags;
 
 use crate::{cpu::executor::Executor, memory::Memory};
 
+mod addressing_modes;
 mod arithmetic;
 mod executor;
 mod instructions;
+mod opcode;
 
 #[cfg(test)]
 mod tests;

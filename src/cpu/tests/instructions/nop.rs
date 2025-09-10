@@ -1,7 +1,7 @@
 use crate::cpu::{
+    Cpu, StatusFlags,
     instructions::Nop,
     tests::addressing_modes::{implied::*, test_addressing_modes},
-    Cpu, StatusFlags,
 };
 
 const A_VALUE: u8 = 42;

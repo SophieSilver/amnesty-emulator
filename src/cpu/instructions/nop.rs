@@ -1,4 +1,4 @@
-use crate::cpu::{instructions::addressing_modes::implied::*, Cpu};
+use crate::cpu::{Cpu, addressing_modes::implied::*};
 
 pub struct Nop;
 

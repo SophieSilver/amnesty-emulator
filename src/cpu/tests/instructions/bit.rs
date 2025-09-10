@@ -1,10 +1,10 @@
 use crate::cpu::{
+    Cpu, StatusFlags,
     instructions::Bit,
     tests::{
         addressing_modes::{read::*, test_addressing_modes},
         test_args::BytePairs,
     },
-    Cpu, StatusFlags,
 };
 
 impl TestReadInstruction for Bit {

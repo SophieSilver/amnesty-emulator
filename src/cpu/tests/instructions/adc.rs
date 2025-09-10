@@ -1,11 +1,11 @@
 use crate::cpu::{
+    Cpu, StatusFlags,
     instructions::Adc,
     tests::{
         addressing_modes::{read::*, test_addressing_modes},
         flags::check_negative_and_zero_flags,
         test_args::BytePairsWithCarry,
     },
-    Cpu, StatusFlags,
 };
 
 impl TestReadInstruction for Adc {

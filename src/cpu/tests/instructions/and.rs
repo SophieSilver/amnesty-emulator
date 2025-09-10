@@ -1,11 +1,11 @@
 use crate::cpu::{
+    Cpu,
     instructions::And,
     tests::{
         addressing_modes::{read::*, test_addressing_modes},
         flags::check_negative_and_zero_flags,
         test_args::BytePairs,
     },
-    Cpu,
 };
 
 impl TestReadInstruction for And {

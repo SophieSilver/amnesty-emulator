@@ -1,5 +1,5 @@
 use crate::{
-    cpu::{executor::Executor, instructions::opcode::Opcode, tests::TestMemory, Cpu},
+    cpu::{Cpu, executor::Executor, opcode::Opcode, tests::TestMemory},
     memory::Memory,
 };
 

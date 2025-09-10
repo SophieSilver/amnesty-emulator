@@ -1,4 +1,4 @@
-use crate::cpu::{instructions::addressing_modes::write::*, Cpu};
+use crate::cpu::{Cpu, addressing_modes::write::*};
 
 pub struct Sta;
 

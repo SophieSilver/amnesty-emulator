@@ -1,7 +1,7 @@
 use crate::cpu::{
+    Cpu,
     instructions::Sty,
     tests::addressing_modes::{test_addressing_modes, write::TestWriteInstruction},
-    Cpu,
 };
 
 impl TestWriteInstruction for Sty {

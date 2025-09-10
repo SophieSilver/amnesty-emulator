@@ -1,5 +1,5 @@
 #![allow(clippy::arithmetic_side_effects)]
-use crate::memory::{ram::Ram, Memory};
+use crate::memory::{Memory, ram::Ram};
 
 mod addressing_modes;
 mod flags;

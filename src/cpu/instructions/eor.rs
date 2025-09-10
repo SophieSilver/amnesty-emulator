@@ -1,4 +1,4 @@
-use crate::cpu::{instructions::addressing_modes::read::*, register_getters::a_register, Cpu};
+use crate::cpu::{Cpu, addressing_modes::read::*, register_getters::a_register};
 
 pub struct Eor;
 

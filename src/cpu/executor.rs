@@ -1,10 +1,7 @@
 use num_enum::FromPrimitive;
 
-use super::Cpu;
-use crate::{
-    cpu::instructions::{self, opcode::Opcode},
-    memory::Memory,
-};
+use super::{Cpu, instructions, opcode::Opcode};
+use crate::memory::Memory;
 
 /// CPU bundled together with memory
 ///

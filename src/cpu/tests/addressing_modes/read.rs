@@ -1,12 +1,12 @@
 use crate::{
     cpu::{
-        executor::Executor,
-        instructions::opcode::Opcode,
-        tests::{
-            addressing_modes::prepare::{AddressingMode, OPCODE_ADDR},
-            TestMemory,
-        },
         Cpu,
+        executor::Executor,
+        opcode::Opcode,
+        tests::{
+            TestMemory,
+            addressing_modes::prepare::{AddressingMode, OPCODE_ADDR},
+        },
     },
     memory::Memory,
 };

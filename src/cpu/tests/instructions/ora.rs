@@ -1,11 +1,11 @@
 use crate::cpu::{
+    Cpu,
     instructions::Ora,
     tests::{
         addressing_modes::{read::TestReadInstruction, test_addressing_modes},
         flags::check_negative_and_zero_flags,
         test_args::BytePairs,
     },
-    Cpu,
 };
 
 impl TestReadInstruction for Ora {

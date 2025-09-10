@@ -1,53 +1,73 @@
-use super::executor::Executor;
-use crate::{
-    cpu::instructions::addressing_modes::{implied::*, read::*, write::*},
-    memory::Memory,
+use super::{
+    addressing_modes::{implied::*, read::*, write::*},
+    executor::Executor,
+    opcode::Opcode,
 };
-
-mod addressing_modes;
+use crate::memory::Memory;
 
 mod adc;
 mod and;
 mod bit;
-mod cl_;
+mod clc;
+mod cld;
+mod cli;
+mod clv;
 mod cmp;
-mod de_;
+mod dex;
+mod dey;
 mod eor;
-mod in_;
+mod inx;
+mod iny;
 mod lda;
 mod ldx;
 mod ldy;
 mod nop;
 mod ora;
 mod sbc;
-mod se_;
+mod sec;
+mod sed;
+mod sei;
 mod sta;
 mod stx;
 mod sty;
-mod t__;
+mod tax;
+mod tay;
+mod tsx;
+mod txa;
+mod txs;
+mod tya;
 
 pub use adc::*;
 pub use and::*;
 pub use bit::*;
-pub use cl_::*;
+pub use clc::*;
+pub use cld::*;
+pub use cli::*;
+pub use clv::*;
 pub use cmp::*;
-pub use de_::*;
+pub use dex::*;
+pub use dey::*;
 pub use eor::*;
-pub use in_::*;
+pub use inx::*;
+pub use iny::*;
 pub use lda::*;
 pub use ldx::*;
 pub use ldy::*;
 pub use nop::*;
 pub use ora::*;
 pub use sbc::*;
-pub use se_::*;
+pub use sec::*;
+pub use sed::*;
+pub use sei::*;
 pub use sta::*;
 pub use stx::*;
 pub use sty::*;
-pub use t__::*;
-
-pub mod opcode;
-use opcode::Opcode;
+pub use tax::*;
+pub use tay::*;
+pub use tsx::*;
+pub use txa::*;
+pub use txs::*;
+pub use tya::*;
 
 pub fn execute_opcode<M: Memory>(executor: &mut Executor<M>, opcode: Opcode) {
     match opcode {

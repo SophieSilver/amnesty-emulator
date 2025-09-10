@@ -1,7 +1,7 @@
 use crate::cpu::{
+    Cpu,
     instructions::Txs,
     tests::addressing_modes::{implied::*, test_addressing_modes},
-    Cpu,
 };
 
 impl TestImpliedInstruction for Txs {

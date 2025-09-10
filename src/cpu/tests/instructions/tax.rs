@@ -1,10 +1,10 @@
 use crate::cpu::{
+    Cpu,
     instructions::Tax,
     tests::{
         addressing_modes::{implied::*, test_addressing_modes},
         flags::check_negative_and_zero_flags,
     },
-    Cpu,
 };
 
 impl TestImpliedInstruction for Tax {

@@ -52,7 +52,7 @@ macro_rules! test_addressing_modes {
     ) => {
         const _: () = {
             use $crate::cpu::tests::addressing_modes::implied::TestImplied;
-            use $crate::cpu::instructions::opcode::Opcode;
+            use $crate::cpu::opcode::Opcode;
 
             impl TestImplied for $instruction {
                 const OPCODE: Opcode = Opcode::$instruction;
@@ -81,7 +81,7 @@ macro_rules! test_addressing_modes {
         paste::paste! {
             const _: () = {
                 use $crate::cpu::tests::addressing_modes::[<$instruction_type:lower>]::[<Test $instruction_type:camel $addressing_mode:camel>];
-                use $crate::cpu::instructions::opcode::Opcode;
+                use $crate::cpu::opcode::Opcode;
 
                 impl [<Test $instruction_type:camel $addressing_mode:camel>] for $instruction {
                     const OPCODE: Opcode = Opcode::[<$instruction:camel $addressing_mode:camel>];

@@ -1,11 +1,11 @@
 use crate::cpu::{
+    Cpu,
     instructions::Lda,
     tests::{
         addressing_modes::{read::*, test_addressing_modes},
         flags::check_negative_and_zero_flags,
         test_args::SingleBytes,
     },
-    Cpu,
 };
 
 impl TestReadInstruction for Lda {

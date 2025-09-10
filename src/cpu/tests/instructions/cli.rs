@@ -1,7 +1,7 @@
 use crate::cpu::{
+    Cpu, StatusFlags,
     instructions::Cli,
     tests::addressing_modes::{implied::*, test_addressing_modes},
-    Cpu, StatusFlags,
 };
 
 impl TestImpliedInstruction for Cli {

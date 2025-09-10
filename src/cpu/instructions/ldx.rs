@@ -1,4 +1,4 @@
-use crate::cpu::{instructions::addressing_modes::read::*, register_getters::x_register, Cpu};
+use crate::cpu::{Cpu, addressing_modes::read::*, register_getters::x_register};
 
 pub struct Ldx;
 

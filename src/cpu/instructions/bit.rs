@@ -1,4 +1,4 @@
-use crate::cpu::{instructions::addressing_modes::read::*, Cpu, StatusFlags};
+use crate::cpu::{Cpu, StatusFlags, addressing_modes::read::*};
 
 pub struct Bit;
 

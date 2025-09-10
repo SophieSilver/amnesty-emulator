@@ -1,6 +1,5 @@
 use crate::cpu::{
-    arithmetic, instructions::addressing_modes::read::*, register_getters::a_register, Cpu,
-    StatusFlags,
+    Cpu, StatusFlags, addressing_modes::read::*, arithmetic, register_getters::a_register,
 };
 
 pub struct Adc;

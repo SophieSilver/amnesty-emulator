@@ -1,4 +1,4 @@
-use crate::cpu::{arithmetic, instructions::addressing_modes::read::*, Cpu, StatusFlags};
+use crate::cpu::{Cpu, StatusFlags, addressing_modes::read::*, arithmetic};
 
 pub struct Cmp;
 
