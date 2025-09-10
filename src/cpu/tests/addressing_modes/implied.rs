@@ -1,5 +1,5 @@
 use crate::{
-    cpu::{executor::Executor, instructions::opcode::OpCode, tests::TestMemory, Cpu},
+    cpu::{executor::Executor, instructions::opcode::Opcode, tests::TestMemory, Cpu},
     memory::Memory,
 };
 
@@ -12,7 +12,7 @@ pub trait TestImpliedInstruction {
 }
 
 pub trait TestImplied: TestImpliedInstruction {
-    const OPCODE: OpCode;
+    const OPCODE: Opcode;
 
     fn test_implied() {
         const EXPECTED_CLOCK_CYCLES: u64 = 2;

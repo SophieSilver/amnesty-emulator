@@ -28,11 +28,11 @@ pub mod write;
 /// Will expand roughly into
 /// ```ignore
 /// impl TestReadImmediate for Adc {
-///     const OPCODE: OpCode = OpCode::AdcImmediate
+///     const OPCODE: Opcode = Opcode::AdcImmediate
 /// }
 ///
 /// impl TestReadZeropage for Adc {
-///     const OPCODE: OpCode = OpCode::AdcZeropage
+///     const OPCODE: Opcode = Opcode::AdcZeropage
 /// }
 ///
 /// #[test]
@@ -52,10 +52,10 @@ macro_rules! test_addressing_modes {
     ) => {
         const _: () = {
             use $crate::cpu::tests::addressing_modes::implied::TestImplied;
-            use $crate::cpu::instructions::opcode::OpCode;
+            use $crate::cpu::instructions::opcode::Opcode;
 
             impl TestImplied for $instruction {
-                const OPCODE: OpCode = OpCode::$instruction;
+                const OPCODE: Opcode = Opcode::$instruction;
             }
 
         };
@@ -81,10 +81,10 @@ macro_rules! test_addressing_modes {
         paste::paste! {
             const _: () = {
                 use $crate::cpu::tests::addressing_modes::[<$instruction_type:lower>]::[<Test $instruction_type:camel $addressing_mode:camel>];
-                use $crate::cpu::instructions::opcode::OpCode;
+                use $crate::cpu::instructions::opcode::Opcode;
 
                 impl [<Test $instruction_type:camel $addressing_mode:camel>] for $instruction {
-                    const OPCODE: OpCode = OpCode::[<$instruction:camel $addressing_mode:camel>];
+                    const OPCODE: Opcode = Opcode::[<$instruction:camel $addressing_mode:camel>];
                 }
             };
 

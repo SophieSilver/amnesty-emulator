@@ -1,7 +1,7 @@
 use crate::{
     cpu::{
         executor::Executor,
-        instructions::opcode::OpCode,
+        instructions::opcode::Opcode,
         tests::{
             addressing_modes::prepare::{AddressingMode, OPCODE_ADDR},
             TestMemory,
@@ -31,7 +31,7 @@ pub trait TestReadInstruction {
 }
 
 pub trait TestReadImmediate: TestReadInstruction {
-    const OPCODE: OpCode;
+    const OPCODE: Opcode;
 
     fn test_immediate() {
         test_instruction::<Self>(TestInstructionOptions {
@@ -43,7 +43,7 @@ pub trait TestReadImmediate: TestReadInstruction {
 }
 
 pub trait TestReadZeropage: TestReadInstruction {
-    const OPCODE: OpCode;
+    const OPCODE: Opcode;
 
     fn test_zeropage() {
         test_instruction::<Self>(TestInstructionOptions {
@@ -55,7 +55,7 @@ pub trait TestReadZeropage: TestReadInstruction {
 }
 
 pub trait TestReadZeropageX: TestReadInstruction {
-    const OPCODE: OpCode;
+    const OPCODE: Opcode;
 
     fn test_zeropage_x() {
         test_instruction::<Self>(TestInstructionOptions {
@@ -75,7 +75,7 @@ pub trait TestReadZeropageX: TestReadInstruction {
 }
 
 pub trait TestReadZeropageY: TestReadInstruction {
-    const OPCODE: OpCode;
+    const OPCODE: Opcode;
 
     fn test_zeropage_y() {
         test_instruction::<Self>(TestInstructionOptions {
@@ -95,7 +95,7 @@ pub trait TestReadZeropageY: TestReadInstruction {
 }
 
 pub trait TestReadAbsolute: TestReadInstruction {
-    const OPCODE: OpCode;
+    const OPCODE: Opcode;
 
     fn test_absolute() {
         test_instruction::<Self>(TestInstructionOptions {
@@ -107,7 +107,7 @@ pub trait TestReadAbsolute: TestReadInstruction {
 }
 
 pub trait TestReadAbsoluteX: TestReadInstruction {
-    const OPCODE: OpCode;
+    const OPCODE: Opcode;
 
     fn test_absolute_x() {
         test_instruction::<Self>(TestInstructionOptions {
@@ -127,7 +127,7 @@ pub trait TestReadAbsoluteX: TestReadInstruction {
 }
 
 pub trait TestReadAbsoluteY: TestReadInstruction {
-    const OPCODE: OpCode;
+    const OPCODE: Opcode;
 
     fn test_absolute_y() {
         test_instruction::<Self>(TestInstructionOptions {
@@ -147,7 +147,7 @@ pub trait TestReadAbsoluteY: TestReadInstruction {
 }
 
 pub trait TestReadIndirectX: TestReadInstruction {
-    const OPCODE: OpCode;
+    const OPCODE: Opcode;
 
     fn test_indirect_x() {
         test_instruction::<Self>(TestInstructionOptions {
@@ -175,7 +175,7 @@ pub trait TestReadIndirectX: TestReadInstruction {
 }
 
 pub trait TestReadIndirectY: TestReadInstruction {
-    const OPCODE: OpCode;
+    const OPCODE: Opcode;
 
     fn test_indirect_y() {
         test_instruction::<Self>(TestInstructionOptions {
@@ -204,7 +204,7 @@ pub trait TestReadIndirectY: TestReadInstruction {
 
 #[derive(Debug, Clone, Copy)]
 struct TestInstructionOptions {
-    opcode: OpCode,
+    opcode: Opcode,
     addressing_mode: AddressingMode,
     expected_clock_cycles: u64,
 }

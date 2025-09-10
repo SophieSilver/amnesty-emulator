@@ -2,7 +2,7 @@ use num_enum::FromPrimitive;
 
 use super::Cpu;
 use crate::{
-    cpu::instructions::{self, opcode::OpCode},
+    cpu::instructions::{self, opcode::Opcode},
     memory::Memory,
 };
 
@@ -17,7 +17,7 @@ pub struct Executor<'a, M> {
 impl<'a, M: Memory> Executor<'a, M> {
     pub fn execute_next_instruction(&mut self) {
         let opcode = self.fetch_from_pc_cycle();
-        let opcode = OpCode::from_primitive(opcode);
+        let opcode = Opcode::from_primitive(opcode);
 
         instructions::execute_opcode(self, opcode);
     }

@@ -3,7 +3,7 @@ use num_enum::{FromPrimitive, IntoPrimitive};
 #[derive(Debug, Clone, Copy, IntoPrimitive, FromPrimitive, Default)]
 #[non_exhaustive]
 #[repr(u8)]
-pub enum OpCode {
+pub enum Opcode {
     // ADC
     AdcImmediate = 0x69,
     AdcZeropage = 0x65,
