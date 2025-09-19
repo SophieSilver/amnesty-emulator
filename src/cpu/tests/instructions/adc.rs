@@ -3,7 +3,7 @@ use crate::cpu::{
     instructions::Adc,
     tests::{
         addressing_modes::{read::*, test_addressing_modes},
-        flags::check_negative_and_zero_flags,
+        flags::check_nz_flags,
         test_args::BytePairsWithCarry,
     },
 };
@@ -41,7 +41,7 @@ impl TestReadInstruction for Adc {
             "OVERFLOW flag set incorrectly"
         );
 
-        check_negative_and_zero_flags(cpu.a, cpu.flags);
+        check_nz_flags(cpu.a, cpu.flags);
     }
 }
 

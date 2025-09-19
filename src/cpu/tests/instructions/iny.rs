@@ -3,7 +3,7 @@ use crate::cpu::{
     instructions::Iny,
     tests::{
         addressing_modes::{implied::*, test_addressing_modes},
-        flags::check_negative_and_zero_flags,
+        flags::check_nz_flags,
     },
 };
 
@@ -14,7 +14,7 @@ impl TestImpliedInstruction for Iny {
 
     fn verify(cpu: &Cpu, arg: u8) {
         assert_eq!(cpu.y, arg.wrapping_add(1));
-        check_negative_and_zero_flags(cpu.y, cpu.flags);
+        check_nz_flags(cpu.y, cpu.flags);
     }
 }
 

@@ -3,7 +3,7 @@ use crate::cpu::{
     instructions::Ldx,
     tests::{
         addressing_modes::{read::TestReadInstruction, test_addressing_modes},
-        flags::check_negative_and_zero_flags,
+        flags::check_nz_flags,
         test_args::SingleBytes,
     },
 };
@@ -15,7 +15,7 @@ impl TestReadInstruction for Ldx {
 
     fn verify(cpu: &Cpu, arg: u8, _: ()) {
         assert_eq!(cpu.x, arg);
-        check_negative_and_zero_flags(cpu.x, cpu.flags);
+        check_nz_flags(cpu.x, cpu.flags);
     }
 }
 

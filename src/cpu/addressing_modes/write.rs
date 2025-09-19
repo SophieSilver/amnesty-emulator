@@ -75,11 +75,7 @@ fn absolute_indexed<I: WriteInstruction + ?Sized>(
     // dummy read from an address that might be wrong
     let _ = executor.read_cycle(addr);
 
-    let addr = if carry {
-        addr.wrapping_add(1 << 8)
-    } else {
-        addr
-    };
+    let addr = addr.wrapping_add((carry as u16) << 8);
 
     let value = I::instruction(executor.cpu);
     executor.write_cycle(addr, value);

@@ -10,6 +10,7 @@ use crate::{
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum AddressingMode {
+    Accumulator,
     Immediate,
     Zeropage,
     ZeropageX,
@@ -32,6 +33,8 @@ pub enum AddressingMode {
 impl AddressingMode {
     pub fn instruction_length(self) -> u16 {
         match self {
+            AddressingMode::Accumulator => 1,
+
             AddressingMode::Immediate
             | AddressingMode::Zeropage
             | AddressingMode::ZeropageX
@@ -55,6 +58,7 @@ impl AddressingMode {
 
     pub fn prepare(self, Executor { cpu, memory }: &mut Executor<TestMemory>) {
         match self {
+            AddressingMode::Accumulator => {}
             AddressingMode::Immediate => {}
             AddressingMode::Zeropage => {
                 memory.store(ARG_ADDR, ZEROPAGE_ADDR);
@@ -173,6 +177,7 @@ impl AddressingMode {
 
     pub fn value_addr(self) -> u16 {
         match self {
+            AddressingMode::Accumulator => unreachable!(),
             AddressingMode::Immediate => ARG_ADDR,
             AddressingMode::Zeropage => ZEROPAGE_ADDR as u16,
             AddressingMode::ZeropageX => ZEROPAGE_X_FINAL_ADDR,

@@ -24,6 +24,13 @@ pub enum Opcode {
     AndIndirectX = 0x21,
     AndIndirectY = 0x31,
 
+    // ASL
+    AslAccumulator = 0x0A,
+    AslZeropage = 0x06,
+    AslZeropageX = 0x16,
+    AslAbsolute = 0x0E,
+    AslAbsoluteX = 0x1E,
+
     // BIT
     BitZeropage = 0x24,
     BitAbsolute = 0x2C,

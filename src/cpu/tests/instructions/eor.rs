@@ -3,7 +3,7 @@ use crate::cpu::{
     instructions::Eor,
     tests::{
         addressing_modes::{read::*, test_addressing_modes},
-        flags::check_negative_and_zero_flags,
+        flags::check_nz_flags,
         test_args::BytePairs,
     },
 };
@@ -19,7 +19,7 @@ impl TestReadInstruction for Eor {
         let result = a ^ b;
 
         assert_eq!(cpu.a, result, "bitwise EOR result incorrect");
-        check_negative_and_zero_flags(cpu.a, cpu.flags);
+        check_nz_flags(cpu.a, cpu.flags);
     }
 }
 

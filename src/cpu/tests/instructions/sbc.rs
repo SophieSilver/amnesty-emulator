@@ -3,7 +3,7 @@ use crate::cpu::{
     instructions::Sbc,
     tests::{
         addressing_modes::{read::TestReadInstruction, test_addressing_modes},
-        flags::check_negative_and_zero_flags,
+        flags::check_nz_flags,
         test_args::BytePairsWithCarry,
     },
 };
@@ -43,7 +43,7 @@ impl TestReadInstruction for Sbc {
             "OVERFLOW flag set incorrectly a = {a}, b = {b}, carry = {carry}"
         );
 
-        check_negative_and_zero_flags(cpu.a, cpu.flags);
+        check_nz_flags(cpu.a, cpu.flags);
     }
 }
 

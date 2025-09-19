@@ -3,7 +3,7 @@ use crate::cpu::{
     instructions::Dex,
     tests::{
         addressing_modes::{implied::*, test_addressing_modes},
-        flags::check_negative_and_zero_flags,
+        flags::check_nz_flags,
     },
 };
 
@@ -14,7 +14,7 @@ impl TestImpliedInstruction for Dex {
 
     fn verify(cpu: &Cpu, arg: u8) {
         assert_eq!(cpu.x, arg.wrapping_sub(1));
-        check_negative_and_zero_flags(cpu.x, cpu.flags);
+        check_nz_flags(cpu.x, cpu.flags);
     }
 }
 

@@ -206,17 +206,17 @@ fn test_instruction<I: TestWriteInstruction + ?Sized>(
         addressing_mode.prepare(&mut executor);
         executor.execute_next_instruction();
         assert_eq!(
-            executor.memory.load(addressing_mode.value_addr()),
-            I::expected_value(executor.cpu),
+            memory.load(addressing_mode.value_addr()),
+            I::expected_value(&cpu),
             "value written must match the expected value"
         );
         assert_eq!(
-            executor.cpu.clock_cycle_count, expected_clock_cycles,
+            cpu.clock_cycle_count, expected_clock_cycles,
             "instruction {opcode:?} must take {expected_clock_cycles} clock cycles"
         );
         let instruction_length = addressing_mode.instruction_length();
         assert_eq!(
-            executor.cpu.pc,
+            cpu.pc,
             OPCODE_ADDR + instruction_length,
             "after instruction {opcode:?} PC must be incremented {instruction_length} times"
         );

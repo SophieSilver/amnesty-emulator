@@ -34,7 +34,7 @@ pub trait ReadZeropageY: ReadInstruction {
     }
 }
 
-// we take memory and get_index with impls insted of generics
+// we take memory and get_index with impls instead of generics
 // so that we can call it as zeropage_indexed::<Self>
 // instead of zeropage_indexed::<Self, _, _>
 

@@ -3,7 +3,7 @@ use crate::cpu::{
     instructions::Tay,
     tests::{
         addressing_modes::{implied::*, test_addressing_modes},
-        flags::check_negative_and_zero_flags,
+        flags::check_nz_flags,
     },
 };
 
@@ -15,7 +15,7 @@ impl TestImpliedInstruction for Tay {
     fn verify(cpu: &Cpu, arg: u8) {
         assert_eq!(cpu.y, cpu.a);
         assert_eq!(cpu.a, arg);
-        check_negative_and_zero_flags(cpu.y, cpu.flags);
+        check_nz_flags(cpu.y, cpu.flags);
     }
 }
 

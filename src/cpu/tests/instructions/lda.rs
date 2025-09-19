@@ -3,7 +3,7 @@ use crate::cpu::{
     instructions::Lda,
     tests::{
         addressing_modes::{read::*, test_addressing_modes},
-        flags::check_negative_and_zero_flags,
+        flags::check_nz_flags,
         test_args::SingleBytes,
     },
 };
@@ -15,7 +15,7 @@ impl TestReadInstruction for Lda {
 
     fn verify(cpu: &Cpu, arg: u8, _: ()) {
         assert_eq!(cpu.a, arg);
-        check_negative_and_zero_flags(cpu.a, cpu.flags);
+        check_nz_flags(cpu.a, cpu.flags);
     }
 }
 

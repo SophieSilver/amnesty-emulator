@@ -10,7 +10,7 @@ mod executor;
 mod instructions;
 mod opcode;
 
-#[cfg(test)]
+#[cfg(all(test, not(tarpaulin_include)))]
 mod tests;
 
 bitflags! {
@@ -81,6 +81,10 @@ impl Cpu {
     ) {
         *get_register(self) = value;
 
+        self.set_nz_flags(value);
+    }
+
+    fn set_nz_flags(&mut self, value: u8) {
         self.flags.set(StatusFlags::NEGATIVE, (value as i8) < 0);
         self.flags.set(StatusFlags::ZERO, value == 0);
     }

@@ -235,17 +235,17 @@ fn test_instruction<I: TestReadInstruction + ?Sized>(
 
             executor.execute_next_instruction();
             assert_eq!(
-                executor.cpu.clock_cycle_count, expected_clock_cycles,
+                cpu.clock_cycle_count, expected_clock_cycles,
                 "instruction {opcode:?} must take {expected_clock_cycles} clock cycles"
             );
             let instruction_length = addressing_mode.instruction_length();
             assert_eq!(
-                executor.cpu.pc,
+                cpu.pc,
                 OPCODE_ADDR + instruction_length,
                 "after instruction {opcode:?} PC must be incremented {instruction_length} times"
             );
 
-            I::verify(executor.cpu, arg, additional_args);
+            I::verify(&cpu, arg, additional_args);
         }
     }
 }

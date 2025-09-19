@@ -1,6 +1,6 @@
 use crate::cpu::StatusFlags;
 
-pub fn check_negative_and_zero_flags(value: u8, flags: StatusFlags) {
+pub fn check_nz_flags(value: u8, flags: StatusFlags) {
     assert_eq!(
         flags.contains(StatusFlags::NEGATIVE),
         (value as i8) < 0,

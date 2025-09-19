@@ -1,5 +1,5 @@
 use super::{
-    addressing_modes::{implied::*, read::*, write::*},
+    addressing_modes::{implied::*, read::*, rmw::*, write::*},
     executor::Executor,
     opcode::Opcode,
 };
@@ -7,6 +7,7 @@ use crate::memory::Memory;
 
 mod adc;
 mod and;
+mod asl;
 mod bit;
 mod clc;
 mod cld;
@@ -41,6 +42,7 @@ mod tya;
 
 pub use adc::*;
 pub use and::*;
+pub use asl::*;
 pub use bit::*;
 pub use clc::*;
 pub use cld::*;
@@ -94,6 +96,13 @@ pub fn execute_opcode<M: Memory>(executor: &mut Executor<M>, opcode: Opcode) {
         Opcode::AndAbsoluteY => And::absolute_y(executor),
         Opcode::AndIndirectX => And::indirect_x(executor),
         Opcode::AndIndirectY => And::indirect_y(executor),
+
+        // ASL
+        Opcode::AslAccumulator => Asl::accumulator(executor),
+        Opcode::AslZeropage => Asl::zeropage(executor),
+        Opcode::AslZeropageX => Asl::zeropage_x(executor),
+        Opcode::AslAbsolute => Asl::absolute(executor),
+        Opcode::AslAbsoluteX => Asl::absolute_x(executor),
 
         // BIT
         Opcode::BitZeropage => Bit::zeropage(executor),
@@ -221,6 +230,6 @@ pub fn execute_opcode<M: Memory>(executor: &mut Executor<M>, opcode: Opcode) {
         Opcode::Txs => Txs::implied(executor),
         Opcode::Tya => Tya::implied(executor),
 
-        _ => unimplemented!(),
+        Opcode::Unimplemented => unimplemented!(),
     }
 }

@@ -1,4 +1,5 @@
 mod adc;
+mod asl;
 mod and;
 mod bit;
 mod clc;
