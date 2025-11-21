@@ -122,6 +122,12 @@ pub enum Opcode {
     OraIndirectX = 0x01,
     OraIndirectY = 0x11,
 
+    RolAccumulator = 0x2A,
+    RolZeropage = 0x26,
+    RolZeropageX = 0x36,
+    RolAbsolute = 0x2E,
+    RolAbsoluteX = 0x3E,
+
     // ROR
     RorAccumulator = 0x6A,
     RorZeropage = 0x66,

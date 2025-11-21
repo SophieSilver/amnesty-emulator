@@ -27,6 +27,7 @@ mod ldy;
 mod lsr;
 mod nop;
 mod ora;
+mod rol;
 mod ror;
 mod sbc;
 mod sec;
@@ -64,6 +65,7 @@ pub use ldy::*;
 pub use lsr::*;
 pub use nop::*;
 pub use ora::*;
+pub use rol::*;
 pub use ror::*;
 pub use sbc::*;
 pub use sec::*;
@@ -198,6 +200,13 @@ pub fn execute_opcode<M: Memory>(executor: &mut Executor<M>, opcode: Opcode) {
         Opcode::OraAbsoluteY => Ora::absolute_y(executor),
         Opcode::OraIndirectX => Ora::indirect_x(executor),
         Opcode::OraIndirectY => Ora::indirect_y(executor),
+
+        // ROL
+        Opcode::RolAccumulator => Rol::accumulator(executor),
+        Opcode::RolZeropage => Rol::zeropage(executor),
+        Opcode::RolZeropageX => Rol::zeropage_x(executor),
+        Opcode::RolAbsolute => Rol::absolute(executor),
+        Opcode::RolAbsoluteX => Rol::absolute_x(executor),
 
         // ROR
         Opcode::RorAccumulator => Ror::accumulator(executor),

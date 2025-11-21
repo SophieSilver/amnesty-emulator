@@ -20,6 +20,7 @@ mod ldy;
 mod lsr;
 mod nop;
 mod ora;
+mod rol;
 mod ror;
 mod sbc;
 mod sec;
