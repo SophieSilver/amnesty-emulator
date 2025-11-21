@@ -5,7 +5,7 @@ use crate::cpu::{
 };
 
 impl TestRmwInstruction for Lsr {
-    fn verify(cpu: &Cpu, arg: u8) -> u8 {
+    fn verify(cpu: &Cpu, arg: u8, _: bool) -> u8 {
         assert_eq!(
             cpu.flags.contains(StatusFlags::CARRY),
             arg & 1 != 0,

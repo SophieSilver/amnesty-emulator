@@ -122,6 +122,13 @@ pub enum Opcode {
     OraIndirectX = 0x01,
     OraIndirectY = 0x11,
 
+    // ROR
+    RorAccumulator = 0x6A,
+    RorZeropage = 0x66,
+    RorZeropageX = 0x76,
+    RorAbsolute = 0x6E,
+    RorAbsoluteX = 0x7E,
+
     // SBC
     SbcImmediate = 0xE9,
     SbcZeropage = 0xE5,

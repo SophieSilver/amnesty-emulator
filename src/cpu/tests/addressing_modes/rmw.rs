@@ -11,7 +11,7 @@ use crate::{
 use super::prepare::{AddressingMode, OPCODE_ADDR};
 
 pub trait TestRmwInstruction {
-    fn verify(cpu: &Cpu, arg: u8) -> u8;
+    fn verify(cpu: &Cpu, arg: u8, previous_carry: bool) -> u8;
 }
 
 pub trait TestRmwAccumulator: TestRmwInstruction {
@@ -127,7 +127,7 @@ fn test_instruction<I: TestRmwInstruction + ?Sized>(
             addressing_mode.prepare(&mut executor);
             executor.execute_next_instruction();
 
-            let expected_value = I::verify(executor.cpu, arg);
+            let expected_value = I::verify(executor.cpu, arg, carry);
 
             let gotten_value = if addressing_mode == AddressingMode::Accumulator {
                 cpu.a

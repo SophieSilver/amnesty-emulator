@@ -1,23 +1,23 @@
 use crate::cpu::{
     Cpu, StatusFlags,
-    instructions::Asl,
+    instructions::Ror,
     tests::addressing_modes::{rmw::*, test_addressing_modes},
 };
 
-impl TestRmwInstruction for Asl {
-    fn verify(cpu: &Cpu, arg: u8, _: bool) -> u8 {
+impl TestRmwInstruction for Ror {
+    fn verify(cpu: &Cpu, arg: u8, previous_carry: bool) -> u8 {
         assert_eq!(
             cpu.flags.contains(StatusFlags::CARRY),
-            arg >> 7 != 0,
-            "ASL must set carry correctly"
+            arg & 1 != 0,
+            "ROR must set carry correctly"
         );
 
-        arg << 1
+        (previous_carry as u8) << 7 | arg >> 1
     }
 }
 
 test_addressing_modes! {
-    instruction: Asl,
+    instruction: Ror,
     instruction_type: Rmw,
     addressing_modes: [
         Accumulator,
