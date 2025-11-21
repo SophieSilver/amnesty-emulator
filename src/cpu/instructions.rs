@@ -16,15 +16,16 @@ mod clv;
 mod cmp;
 mod cpx;
 mod cpy;
+mod dec;
 mod dex;
 mod dey;
 mod eor;
+mod inc;
 mod inx;
 mod iny;
 mod lda;
 mod ldx;
 mod ldy;
-mod inc;
 mod lsr;
 mod nop;
 mod ora;
@@ -55,6 +56,7 @@ pub use clv::*;
 pub use cmp::*;
 pub use cpx::*;
 pub use cpy::*;
+pub use dec::*;
 pub use dex::*;
 pub use dey::*;
 pub use eor::*;
@@ -141,6 +143,12 @@ pub fn execute_opcode<M: Memory>(executor: &mut Executor<M>, opcode: Opcode) {
         Opcode::CpyImmediate => Cpy::immediate(executor),
         Opcode::CpyZeropage => Cpy::zeropage(executor),
         Opcode::CpyAbsolute => Cpy::absolute(executor),
+
+        // DEC
+        Opcode::DecZeropage => Dec::zeropage(executor),
+        Opcode::DecZeropageX => Dec::zeropage_x(executor),
+        Opcode::DecAbsolute => Dec::absolute(executor),
+        Opcode::DecAbsoluteX => Dec::absolute_x(executor),
 
         // DE*
         Opcode::Dex => Dex::implied(executor),

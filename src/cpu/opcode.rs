@@ -61,6 +61,12 @@ pub enum Opcode {
     CpyZeropage = 0xC4,
     CpyAbsolute = 0xCC,
 
+    // DEC
+    DecZeropage = 0xC6,
+    DecZeropageX = 0xD6,
+    DecAbsolute = 0xCE,
+    DecAbsoluteX = 0xDE,
+
     // DEX/Y
     Dex = 0xCA,
     Dey = 0x88,
