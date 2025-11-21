@@ -10,6 +10,7 @@ mod cmp;
 mod cpx;
 mod cpy;
 mod dex;
+mod inc;
 mod dey;
 mod eor;
 mod inx;

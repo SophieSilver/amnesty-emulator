@@ -75,6 +75,12 @@ pub enum Opcode {
     EorIndirectX = 0x41,
     EorIndirectY = 0x51,
 
+    // INC
+    IncZeropage = 0xE6,
+    IncZeropageX = 0xF6,
+    IncAbsolute = 0xEE,
+    IncAbsoluteX = 0xFE,
+
     // IN*
     Inx = 0xE8,
     Iny = 0xC8,

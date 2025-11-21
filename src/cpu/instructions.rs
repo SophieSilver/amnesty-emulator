@@ -24,6 +24,7 @@ mod iny;
 mod lda;
 mod ldx;
 mod ldy;
+mod inc;
 mod lsr;
 mod nop;
 mod ora;
@@ -57,6 +58,7 @@ pub use cpy::*;
 pub use dex::*;
 pub use dey::*;
 pub use eor::*;
+pub use inc::*;
 pub use inx::*;
 pub use iny::*;
 pub use lda::*;
@@ -153,6 +155,12 @@ pub fn execute_opcode<M: Memory>(executor: &mut Executor<M>, opcode: Opcode) {
         Opcode::EorAbsoluteY => Eor::absolute_y(executor),
         Opcode::EorIndirectX => Eor::indirect_x(executor),
         Opcode::EorIndirectY => Eor::indirect_y(executor),
+
+        // INC
+        Opcode::IncZeropage => Inc::zeropage(executor),
+        Opcode::IncZeropageX => Inc::zeropage_x(executor),
+        Opcode::IncAbsolute => Inc::absolute(executor),
+        Opcode::IncAbsoluteX => Inc::absolute_x(executor),
 
         // IN*
         Opcode::Inx => Inx::implied(executor),
