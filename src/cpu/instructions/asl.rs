@@ -4,14 +4,12 @@ pub struct Asl;
 
 impl RmwInstruction for Asl {
     fn instruction(cpu: &mut Cpu, value: u8) -> u8 {
-        let shifted = (value as u16) << 1;
-        let new_carry = shifted >> 8 != 0;
+        let shifted = value << 1;
+        let new_carry = value >> 7 != 0;
         cpu.flags.set(StatusFlags::CARRY, new_carry);
-
-        let output = shifted as u8;
-        cpu.set_nz_flags(output);
-
-        output
+        cpu.set_nz_flags(shifted);
+        
+        shifted
     }
 }
 

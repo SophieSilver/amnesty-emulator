@@ -16,6 +16,7 @@ mod inx;
 mod iny;
 mod lda;
 mod ldx;
+mod lsr;
 mod ldy;
 mod nop;
 mod ora;

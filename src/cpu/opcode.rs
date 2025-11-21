@@ -103,6 +103,13 @@ pub enum Opcode {
     LdyAbsolute = 0xAC,
     LdyAbsoluteX = 0xBC,
 
+    // LSR
+    LsrAccumulator = 0x4A,
+    LsrZeropage = 0x46,
+    LsrZeropageX = 0x56,
+    LsrAbsolute = 0x4E,
+    LsrAbsoluteX = 0x5E,
+
     Nop = 0xEA,
 
     // ORA

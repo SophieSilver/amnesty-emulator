@@ -24,6 +24,7 @@ mod iny;
 mod lda;
 mod ldx;
 mod ldy;
+mod lsr;
 mod nop;
 mod ora;
 mod sbc;
@@ -63,6 +64,7 @@ pub use nop::*;
 pub use ora::*;
 pub use sbc::*;
 pub use sec::*;
+pub use lsr::*;
 pub use sed::*;
 pub use sei::*;
 pub use sta::*;
@@ -175,6 +177,13 @@ pub fn execute_opcode<M: Memory>(executor: &mut Executor<M>, opcode: Opcode) {
         Opcode::LdyZeropageX => Ldy::zeropage_x(executor),
         Opcode::LdyAbsolute => Ldy::absolute(executor),
         Opcode::LdyAbsoluteX => Ldy::absolute_x(executor),
+
+        // LSR
+        Opcode::LsrAccumulator => Lsr::accumulator(executor),
+        Opcode::LsrZeropage => Lsr::zeropage(executor),
+        Opcode::LsrZeropageX => Lsr::zeropage_x(executor),
+        Opcode::LsrAbsolute => Lsr::absolute(executor),
+        Opcode::LsrAbsoluteX => Lsr::absolute_x(executor),
 
         Opcode::Nop => Nop::implied(executor),
 
