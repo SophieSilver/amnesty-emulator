@@ -8,7 +8,7 @@ impl RmwInstruction for Asl {
         let new_carry = value >> 7 != 0;
         cpu.flags.set(StatusFlags::CARRY, new_carry);
         cpu.set_nz_flags(shifted);
-        
+
         shifted
     }
 }

@@ -2,8 +2,8 @@ mod prepare;
 
 pub mod implied;
 pub mod read;
-pub mod write;
 pub mod rmw;
+pub mod write;
 
 /// Implement addressing mode test traits for the given instruction
 /// and generate test functions for them
