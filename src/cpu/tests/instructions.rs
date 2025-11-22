@@ -6,6 +6,7 @@ mod clc;
 mod cld;
 mod cli;
 mod clv;
+mod pha;
 mod cmp;
 mod cpx;
 mod cpy;

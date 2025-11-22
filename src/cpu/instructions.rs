@@ -3,7 +3,7 @@ use super::{
     executor::Executor,
     opcode::Opcode,
 };
-use crate::memory::Memory;
+use crate::{cpu::addressing_modes::stack::StackPush, memory::Memory};
 
 mod adc;
 mod and;
@@ -18,6 +18,7 @@ mod cpx;
 mod cpy;
 mod dec;
 mod dex;
+mod pha;
 mod dey;
 mod eor;
 mod inc;
@@ -62,6 +63,7 @@ pub use dey::*;
 pub use eor::*;
 pub use inc::*;
 pub use inx::*;
+pub use pha::*;
 pub use iny::*;
 pub use lda::*;
 pub use ldx::*;
@@ -216,6 +218,9 @@ pub fn execute_opcode<M: Memory>(executor: &mut Executor<M>, opcode: Opcode) {
         Opcode::OraAbsoluteY => Ora::absolute_y(executor),
         Opcode::OraIndirectX => Ora::indirect_x(executor),
         Opcode::OraIndirectY => Ora::indirect_y(executor),
+
+        // P**
+        Opcode::Pha => Pha::stack_push(executor),
 
         // ROL
         Opcode::RolAccumulator => Rol::accumulator(executor),

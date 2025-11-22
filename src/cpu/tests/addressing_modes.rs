@@ -4,6 +4,7 @@ pub mod implied;
 pub mod read;
 pub mod rmw;
 pub mod write;
+pub mod stack_push;
 
 /// Implement addressing mode test traits for the given instruction
 /// and generate test functions for them
@@ -17,12 +18,6 @@ pub mod write;
 ///         Immediate,
 ///         Zeropage
 ///     ],
-/// }
-///
-/// // special case for implied instruction type
-/// test_addressing_modes! {
-///     instruction: Clc,
-///     instruction_type: Implied,
 /// }
 /// ```
 ///
@@ -46,26 +41,33 @@ pub mod write;
 ///     Adc::test_zeropage();
 /// }
 /// ```
+/// 
+/// instructions with only one addressing mode don't need it specified
+/// ```ignore
+/// test_addressing_modes! {
+///     instruction: Clc,
+///     instruction_type: Implied,
+/// }
+/// ```
 macro_rules! test_addressing_modes {
     (
         instruction: $instruction:ident,
-        instruction_type: Implied $(,)?
+        instruction_type: $instruction_type:ident $(,)?
     ) => {
-        const _: () = {
-            use $crate::cpu::tests::addressing_modes::implied::TestImplied;
-            use $crate::cpu::opcode::Opcode;
-
-            impl TestImplied for $instruction {
-                const OPCODE: Opcode = Opcode::$instruction;
-            }
-
-        };
-
         paste::paste! {
+            const _: () = {
+                use $crate::cpu::tests::addressing_modes::[<$instruction_type:snake>]::[<Test $instruction_type:camel>];
+                use $crate::cpu::opcode::Opcode;
+
+                impl [<Test $instruction_type:camel>] for $instruction {
+                    const OPCODE: Opcode = Opcode::$instruction;
+                }
+            };
+
             #[test]
-            fn [<$instruction:lower>]() {
-                use $crate::cpu::tests::addressing_modes::implied::TestImplied;
-                <$instruction as TestImplied>::test_implied();
+            fn [<$instruction:snake>]() {
+                use $crate::cpu::tests::addressing_modes::[<$instruction_type:snake>]::[<Test $instruction_type:camel>];
+                <$instruction as [<Test $instruction_type:camel>]>::[<test_ $instruction_type:snake>]();
             }
         }
     };
@@ -81,7 +83,7 @@ macro_rules! test_addressing_modes {
         $(
         paste::paste! {
             const _: () = {
-                use $crate::cpu::tests::addressing_modes::[<$instruction_type:lower>]::[<Test $instruction_type:camel $addressing_mode:camel>];
+                use $crate::cpu::tests::addressing_modes::[<$instruction_type:snake>]::[<Test $instruction_type:camel $addressing_mode:camel>];
                 use $crate::cpu::opcode::Opcode;
 
                 impl [<Test $instruction_type:camel $addressing_mode:camel>] for $instruction {
@@ -231,7 +233,7 @@ macro_rules! test_addressing_modes {
             $(
                 #[test]
                 fn [<$fn_name:snake>]() {
-                    use $crate::cpu::tests::addressing_modes::[<$instruction_type:lower>]::[<Test $instruction_type:camel $trait:camel>];
+                    use $crate::cpu::tests::addressing_modes::[<$instruction_type:snake>]::[<Test $instruction_type:camel $trait:camel>];
                     <$instruction as [<Test $instruction_type:camel $trait:camel>]>::[<test_ $fn_name:snake>]();
                 }
             )+

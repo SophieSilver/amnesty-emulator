@@ -64,4 +64,14 @@ impl<'a, M: Memory> Executor<'a, M> {
             .checked_add(1)
             .expect("clock_cycle can't overflow");
     }
+
+    pub fn stack_write(&mut self, value: u8) {
+        let addr = 0x0100 << 8 | self.cpu.sp as u16;
+        self.write_cycle(addr, value);
+    }
+
+    pub fn stack_read(&mut self) -> u8 {
+        let addr = 0x0100 << 8 | self.cpu.sp as u16;
+        self.read_cycle(addr)
+    }
 }
