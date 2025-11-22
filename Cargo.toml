@@ -1,5 +1,5 @@
 [package]
-name = "amnesty"
+name = "amnesty-emulator"
 version = "0.1.0"
 edition = "2024"
 
