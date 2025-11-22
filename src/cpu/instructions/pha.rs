@@ -1,9 +1,9 @@
-use crate::cpu::addressing_modes::stack::StackPushInstruction;
+use crate::cpu::{Cpu, addressing_modes::stack::StackPushInstruction};
 
 pub struct Pha;
 
 impl StackPushInstruction for Pha {
-    fn instruction(cpu: &mut crate::cpu::Cpu) -> u8 {
+    fn instruction(cpu: &mut Cpu) -> u8 {
         cpu.a
     }
 }

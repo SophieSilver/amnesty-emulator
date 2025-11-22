@@ -18,7 +18,6 @@ mod cpx;
 mod cpy;
 mod dec;
 mod dex;
-mod pha;
 mod dey;
 mod eor;
 mod inc;
@@ -30,6 +29,8 @@ mod ldy;
 mod lsr;
 mod nop;
 mod ora;
+mod pha;
+mod php;
 mod rol;
 mod ror;
 mod sbc;
@@ -54,6 +55,7 @@ pub use clc::*;
 pub use cld::*;
 pub use cli::*;
 pub use clv::*;
+pub use php::*;
 pub use cmp::*;
 pub use cpx::*;
 pub use cpy::*;
@@ -63,7 +65,6 @@ pub use dey::*;
 pub use eor::*;
 pub use inc::*;
 pub use inx::*;
-pub use pha::*;
 pub use iny::*;
 pub use lda::*;
 pub use ldx::*;
@@ -71,6 +72,7 @@ pub use ldy::*;
 pub use lsr::*;
 pub use nop::*;
 pub use ora::*;
+pub use pha::*;
 pub use rol::*;
 pub use ror::*;
 pub use sbc::*;
@@ -221,6 +223,7 @@ pub fn execute_opcode<M: Memory>(executor: &mut Executor<M>, opcode: Opcode) {
 
         // P**
         Opcode::Pha => Pha::stack_push(executor),
+        Opcode::Php => Php::stack_push(executor),
 
         // ROL
         Opcode::RolAccumulator => Rol::accumulator(executor),

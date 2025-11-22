@@ -136,6 +136,7 @@ pub enum Opcode {
 
     // P**
     Pha = 0x48,
+    Php = 0x08,
 
     // ROL
     RolAccumulator = 0x2A,
