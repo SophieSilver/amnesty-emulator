@@ -7,8 +7,8 @@ edition = "2024"
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(tarpaulin_include)'] }
 
 [dependencies]
-bitflags = { version = "2.9.4", features = ["std"] }
-num_enum = "0.7.4"
+bitflags = { version = "2.10.0", features = ["std"] }
+num_enum = "0.7.5"
 
 [dev-dependencies]
-paste = "1.0.15"
+pastey = "0.2.0"

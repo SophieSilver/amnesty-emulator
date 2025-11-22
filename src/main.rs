@@ -1,4 +1,4 @@
-use amnesty::memory::ram::Ram;
+use amnesty_emulator::memory::ram::Ram;
 
 fn main() {
     let m = Ram::default();

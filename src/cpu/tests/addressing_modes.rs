@@ -54,7 +54,7 @@ macro_rules! test_addressing_modes {
         instruction: $instruction:ident,
         instruction_type: $instruction_type:ident $(,)?
     ) => {
-        paste::paste! {
+        pastey::paste! {
             const _: () = {
                 use $crate::cpu::tests::addressing_modes::[<$instruction_type:snake>]::[<Test $instruction_type:camel>];
                 use $crate::cpu::opcode::Opcode;
@@ -81,7 +81,7 @@ macro_rules! test_addressing_modes {
         ]$(,)?
     ) => {
         $(
-        paste::paste! {
+        pastey::paste! {
             const _: () = {
                 use $crate::cpu::tests::addressing_modes::[<$instruction_type:snake>]::[<Test $instruction_type:camel $addressing_mode:camel>];
                 use $crate::cpu::opcode::Opcode;
@@ -229,7 +229,7 @@ macro_rules! test_addressing_modes {
             [ $($fn_name:ident),+ ]
         }
     ) => {
-        paste::paste! {
+        pastey::paste! {
             $(
                 #[test]
                 fn [<$fn_name:snake>]() {
